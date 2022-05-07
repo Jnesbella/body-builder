@@ -1,25 +1,25 @@
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQueryClient } from "react-query";
 
-import { Resource } from '../../Services/ResourceService'
+import { ResourceDocument } from "../../Services";
 
-import { UseCRUD } from './resourceHookTypes'
+import { UseCRUD } from "./resourceHookTypes";
 
-function useDelete<T extends Resource>({ service }: UseCRUD<T>) {
-  const queryClient = useQueryClient()
+function useDelete<T extends ResourceDocument>({ service }: UseCRUD<T>) {
+  const queryClient = useQueryClient();
 
   const { mutateAsync: deleteOne, isLoading: isDeleting } = useMutation(
     (payload: T) => service.deleteOne(payload),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(service.getQueryKey())
-      }
+        queryClient.invalidateQueries(service.getQueryKey());
+      },
     }
-  )
+  );
 
   return {
     deleteOne,
-    isDeleting
-  }
+    isDeleting,
+  };
 }
 
-export default useDelete
+export default useDelete;

@@ -1,6 +1,6 @@
-import ResourceService, { Resource } from '../../Services/ResourceService'
+import { ResourceDocument, ResourceService } from "../../Services";
 
-export interface UseCRUD<T extends Resource> {
-  service: ResourceService<T>
-  id?: Resource['id']
+export interface UseCRUD<T extends ResourceDocument> {
+  service: ResourceService<T>;
+  id?: ResourceDocument["id"];
 }

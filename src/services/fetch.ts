@@ -1,4 +1,5 @@
-import { omit } from "lodash";
+import { omit, pick } from "lodash";
+
 import { Authorization, TokenType } from "../types";
 
 import Queue from "./Queue";
@@ -25,18 +26,31 @@ const common: Common = {
 
 type UnauthorizedHandler = () => Promise<void>;
 
-let unauthorizedHandler: UnauthorizedHandler | undefined;
+export interface FetchState extends Partial<Authorization> {
+  onUnauthorized?: UnauthorizedHandler;
+  isFetchOneAtATime: boolean;
+  apiRoot: string;
+}
 
-let isFetchOneAtATime = true;
-
-export const setIsFetchOneAtATime = (nextIsFetchOneAtATime: boolean) => {
-  isFetchOneAtATime = nextIsFetchOneAtATime;
+const DEFAULT_STATE: FetchState = {
+  onUnauthorized: undefined,
+  isFetchOneAtATime: true,
+  apiRoot: "http://localhost:3001",
+  accessToken: undefined,
+  refreshToken: undefined,
+  tokenType: undefined,
 };
 
-let apiRoot = "";
+let state: FetchState = {
+  ...DEFAULT_STATE,
+};
+
+export const setIsFetchOneAtATime = (nextIsFetchOneAtATime: boolean) => {
+  state.isFetchOneAtATime = nextIsFetchOneAtATime;
+};
 
 export const setApiRoot = (nextApiRoot: string) => {
-  apiRoot = nextApiRoot;
+  state.apiRoot = nextApiRoot;
 };
 
 const setHeader = (header: Headers, prefix: string, value?: string) => {
@@ -87,7 +101,7 @@ const checkIsOkay = async (response: Response) => {
 const toJSON = (response: Response) => response.json();
 
 export function onUnauthorized(handler: UnauthorizedHandler) {
-  unauthorizedHandler = handler;
+  state.onUnauthorized = handler;
 }
 
 function getErrorMessge(err: unknown) {
@@ -103,8 +117,8 @@ function isUnauthorized(err: unknown) {
 }
 
 const maybeRefreshAuthorization = async (err: unknown) => {
-  if (isUnauthorized(err) && unauthorizedHandler) {
-    await unauthorizedHandler();
+  if (isUnauthorized(err) && state.onUnauthorized) {
+    await state.onUnauthorized();
   } else {
     throw err;
   }
@@ -115,7 +129,7 @@ type CustomRequstInit = Pick<RequestInit, "method"> &
 
 const fetchRequest = async (slug: string, init: CustomRequstInit) => {
   const doRequest = async () => {
-    const response = await fetch(`${apiRoot}${slug}`, {
+    const response = await fetch(`${state.apiRoot}${slug}`, {
       ...common,
       ...init,
     });
@@ -153,7 +167,7 @@ const maybeFetchOneAtATime = (
 ) => {
   const doFetch = () => fetchRequest(slug, init);
 
-  return isFetchOneAtATime && !force ? Queue.enqueue(doFetch) : doFetch();
+  return state.isFetchOneAtATime && !force ? Queue.enqueue(doFetch) : doFetch();
 };
 
 const getRequest = (slug: string, payload?: any, options?: FetchOptions) =>
@@ -178,9 +192,24 @@ const deleteRequest = (slug: string) =>
 
 export { getRequest as get, postRequest as post, deleteRequest as delete };
 
-export const setup = ({}: {
-  accessToken?: string;
-  refreshToken?: string;
-}) => {};
+export const setup = (nextState: Partial<FetchState>) => {
+  state = { ...state, ...pick(nextState, Object.keys(state)) };
 
-export const teardown = () => {};
+  // setup authorization
+  const { tokenType, accessToken, refreshToken } = state;
+  if (tokenType && accessToken && refreshToken) {
+    setAuthorizationHeader({ tokenType, accessToken, refreshToken });
+  } else {
+    clearAuthorizationHeader();
+  }
+
+  const { isFetchOneAtATime } = state;
+  setIsFetchOneAtATime(isFetchOneAtATime);
+
+  const { apiRoot } = state;
+  setApiRoot(apiRoot);
+};
+
+export const teardown = () => {
+  setup(DEFAULT_STATE);
+};

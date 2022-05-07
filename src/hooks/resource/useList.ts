@@ -1,28 +1,31 @@
-import * as React from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import * as React from "react";
+import { useQuery, useQueryClient } from "react-query";
 
-import { Resource } from '../../Services/ResourceService'
+import { ResourceDocument } from "../../Services";
 
-import { UseCRUD } from './resourceHookTypes'
+import { UseCRUD } from "./resourceHookTypes";
 
-function useList<T extends Resource>({ service }: UseCRUD<T>, payload?: any) {
-  const queryClient = useQueryClient()
+function useList<T extends ResourceDocument>(
+  { service }: UseCRUD<T>,
+  payload?: any
+) {
+  const queryClient = useQueryClient();
 
   const { data, isLoading } = useQuery(service.getQueryKey(), () =>
     service.list(payload)
-  )
+  );
 
   const prefetch = React.useCallback(
     () =>
       queryClient.prefetchQuery(service.getQueryKey(), () => service.list()),
     []
-  )
+  );
 
   return {
     data,
     prefetch,
-    isLoading
-  }
+    isLoading,
+  };
 }
 
-export default useList
+export default useList;

@@ -1,20 +1,23 @@
-import * as React from 'react'
-import { UseQueryResult } from 'react-query'
+import * as React from "react";
+import { UseQueryResult } from "react-query";
 
-import { Resource } from '../../services/ResourceService'
+import { ResourceDocument } from "../../services";
 
-import { ListItem } from '../List'
+import { ListItem } from "../List";
 
-import List, { ResourceListProps } from './ResourceList'
+import List, { ResourceListProps } from "./ResourceList";
 
-export type AsyncListProps<P extends Resource> = UseQueryResult<P[], unknown> &
-  Omit<ResourceListProps<P>, 'items'>
+export type AsyncListProps<P extends ResourceDocument> = UseQueryResult<
+  P[],
+  unknown
+> &
+  Omit<ResourceListProps<P>, "items">;
 
 function AsyncResourceList<P extends ListItem = ListItem>({
   renderItem,
   renderEmpty,
   isEmpty,
-  data
+  data,
 }: // ...asyncProps
 AsyncListProps<P>) {
   return (
@@ -24,7 +27,7 @@ AsyncListProps<P>) {
       renderEmpty={renderEmpty}
       isEmpty={isEmpty}
     />
-  )
+  );
 }
 
-export default AsyncResourceList
+export default AsyncResourceList;

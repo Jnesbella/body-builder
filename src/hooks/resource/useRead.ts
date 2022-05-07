@@ -1,40 +1,40 @@
-import * as React from 'react'
-import { useQuery, useQueryClient } from 'react-query'
+import * as React from "react";
+import { useQuery, useQueryClient } from "react-query";
 
-import { Resource } from '../../Services/ResourceService'
+import { ResourceDocument } from "../../Services";
 
-import { UseCRUD } from './resourceHookTypes'
+import { UseCRUD } from "./resourceHookTypes";
 
-function useRead<T extends Resource>({ service, id }: UseCRUD<T>) {
-  const queryClient = useQueryClient()
+function useRead<T extends ResourceDocument>({ service, id }: UseCRUD<T>) {
+  const queryClient = useQueryClient();
 
   const { data, isLoading: isReading } = useQuery(
     service.getQueryKey([id]),
     () => {
       if (id) {
-        return service.fetch({ id })
+        return service.fetch({ id });
       }
 
-      throw new Error('id is required')
+      throw new Error("id is required");
     },
     {
-      enabled: !!id
+      enabled: !!id,
     }
-  )
+  );
 
   const prefetch = React.useCallback(
-    ({ id: innerId }: { id: T['id'] }) =>
+    ({ id: innerId }: { id: T["id"] }) =>
       queryClient.prefetchQuery(service.getQueryKey([id]), () =>
         service.fetch({ id: innerId })
       ),
     []
-  )
+  );
 
   return {
     data,
     prefetch,
-    isReading
-  }
+    isReading,
+  };
 }
 
-export default useRead
+export default useRead;

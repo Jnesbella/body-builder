@@ -1,10 +1,10 @@
 import Service, { ServiceOptions } from "./Service";
 
-export interface Resource extends Record<string, any> {
+export interface ResourceDocument extends Record<string, any> {
   id: string | number;
 }
 
-class ResourceService<T extends Resource> extends Service {
+class ResourceService<T extends ResourceDocument> extends Service {
   constructor(options: ServiceOptions) {
     super(options);
   }
@@ -13,15 +13,18 @@ class ResourceService<T extends Resource> extends Service {
     return this.post<T>(["new"], payload);
   }
 
-  fetch<P extends Resource>({ id }: { id: P["id"] }) {
+  fetch<P extends ResourceDocument>({ id }: { id: P["id"] }) {
     return this.get<T>([id]);
   }
 
-  update<P extends Resource>({ id, ...payload }: Partial<P> & { id: P["id"] }) {
+  update<P extends ResourceDocument>({
+    id,
+    ...payload
+  }: Partial<P> & { id: P["id"] }) {
     return this.post<T>([id], payload);
   }
 
-  deleteOne<P extends Resource>({ id }: { id: P["id"] }) {
+  deleteOne<P extends ResourceDocument>({ id }: { id: P["id"] }) {
     return this.delete<void>([id]);
   }
 

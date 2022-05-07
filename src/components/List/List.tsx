@@ -1,32 +1,33 @@
-import * as React from 'react'
+import * as React from "react";
 
-import { Resource } from '../../services/ResourceService'
+import { ResourceDocument } from "../../services";
 
-import Layout from '../Layout'
+import Layout from "../Layout";
 
 export interface ListItem {
-  id: Resource['id']
+  id: ResourceDocument["id"];
 }
 
 export interface ListProps<P = any> {
-  getKey: (item: P, index: number) => string
-  renderItem: (props: { item: P; index: number }) => JSX.Element
+  getKey: (item: P, index: number) => string;
+  renderItem: (props: { item: P; index: number }) => JSX.Element;
 
-  items?: P[]
-  isEmpty?: (items: P[]) => boolean
-  renderEmpty?: () => JSX.Element
+  items?: P[];
+  isEmpty?: (items: P[]) => boolean;
+  renderEmpty?: () => JSX.Element;
 }
 
-export interface ResourceListProps<P extends Resource> extends ListProps<P> {}
+export interface ResourceListProps<P extends ResourceDocument>
+  extends ListProps<P> {}
 
 function List<P = any>({
   items = [],
   renderItem,
   getKey,
   renderEmpty,
-  isEmpty: isEmptyProp
+  isEmpty: isEmptyProp,
 }: ListProps<P>) {
-  const isEmpty = isEmptyProp ? isEmptyProp(items) : !items?.length
+  const isEmpty = isEmptyProp ? isEmptyProp(items) : !items?.length;
 
   return (
     <React.Fragment>
@@ -38,14 +39,14 @@ function List<P = any>({
 
       {isEmpty && renderEmpty?.()}
     </React.Fragment>
-  )
+  );
 }
 
 export interface ListItemProps {
-  title?: React.ReactNode
-  description?: React.ReactNode
-  left?: React.ReactNode
-  right?: React.ReactNode
+  title?: React.ReactNode;
+  description?: React.ReactNode;
+  left?: React.ReactNode;
+  right?: React.ReactNode;
 }
 
 function ListItem({ left, right, title, description }: ListItemProps) {
@@ -60,9 +61,9 @@ function ListItem({ left, right, title, description }: ListItemProps) {
 
       {right}
     </Layout.Row>
-  )
+  );
 }
 
-List.Item = ListItem
+List.Item = ListItem;
 
-export default List
+export default List;
