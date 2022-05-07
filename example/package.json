@@ -1,0 +1,57 @@
+{
+  "name": "body-builder-example",
+  "homepage": ".",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "node ../node_modules/react-scripts/bin/react-scripts.js --openssl-legacy-provider start",
+    "build": "node ../node_modules/react-scripts/bin/react-scripts.js build",
+    "test": "node ../node_modules/react-scripts/bin/react-scripts.js test",
+    "eject": "node ../node_modules/react-scripts/bin/react-scripts.js eject"
+  },
+  "dependencies": {
+    "@testing-library/jest-dom": "link:../node_modules/@testing-library/jest-dom",
+    "@testing-library/react": "link:../node_modules/@testing-library/react",
+    "@testing-library/user-event": "link:../node_modules/@testing-library/user-event",
+    "@types/jest": "link:../node_modules/@types/jest",
+    "@types/node": "link:../node_modules/@types/node",
+    "@types/react": "link:../node_modules/@types/react",
+    "@types/react-dom": "link:../node_modules/@types/react-dom",
+    "customize-cra": "link:../node_modules/customize-cra",
+    "@fortawesome/fontawesome-svg-core": "link:../node_modules/@fortawesome/fontawesome-svg-core",
+    "@fortawesome/free-solid-svg-icons": "link:../node_modules/@fortawesome/free-solid-svg-icons",
+    "@fortawesome/react-fontawesome": "link:../node_modules/@fortawesome/react-fontawesome",
+    "@fortawesome/react-native-fontawesome": "link:../node_modules/@fortawesome/react-native-fontawesome",
+    "expo-secure-store": "link:../node_modules/expo-secure-store",
+    "react-native-secure-storage": "link:../node_modules/react-native-secure-storage",
+    "body-builder": "link:..",
+    "react-native-linear-gradient": "link:../node_modules/react-native-linear-gradient",
+    "lodash": "link:../node_modules/lodash",
+    "react": "link:../node_modules/react",
+    "react-app-rewired": "link:../node_modules/react-app-rewired",
+    "react-dom": "link:../node_modules/react-dom",
+    "react-native": "link:../node_modules/react-native",
+    "react-native-web": "link:../node_modules/react-native-web",
+    "react-query": "link:../node_modules/react-query",
+    "react-scripts": "link:../node_modules/react-scripts",
+    "styled-components": "link:../node_modules/styled-components",
+    "typescript": "link:../node_modules/typescript",
+    "react-native-svg": "link:../node_modules/react-native-svg"
+
+  },
+  "eslintConfig": {
+    "extends": "react-app"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  }
+}
