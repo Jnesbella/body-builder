@@ -9,5 +9,6 @@ export { default as Layout } from "./Layout";
 export { default as List } from "./List";
 export { default as Resource } from "./Resource";
 export { default as Text } from "./Text";
+export { default as IconButton } from "./IconButton";
 
 export * from "./styled-components";
