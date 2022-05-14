@@ -6,6 +6,7 @@ import {
   Provider,
   makeAsyncStorage,
   Service,
+  Fetch,
 } from "body-builder";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 
@@ -13,10 +14,18 @@ import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 
 const storage = makeAsyncStorage();
 
-function Debug({ enabled = true }: { enabled?: boolean } = {}) {
-  const { data } = useQuery("app", () => Service.get(["/api/audits/debug"]), {
-    enabled,
-  });
+const local = new Fetch({
+  apiRoot: "http://localhost:3002/api",
+});
+
+const service = new Service({
+  queryKey: "debug",
+  pathRoot: "/audits",
+  fetch: local,
+});
+
+function Debug() {
+  const { data } = useQuery("app", () => service.get("debug"));
 
   console.log({ data });
 
@@ -35,21 +44,6 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  const [initialized, setInitialized] = React.useState(false);
-
-  React.useEffect(() => {
-    Service.globals({
-      onUnauthorized: async () => {
-        // TODO
-      },
-      apiRoot: "http://localhost:3002",
-      isFetchOneAtATime: true,
-      allowOrigin: "http://localhost:3000",
-    });
-
-    setInitialized(true);
-  }, []);
-
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary
@@ -61,8 +55,8 @@ const App = () => {
       >
         <Provider storage={storage}>
           <Layout.Column>
-            <Text>BODY BUILDER</Text>
-            <Debug enabled={initialized} />
+            <Text>BODY BUILDER?</Text>
+            <Debug />
           </Layout.Column>
         </Provider>
       </ErrorBoundary>

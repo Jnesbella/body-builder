@@ -3,29 +3,34 @@ import { compact } from "lodash";
 import { PathParts } from "../types";
 import { log } from "../utils";
 
-import * as fetch from "./fetch";
-import { FetchState } from "./fetch";
+import Fetch, { FetchState, FetchOptions } from "./Fetch";
 
 export interface ServiceOptions {
   queryKey: string;
-  path: string;
+  pathRoot: string;
+  fetch: Fetch;
 }
 
+const spreadParts = (parts: PathParts = []) =>
+  typeof parts === "string" ? [parts] : parts;
+
+const global = new Fetch();
+
 class Service {
-  static globals(options: FetchState) {
-    fetch.setup(options);
+  static globals(nextState: FetchState) {
+    global.setState(nextState);
   }
 
   static assemblePath(parts: PathParts = []) {
-    return compact(parts).join("/");
+    return typeof parts === "string" ? parts : compact(parts).join("/");
   }
 
   static get<T = unknown>(
     parts: PathParts,
     payload?: any,
-    fetchOptions?: fetch.FetchOptions
+    fetchOptions?: FetchOptions
   ) {
-    return fetch.get(
+    return global.get(
       Service.assemblePath(parts),
       payload,
       fetchOptions
@@ -33,45 +38,49 @@ class Service {
   }
 
   static post<T = unknown>(parts: PathParts, payload?: any) {
-    return fetch.post(Service.assemblePath(parts), payload) as Promise<T>;
+    return global.post(Service.assemblePath(parts), payload) as Promise<T>;
   }
 
   static delete<T = unknown>(parts: PathParts) {
-    return fetch.delete(Service.assemblePath(parts)) as Promise<T>;
+    return global.delete(Service.assemblePath(parts)) as Promise<T>;
   }
 
   queryKey: string;
-  path: string;
   pathRoot: string;
+  local: Fetch;
 
-  constructor({ queryKey, path }: ServiceOptions) {
+  constructor({ queryKey, pathRoot, fetch }: ServiceOptions) {
     this.queryKey = queryKey;
-    this.path = path;
-    this.pathRoot = path;
+    this.pathRoot = pathRoot;
+    this.local = fetch;
   }
 
   getQueryKey(parts: PathParts = []): string | PathParts {
-    return [this.queryKey, ...parts];
+    return [this.queryKey, ...spreadParts(parts)];
   }
 
   getPath(parts: PathParts = []) {
-    return Service.assemblePath([this.pathRoot, ...parts]);
+    return Service.assemblePath([this.pathRoot, ...spreadParts(parts)]);
   }
 
   get<T = unknown>(
     parts: PathParts = [],
     payload?: any,
-    fetchOptions?: fetch.FetchOptions
+    fetchOptions?: FetchOptions
   ) {
-    return Service.get<T>([this.pathRoot, ...parts], payload, fetchOptions);
+    return this.local.get(
+      this.getPath(parts),
+      payload,
+      fetchOptions
+    ) as Promise<T>;
   }
 
   post<T = unknown>(parts: PathParts = [], payload?: any) {
-    return Service.post<T>([this.pathRoot, ...parts], payload);
+    return this.local.post(this.getPath(parts), payload) as Promise<T>;
   }
 
   delete<T = unknown>(parts: PathParts = []) {
-    return Service.delete<T>([this.pathRoot, ...parts]);
+    return this.local.delete(this.getPath(parts)) as Promise<T>;
   }
 }
 
