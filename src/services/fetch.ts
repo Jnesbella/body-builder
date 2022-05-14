@@ -1,4 +1,4 @@
-import { omit, pick } from "lodash";
+import { omit } from "lodash";
 
 import { Authorization, TokenType } from "../types";
 
@@ -30,12 +30,14 @@ export interface FetchState extends Partial<Authorization> {
   onUnauthorized?: UnauthorizedHandler;
   isFetchOneAtATime: boolean;
   apiRoot: string;
+  allowOrigin: string;
 }
 
 const DEFAULT_STATE: FetchState = {
   onUnauthorized: undefined,
   isFetchOneAtATime: true,
   apiRoot: "http://localhost:3001",
+  allowOrigin: "http://localhost:3000",
   accessToken: undefined,
   refreshToken: undefined,
   tokenType: undefined,
@@ -98,7 +100,19 @@ const checkIsOkay = async (response: Response) => {
   return response;
 };
 
-const toJSON = (response: Response) => response.json();
+const toJSON = async (response: Response) => {
+  let text: string = "";
+
+  try {
+    text = await response.text(); // Parse it as text
+    const data = JSON.parse(text); // Try to parse it as JSON
+    return data;
+  } finally {
+    return text;
+  }
+
+  // return response.json();
+};
 
 export function onUnauthorized(handler: UnauthorizedHandler) {
   state.onUnauthorized = handler;
@@ -193,7 +207,7 @@ const deleteRequest = (slug: string) =>
 export { getRequest as get, postRequest as post, deleteRequest as delete };
 
 export const setup = (nextState: Partial<FetchState>) => {
-  state = { ...state, ...pick(nextState, Object.keys(state)) };
+  state = { ...state, ...nextState };
 
   // setup authorization
   const { tokenType, accessToken, refreshToken } = state;
@@ -203,11 +217,16 @@ export const setup = (nextState: Partial<FetchState>) => {
     clearAuthorizationHeader();
   }
 
+  // setup fetch strategy
   const { isFetchOneAtATime } = state;
   setIsFetchOneAtATime(isFetchOneAtATime);
 
+  // setup api root
   const { apiRoot } = state;
   setApiRoot(apiRoot);
+
+  // setup allow origin
+  setHeader(Headers.AccessControlAllowOrigin, state.allowOrigin);
 };
 
 export const teardown = () => {

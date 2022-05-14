@@ -5,12 +5,23 @@ import {
   Layout,
   Provider,
   makeAsyncStorage,
+  Service,
 } from "body-builder";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 
 // import "body-builder/dist/index.css";
 
 const storage = makeAsyncStorage();
+
+function Debug({ enabled = true }: { enabled?: boolean } = {}) {
+  const { data } = useQuery("app", () => Service.get(["/api/audits/debug"]), {
+    enabled,
+  });
+
+  console.log({ data });
+
+  return <Text>{data}</Text>;
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -24,6 +35,21 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  const [initialized, setInitialized] = React.useState(false);
+
+  React.useEffect(() => {
+    Service.globals({
+      onUnauthorized: async () => {
+        // TODO
+      },
+      apiRoot: "http://localhost:3002",
+      isFetchOneAtATime: true,
+      allowOrigin: "http://localhost:3000",
+    });
+
+    setInitialized(true);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary
@@ -34,7 +60,10 @@ const App = () => {
         }
       >
         <Provider storage={storage}>
-          <Text>BODY BUILDER</Text>
+          <Layout.Column>
+            <Text>BODY BUILDER</Text>
+            <Debug enabled={initialized} />
+          </Layout.Column>
         </Provider>
       </ErrorBoundary>
     </QueryClientProvider>
