@@ -1,4 +1,5 @@
 import { compact } from "lodash";
+import { QueryKey } from "react-query";
 
 import { PathParts } from "../types";
 import { log } from "../utils";
@@ -55,7 +56,7 @@ class Service {
     this.local = fetch;
   }
 
-  getQueryKey = (parts: PathParts = []): PathParts => {
+  public getQueryKey = (parts: PathParts = []): QueryKey => {
     return [this.queryKey, ...Service.spreadParts(parts)];
   };
 
