@@ -27,8 +27,6 @@ const service = new Service({
 function Debug() {
   const { data } = useQuery("app", () => service.get("debug"));
 
-  console.log({ data });
-
   return <Text>{data}</Text>;
 }
 

@@ -91,9 +91,9 @@ class Fetch {
     refreshToken,
   }: Authorization) => {
     let token: string | undefined;
-    if (tokenType === TokenType.Bearer) {
+    if (tokenType === "Bearer") {
       token = accessToken;
-    } else if (tokenType === TokenType.Refresh) {
+    } else if (tokenType === "Refresh" && refreshToken) {
       token = refreshToken;
     }
 
