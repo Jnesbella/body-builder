@@ -6,7 +6,9 @@ export interface Authorization {
   refreshToken?: string;
 }
 
-export type PathParts = string | (string | number | undefined)[];
+export type PathPart = string | number;
+
+export type PathParts = PathPart | (PathPart | undefined)[];
 
 export type SizeProp = "xsmall" | "small" | "medium" | "large";
 
