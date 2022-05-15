@@ -8,7 +8,7 @@ export type FetchHeader =
 
 export type UnauthorizedHandler = (
   refreshToken?: Authorization["refreshToken"]
-) => Promise<void>;
+) => Promise<void> | void;
 
 export interface FetchState {
   isFetchOneAtATime: boolean;
