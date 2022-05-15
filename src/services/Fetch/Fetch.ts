@@ -21,8 +21,6 @@ class Fetch {
     origin = "http://localhost:3000",
     apiRoot = "http://localhost:3001",
   }: Partial<FetchState> = {}) {
-    log({ origin, apiRoot });
-
     this.state = {
       isFetchOneAtATime: true,
       apiRoot,
@@ -33,8 +31,6 @@ class Fetch {
         "Access-Control-Allow-Origin": origin,
       },
     };
-
-    log({ state: this.state });
   }
 
   setState = (nextState: FetchState) => {
@@ -125,7 +121,6 @@ class Fetch {
 
   fetch = (slug: string, init: CustomRequstInit) => {
     const { headers, apiRoot } = this.state;
-    log({ apiRoot, slug });
     const input = `${apiRoot}${slug}`;
 
     return fetchWithRetry(

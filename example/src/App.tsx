@@ -55,7 +55,7 @@ const App = () => {
       >
         <Provider storage={storage}>
           <Layout.Column>
-            <Text>BODY BUILDER?</Text>
+            <Text>BODY BUILDER</Text>
             <Debug />
           </Layout.Column>
         </Provider>
