@@ -6,7 +6,9 @@ export type FetchHeader =
   | "Content-Type"
   | "Access-Control-Allow-Origin";
 
-export type UnauthorizedHandler = () => Promise<void>;
+export type UnauthorizedHandler = (
+  refreshToken?: Authorization["refreshToken"]
+) => Promise<void>;
 
 export interface FetchState {
   isFetchOneAtATime: boolean;

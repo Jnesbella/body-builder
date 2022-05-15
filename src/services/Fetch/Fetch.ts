@@ -79,7 +79,7 @@ class Fetch {
     });
   };
 
-  onUnauthorized = (handler: UnauthorizedHandler) => {
+  onUnauthorized = (handler?: UnauthorizedHandler) => {
     this.updateState({
       onUnauthorized: handler,
     });
@@ -110,10 +110,24 @@ class Fetch {
 
   isAuthorizationHeaderSet = () => this.isHeaderSet("Authorization");
 
+  setAuthorization = (nextAuthorization: Authorization) => {
+    this.updateState({
+      authorization: nextAuthorization,
+    });
+    this.setAuthorizationHeader(nextAuthorization);
+  };
+
+  unsetAuthorization = () => {
+    this.updateState({
+      authorization: undefined,
+    });
+    this.clearAuthorizationHeader();
+  };
+
   maybeRefreshAuthorization = async (err: unknown) => {
     const { onUnauthorized } = this.state;
     if (isUnauthorized(err) && onUnauthorized) {
-      await onUnauthorized();
+      await onUnauthorized(this.state.authorization?.refreshToken);
     } else {
       throw err;
     }
