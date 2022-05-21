@@ -1,4 +1,4 @@
-import { ResourceDocument } from "../../Services";
+import { ResourceDocument } from "../../services";
 
 import { UseCRUD } from "./resourceHookTypes";
 

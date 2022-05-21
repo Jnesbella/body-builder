@@ -1,11 +1,19 @@
 import { isUndefined } from "lodash";
-import { QueryKey, UseQueryOptions } from "react-query";
 
 import { useStorageQuery } from "../hooks";
+import { AnimatedValueQuery } from "./animatedValueTypes";
+import useAnimatedValueId from "./useAnimatedValueId";
 
-function useAnimatedValueDefaultValue(key: string, _defaultValue: number = 0) {
-  const { data: defaultValue } = useStorageQuery<number>(key, {
+function useAnimatedValueDefaultValue(
+  query?: AnimatedValueQuery,
+  _defaultValue?: number,
+  { enabled = true } = {}
+) {
+  const id = useAnimatedValueId(query);
+
+  const { data: defaultValue } = useStorageQuery<number>(id, {
     suspense: true,
+    enabled,
   });
 
   return !isUndefined(defaultValue) ? defaultValue : _defaultValue;

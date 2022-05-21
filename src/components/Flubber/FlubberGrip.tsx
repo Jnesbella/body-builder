@@ -1,11 +1,11 @@
 import * as React from "react";
 import { PanResponder, Animated } from "react-native";
-import styled, { css } from "styled-components/native";
+import styled from "styled-components/native";
 import { faGripVertical as icon } from "@fortawesome/free-solid-svg-icons/faGripVertical";
 
 import { theme } from "../../styles";
 import { OrientationProp, SizeProp } from "../../types";
-import { log } from "../../utils";
+import { useAnimatedValue, AnimatedValueQuery } from "../../AnimatedValue";
 
 import {
   flexible,
@@ -22,7 +22,7 @@ import {
 } from "../styled-components";
 import Icon from "../Icon";
 import Layout from "../Layout";
-import { useAnimatedValue, AnimatedValueQuery } from "../../AnimatedValue";
+
 import useFlubberGripSize from "./useFlubberGripSize";
 
 interface GripContainerProps
@@ -77,12 +77,17 @@ const FlubberGrip = React.forwardRef<FlubberGripElement, FlubberGripProps>(
     ref
   ) => {
     const [queryA, queryB] = pushAndPull;
+
     const valueA = useAnimatedValue(queryA);
     const valueB = useAnimatedValue(queryB);
+
     const [dragging, setDragging] = React.useState(false);
+
     const isHorizontal = orientation === "horizontal";
     const isVertical = orientation === "vertical";
+
     const gripSize = useFlubberGripSize(size);
+
     const isIconVisible = !["xsmall", "small"].includes(size);
 
     const element = React.useMemo<FlubberGripElement | null>(() => ({}), []);

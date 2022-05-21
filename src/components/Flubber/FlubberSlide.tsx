@@ -1,13 +1,17 @@
 import * as React from "react";
 
-import { useWatchAnimatedValue } from "../../hooks";
-import { useIsMounted } from "../../hooks";
-import usePushAndPull from "./usePushAndPull";
-
+import {
+  useWatchAnimatedValue,
+  useIsMounted,
+  useAnimation,
+  UseAnimation,
+} from "../../hooks";
 import { AnimatedValueQuery, useAnimatedValue } from "../../AnimatedValue";
-import Flubber, { FlubberProps, FlubberGripProps } from ".";
 
-import useAnimation, { UseAnimation } from "../Effect/useAnimation";
+import usePushAndPull from "./usePushAndPull";
+import Flubber, { FlubberProps } from "./Flubber";
+import FlubberGrip, { FlubberGripProps } from "./FlubberGrip";
+import { isNumber } from "lodash";
 
 const SLIDE_WIDTH = 300;
 
@@ -23,7 +27,7 @@ export interface FlubberSlideProps
   children?: React.ReactNode;
   defaultIsOpen?: boolean;
   gripPlacement?: "before" | "after";
-  gripTo: AnimatedValueQuery;
+  gripTo?: AnimatedValueQuery;
   onToggle?: (isOpen: boolean) => void;
 }
 
@@ -38,18 +42,22 @@ const FlubberSlide = React.forwardRef<FlubberSlideElement, FlubberSlideProps>(
       width,
       height,
       gripTo,
-      defaultWidth = SLIDE_WIDTH,
+      defaultWidth: _defaultWidth = SLIDE_WIDTH,
       onToggle,
+      greedy,
     },
     ref
   ) => {
-    const isMounted = useIsMounted();
-    const initialWidth = defaultIsOpen ? defaultWidth : 0;
-    const defaultValue = useAnimatedValue(width, initialWidth);
-    const widthInPixels = useWatchAnimatedValue(defaultValue, initialWidth);
-    const isOpen = widthInPixels > 0;
-    const [isVisible, setIsVisible] = React.useState(isOpen);
-    const widthInPixelsRef = React.useRef<number>(widthInPixels);
+    // const isMounted = useIsMounted();
+    const defaultWidth = defaultIsOpen ? _defaultWidth : 0;
+    const defaultValue = useAnimatedValue(width, defaultWidth);
+    const widthInPixels = useWatchAnimatedValue(defaultValue, defaultWidth);
+    const isOpen = isNumber(widthInPixels) && widthInPixels > 0;
+
+    // const [isVisible, setIsVisible] = React.useState(isOpen);
+
+    const widthInPixelsRef = React.useRef<number | undefined>(widthInPixels);
+
     const slideToValue = isOpen ? 0 : widthInPixelsRef.current || defaultWidth;
     const {
       value: slide,
@@ -64,7 +72,7 @@ const FlubberSlide = React.forwardRef<FlubberSlideElement, FlubberSlideProps>(
 
     const target = useAnimatedValue(gripTo);
     usePushAndPull({
-      enabled: isAnimating,
+      enabled: gripTo && isAnimating,
       target,
       source: slide,
     });
@@ -115,14 +123,14 @@ const FlubberSlide = React.forwardRef<FlubberSlideElement, FlubberSlideProps>(
       [isOpen, onToggle]
     );
 
-    React.useEffect(
-      function handleIsOpenChange() {
-        if (isMounted) {
-          setIsVisible(isOpen);
-        }
-      },
-      [isMounted, isOpen]
-    );
+    // React.useEffect(
+    //   function handleIsOpenChange() {
+    //     if (isMounted) {
+    //       setIsVisible(isOpen);
+    //     }
+    //   },
+    //   [isMounted, isOpen]
+    // );
 
     // if (!isVisible) {
     //   return null
@@ -138,16 +146,21 @@ const FlubberSlide = React.forwardRef<FlubberSlideElement, FlubberSlideProps>(
 
     return (
       <React.Fragment>
-        {isGripBefore && (
-          <Flubber.Grip {...gripProps} pushAndPull={[gripTo, width]} />
+        {isGripBefore && gripTo && (
+          <FlubberGrip {...gripProps} pushAndPull={[gripTo, width]} />
         )}
 
-        <Flubber width={width} height={height} defaultWidth={initialWidth}>
+        <Flubber
+          width={width}
+          height={height}
+          defaultWidth={defaultWidth}
+          greedy={greedy}
+        >
           {children}
         </Flubber>
 
-        {isGripAfter && (
-          <Flubber.Grip {...gripProps} pushAndPull={[width, gripTo]} />
+        {isGripAfter && gripTo && (
+          <FlubberGrip {...gripProps} pushAndPull={[width, gripTo]} />
         )}
       </React.Fragment>
     );

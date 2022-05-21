@@ -7,10 +7,12 @@ import {
   makeAsyncStorage,
   Service,
   Fetch,
+  Space,
 } from "body-builder";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
-
 // import "body-builder/dist/index.css";
+
+import FlubberExample from "./FlubberExample";
 
 const storage = makeAsyncStorage();
 
@@ -52,9 +54,15 @@ const App = () => {
         }
       >
         <Provider storage={storage}>
-          <Layout.Column>
-            <Text>BODY BUILDER</Text>
-            <Debug />
+          <Layout.Column greedy>
+            <Layout.Box spacingSize={1}>
+              <Text>BODY BUILDER</Text>
+            </Layout.Box>
+            {/* <Debug /> */}
+
+            <FlubberExample />
+
+            <Space />
           </Layout.Column>
         </Provider>
       </ErrorBoundary>

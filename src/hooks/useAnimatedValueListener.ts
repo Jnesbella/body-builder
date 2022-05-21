@@ -1,6 +1,6 @@
-import { noop } from 'lodash'
-import * as React from 'react'
-import { Animated } from 'react-native'
+import { noop } from "lodash";
+import * as React from "react";
+import { Animated } from "react-native";
 
 function useAnimatedValueListener(
   animatedValue?: Animated.Value,
@@ -8,16 +8,16 @@ function useAnimatedValueListener(
 ) {
   React.useEffect(
     function handleValueChange() {
-      const listenerId = animatedValue?.addListener(callback)
+      const listenerId = animatedValue?.addListener(callback);
 
       return () => {
         if (listenerId) {
-          animatedValue?.removeListener(listenerId)
+          animatedValue?.removeListener(listenerId);
         }
-      }
+      };
     },
     [animatedValue, callback]
-  )
+  );
 }
 
-export default useAnimatedValueListener
+export default useAnimatedValueListener;

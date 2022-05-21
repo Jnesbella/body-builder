@@ -1,7 +1,7 @@
-import FadeIn from './FadeIn'
+import FadeIn from "./FadeIn";
 
 export default {
-  FadeIn
-}
+  FadeIn,
+};
 
-export * from './useAnimation'
+export * from "../../hooks/useAnimation";

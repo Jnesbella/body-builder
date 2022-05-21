@@ -16,7 +16,6 @@ import {
   rounded,
   Space,
   Surface,
-  Title,
   Greedy,
   full,
   Full,
@@ -24,7 +23,8 @@ import {
 import Button, { ButtonProps } from "../Button";
 import Layout from "../Layout";
 import IconButton from "../IconButton";
-import useAnimation from "../Effect/useAnimation";
+import useAnimation from "../../hooks/useAnimation";
+import Text from "../Text";
 import { useAnimatedValue } from "../../AnimatedValue";
 
 const ModalFade = styled(Animated.View)<Greedy>`
@@ -180,7 +180,7 @@ const ModalDrawer = React.forwardRef<ModalDrawerElement, ModalDrawerProps>(
                     {title && (
                       <Surface>
                         <ModalHeaderWrapper>
-                          <Title numberOfLines={1}>{title}</Title>
+                          <Text.Title numberOfLines={1}>{title}</Text.Title>
 
                           {onDismiss && (
                             <ModalDismissIconButton

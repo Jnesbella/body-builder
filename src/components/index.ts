@@ -10,5 +10,6 @@ export { default as List } from "./List";
 export { default as Resource } from "./Resource";
 export { default as Text } from "./Text";
 export { default as IconButton } from "./IconButton";
+export { default as Flubber } from "./Flubber";
 
 export * from "./styled-components";

@@ -14,7 +14,7 @@ export async function toJSON(response: Response) {
     text = await response.text(); // Parse it as text
     const data = JSON.parse(text); // Try to parse it as JSON
     return data;
-  } finally {
+  } catch {
     return text;
   }
 }

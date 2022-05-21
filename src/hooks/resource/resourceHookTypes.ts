@@ -1,4 +1,4 @@
-import { ResourceDocument, ResourceService } from "../../Services";
+import { ResourceDocument, ResourceService } from "../../services";
 
 export interface UseCRUD<T extends ResourceDocument> {
   service: ResourceService<T>;

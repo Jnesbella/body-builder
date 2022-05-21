@@ -1,43 +1,40 @@
-import * as React from 'react'
-import { isString } from 'lodash'
-import { QueryKey, useQuery, UseQueryOptions } from 'react-query'
+import * as React from "react";
+import { isString } from "lodash";
+import { QueryKey, useQuery, UseQueryOptions } from "react-query";
 
-import { useProvider } from '../Provider'
+import { useProvider } from "../Provider";
+
+import { makeKey } from "./hooksUtils";
+import { DEFAULT_STORAGE_KEY_PREFIX } from "./hooksConstants";
 
 export type UseQueryStorageOtpions<TData = any> = UseQueryOptions<
   TData,
   unknown,
   TData,
   QueryKey
->
-
-const STORAGE_KEY_ROOT = 'storage-'
+>;
 
 function useStorageQuery<TData = any>(
   key: string,
-  options: UseQueryStorageOtpions<TData> = {}
+  {
+    keyPrefix = DEFAULT_STORAGE_KEY_PREFIX,
+    ...options
+  }: UseQueryStorageOtpions<TData> & { keyPrefix?: string } = {}
 ) {
-  const storage = useProvider((provider) => provider.storage)
+  const storage = useProvider((provider) => provider.storage);
 
   const loadItem = React.useCallback(async (): Promise<TData | undefined> => {
-    let item: TData | undefined
+    // await storage.deleteItemAsync(key);
+    const item = await storage.getItemAsync(key);
+    return (item || undefined) as TData | undefined;
+  }, [storage, key]);
 
-    try {
-      await storage.deleteItemAsync(key)
-      const maybeItem = await storage.getItemAsync(key)
-      if (isString(maybeItem)) {
-        item = JSON.parse(maybeItem)
-      }
-    } finally {
-      return item
-    }
-  }, [storage, key])
+  const storageKey = makeKey([keyPrefix, key]);
+  const query = useQuery(storageKey, loadItem, {
+    ...options,
+  });
 
-  const query = useQuery([STORAGE_KEY_ROOT, key], loadItem, {
-    ...options
-  })
-
-  return query
+  return query;
 }
 
-export default useStorageQuery
+export default useStorageQuery;

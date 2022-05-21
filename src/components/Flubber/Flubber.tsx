@@ -3,9 +3,12 @@ import { isNumber, isUndefined } from "lodash";
 import styled from "styled-components/native";
 import { Animated } from "react-native";
 
-import Grip from "./FlubberGrip";
-import Slide from "./FlubberSlide";
-import { AnimatedValueQuery, useAnimatedValue } from "../../AnimatedValue";
+import {
+  AnimatedValueQuery,
+  useAnimatedValue,
+  useAnimatedValueDefaultValue,
+} from "../../AnimatedValue";
+import { useWatchAnimatedValue } from "../../hooks";
 import { log } from "../../utils";
 
 const FlubberContainer = styled(Animated.View)``;
@@ -19,6 +22,7 @@ export interface FlubberProps {
   height: AnimatedValueQuery;
   defaultHeight?: number;
   autoLayout?: boolean;
+  greedy?: boolean | "height" | "width";
 }
 
 const Flubber = React.forwardRef<FlubberElement, FlubberProps>(
@@ -27,14 +31,27 @@ const Flubber = React.forwardRef<FlubberElement, FlubberProps>(
       width: widthProp,
       height: heightProp,
       children,
-      defaultWidth,
-      defaultHeight,
+      defaultWidth: _defaultWidth,
+      defaultHeight: _defaultHeight,
+      greedy,
     },
     ref
   ) => {
+    const isGreedyHeight = greedy === "height";
+    const isGreedyWidth = greedy === "width";
+
+    const defaultWidth = useAnimatedValueDefaultValue(widthProp, _defaultWidth);
     const width = useAnimatedValue(widthProp, defaultWidth);
+    const widthValue = useWatchAnimatedValue(width, defaultWidth);
+
+    const defaultHeight = useAnimatedValueDefaultValue(
+      heightProp,
+      _defaultHeight
+    );
     const height = useAnimatedValue(heightProp, defaultHeight);
-    const [initialized, setInitialized] = React.useState(false);
+    const heightValue = useWatchAnimatedValue(height, defaultHeight);
+
+    const initialized = !!widthValue && !!heightValue;
 
     const element = React.useMemo(() => ({}), []);
     React.useEffect(function handleRef() {
@@ -48,30 +65,31 @@ const Flubber = React.forwardRef<FlubberElement, FlubberProps>(
     return (
       <FlubberContainer
         onLayout={(event) => {
-          if (!initialized && width && height) {
-            Animated.event([{ width, height }], {
-              useNativeDriver: false,
-            })({
-              width: isNumber(defaultWidth)
-                ? defaultWidth
-                : event.nativeEvent.layout.width,
-              height: isNumber(defaultHeight)
-                ? defaultHeight
-                : event.nativeEvent.layout.height,
-            });
+          if ((!initialized || isGreedyHeight) && height) {
+            const { height: h } = event.nativeEvent.layout;
 
-            setInitialized(true);
+            if ((h && !heightValue) || isGreedyHeight) {
+              height.setValue(h);
+            }
+          }
+
+          if ((!initialized || isGreedyWidth) && width) {
+            const { width: w } = event.nativeEvent.layout;
+
+            if ((w && !widthValue) || isGreedyWidth) {
+              width.setValue(w);
+            }
           }
         }}
         style={[
-          initialized
-            ? { width, height }
-            : {
-                flex: 1,
-                maxWidth: isNumber(defaultWidth) ? defaultWidth : undefined,
-                maxHeight: isNumber(defaultHeight) ? defaultHeight : undefined,
-              },
-          { overflow: "hidden" },
+          initialized && !isGreedyWidth && { width },
+          initialized && !isGreedyHeight && { height },
+          {
+            flex: 1,
+            maxWidth: !isGreedyWidth ? defaultWidth : undefined,
+            maxHeight: !isGreedyHeight ? defaultHeight : undefined,
+            overflow: "hidden",
+          },
         ]}
       >
         {children}
@@ -80,8 +98,4 @@ const Flubber = React.forwardRef<FlubberElement, FlubberProps>(
   }
 );
 
-type Flubber = typeof Flubber & { Grip: typeof Grip; Slide: typeof Slide };
-(Flubber as Flubber).Grip = Grip;
-(Flubber as Flubber).Slide = Slide;
-
-export default Flubber as Flubber;
+export default Flubber;

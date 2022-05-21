@@ -2,7 +2,7 @@ import * as React from "react";
 import { ScrollView } from "react-native";
 import { useForm, UseFormReturn } from "react-hook-form";
 
-import { ResourceDocument } from "../../Services";
+import { ResourceDocument } from "../../services";
 import { useCRUD, UseCRUD } from "../../hooks";
 
 import Modal from "../Modal/Modal";

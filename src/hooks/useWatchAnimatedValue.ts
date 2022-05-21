@@ -1,23 +1,23 @@
-import * as React from 'react'
-import { Animated } from 'react-native'
-import useAnimatedValueListener from './useAnimatedValueListener'
+import * as React from "react";
+import { Animated } from "react-native";
+import useAnimatedValueListener from "./useAnimatedValueListener";
 
 function useWatchAnimatedValue(
   animatedValue?: Animated.Value,
-  defaultValue: number = 0
+  defaultValue?: number
 ) {
-  const [value, setValue] = React.useState<number>(defaultValue)
+  const [value, setValue] = React.useState<number | undefined>(defaultValue);
 
   const onAnimatedValueChange = React.useCallback(
     ({ value: nextValue }: { value: number }) => {
-      setValue(nextValue)
+      setValue(nextValue);
     },
     []
-  )
+  );
 
-  useAnimatedValueListener(animatedValue, onAnimatedValueChange)
+  useAnimatedValueListener(animatedValue, onAnimatedValueChange);
 
-  return value
+  return value;
 }
 
-export default useWatchAnimatedValue
+export default useWatchAnimatedValue;

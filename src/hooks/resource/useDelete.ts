@@ -1,6 +1,6 @@
 import { useMutation, useQueryClient } from "react-query";
 
-import { ResourceDocument } from "../../Services";
+import { ResourceDocument } from "../../services";
 
 import { UseCRUD } from "./resourceHookTypes";
 
