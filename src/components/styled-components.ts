@@ -1,5 +1,6 @@
 import { isUndefined } from "lodash";
 import styled, { css } from "styled-components/native";
+import { TextInput as DefaultTextInput } from "react-native";
 
 import { theme, getContrastColor } from "../styles";
 
@@ -292,4 +293,34 @@ export const Info = styled(LayoutBox).attrs(
 )<Roundness>`
   ${background};
   ${rounded};
+`;
+
+type TextInputProps = React.ComponentProps<typeof DefaultTextInput> &
+  Greedy &
+  Full & {
+    // readonly?: boolean
+  };
+
+export const TextInput = styled.TextInput.attrs(
+  ({ editable = true }: { editable?: boolean }) => ({
+    fontSize: FontSize.Normal,
+    outlineColor: theme.colors.primary,
+    borderColor: !editable
+      ? theme.colors.transparent
+      : theme.colors.backgroundDivider,
+  })
+)<TextInputProps>`
+  ${color};
+  ${fontSize};
+  ${outlineColor};
+  ${rounded};
+  ${bordered};
+  ${greedy};
+  ${full};
+
+  padding: 0 ${theme.spacing}px;
+
+  textarea {
+    background: transparent;
+  }
 `;

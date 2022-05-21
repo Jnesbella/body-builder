@@ -1,56 +1,18 @@
 import * as React from "react";
-import { TextInput as DefaultTextInput } from "react-native";
 import styled from "styled-components/native";
 import { theme } from "../styles";
 
 import {
   Color,
-  Greedy,
-  Full,
   FontSize,
   color,
   fontSize,
-  outlineColor,
-  rounded,
-  bordered,
-  greedy,
-  full,
   fontWeight,
   FontWeight,
   TextAlign,
   textAlign,
   TextAlignProps,
 } from "./styled-components";
-
-type TextInputProps = React.ComponentProps<typeof DefaultTextInput> &
-  Greedy &
-  Full & {
-    // readonly?: boolean
-  };
-
-export const TextInput = styled.TextInput.attrs(
-  ({ editable = true }: { editable?: boolean }) => ({
-    fontSize: FontSize.Normal,
-    outlineColor: theme.colors.primary,
-    borderColor: !editable
-      ? theme.colors.transparent
-      : theme.colors.backgroundDivider,
-  })
-)<TextInputProps>`
-  ${color};
-  ${fontSize};
-  ${outlineColor};
-  ${rounded};
-  ${bordered};
-  ${greedy};
-  ${full};
-
-  padding: 0 ${theme.spacing}px;
-
-  textarea {
-    background: transparent;
-  }
-`;
 
 export const DefaultText = styled.Text.attrs<{
   fontWeight?: FontWeight;

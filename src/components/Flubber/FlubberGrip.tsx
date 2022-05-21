@@ -33,6 +33,7 @@ interface GripContainerProps
     Greedy {
   dragging?: boolean;
   width?: AnimatedValueQuery;
+  orientation?: OrientationProp;
 }
 
 const FlubberGripContainer = styled(Layout.Box).attrs<GripContainerProps>(
@@ -51,8 +52,15 @@ const FlubberGripContainer = styled(Layout.Box).attrs<GripContainerProps>(
   ${greedy};
 
   z-index: ${theme.zIndex.aboveAll};
-  cursor: ${({ dragging }: GripContainerProps) =>
-    dragging ? "grabbing" : "grab"};
+  cursor: ${({ orientation }: GripContainerProps) => {
+    if (orientation === "vertical") {
+      return "col-resize";
+    }
+
+    if (orientation === "horizontal") {
+      return "row-resize";
+    }
+  }};
 `;
 
 export interface FlubberGripElement {}
@@ -159,6 +167,7 @@ const FlubberGrip = React.forwardRef<FlubberGripElement, FlubberGripProps>(
         dragging={dragging}
         style={isVertical ? { width: gripSize } : { height: gripSize }}
         greedy={greedy}
+        orientation={orientation}
       >
         {isIconVisible && <Icon icon={icon} />}
       </FlubberGripContainer>

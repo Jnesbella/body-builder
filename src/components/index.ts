@@ -13,3 +13,4 @@ export { default as IconButton } from "./IconButton";
 export { default as Flubber } from "./Flubber";
 
 export * from "./styled-components";
+export * from "./Flubber";
