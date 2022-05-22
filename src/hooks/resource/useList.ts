@@ -11,8 +11,12 @@ function useList<T extends ResourceDocument>(
 ) {
   const queryClient = useQueryClient();
 
-  const { data, isLoading } = useQuery(service.getQueryKey(), () =>
-    service.list(payload)
+  const { data, isLoading } = useQuery(
+    service.getQueryKey(),
+    () => service.list(payload),
+    {
+      suspense: true,
+    }
   );
 
   const prefetch = React.useCallback(

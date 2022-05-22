@@ -16,8 +16,15 @@ function useCreate<T extends ResourceDocument, K extends ResourceDocument = T>({
   );
 
   const { mutateAsync: create, isLoading: isCreating } = useMutation(doCreate, {
-    onSuccess: () => {
-      queryClient.invalidateQueries(service.getQueryKey());
+    onSuccess: (data) => {
+      // queryClient.invalidateQueries(service.getQueryKey());
+
+      queryClient.setQueryData(service.getQueryKey(data.id), data);
+
+      const maybeList = queryClient.getQueryData(service.getQueryKey());
+      if (Array.isArray(maybeList)) {
+        queryClient.setQueryData(service.getQueryKey(), [...maybeList, data]);
+      }
     },
   });
 

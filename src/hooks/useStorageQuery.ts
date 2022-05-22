@@ -24,7 +24,7 @@ function useStorageQuery<TData = any>(
   const storage = useProvider((provider) => provider.storage);
 
   const loadItem = React.useCallback(async (): Promise<TData | undefined> => {
-    // await storage.deleteItemAsync(key);
+    await storage.deleteItemAsync(key);
     const item = await storage.getItemAsync(key);
     return (item || undefined) as TData | undefined;
   }, [storage, key]);

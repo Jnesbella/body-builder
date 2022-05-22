@@ -1,16 +1,16 @@
-import * as React from 'react'
-import { useQueryClient } from 'react-query'
+import * as React from "react";
+import { QueryKey, useQueryClient } from "react-query";
 
 function usePrefetch() {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   const prefetch = React.useCallback(
-    (queryKey: string[], queryFn, ...rest) =>
+    (queryKey: QueryKey, queryFn, ...rest) =>
       queryClient.prefetchQuery(queryKey, queryFn, ...rest),
     []
-  )
+  );
 
-  return prefetch
+  return prefetch;
 }
 
-export default usePrefetch
+export default usePrefetch;

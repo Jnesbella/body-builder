@@ -7,14 +7,12 @@ function useAnimatedValueQuery(
   defaultValue: number = 0,
   { enabled = true } = {}
 ) {
-  const loadItem = React.useCallback(
-    () => new Animated.Value(defaultValue),
-    [defaultValue]
-  );
+  const ref = React.useRef(new Animated.Value(defaultValue)).current;
+  const loadItem = React.useCallback(() => ref, []);
 
   const { data: value } = useQuery(key, loadItem, { suspense: true, enabled });
 
-  return value as Animated.Value;
+  return value;
 }
 
 export default useAnimatedValueQuery;

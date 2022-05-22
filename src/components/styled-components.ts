@@ -302,7 +302,7 @@ type TextInputProps = React.ComponentProps<typeof DefaultTextInput> &
   };
 
 export const TextInput = styled.TextInput.attrs(
-  ({ editable = true }: { editable?: boolean }) => ({
+  ({ editable = true }: { editable?: boolean; multiline?: boolean }) => ({
     fontSize: FontSize.Normal,
     outlineColor: theme.colors.primary,
     borderColor: !editable
@@ -319,8 +319,14 @@ export const TextInput = styled.TextInput.attrs(
   ${full};
 
   padding: 0 ${theme.spacing}px;
+  background: transparent;
 
-  textarea {
-    background: transparent;
-  }
+  ${({ multiline }) => {
+    if (multiline) {
+      return css`
+        font-size: 14px;
+        line-height: 19px;
+      `;
+    }
+  }}
 `;

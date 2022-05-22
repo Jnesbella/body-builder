@@ -17,10 +17,11 @@ function useUpdate<T extends ResourceDocument, K extends ResourceDocument = T>({
 
   const { mutateAsync: update, isLoading: isUpdating } = useMutation(doUpdate, {
     onSuccess: (nextData) => {
-      queryClient.invalidateQueries(service.getQueryKey());
+      // queryClient.invalidateQueries(service.getQueryKey());
 
-      queryClient.invalidateQueries(service.getQueryKey([nextData.id]));
-      // queryClient.setQueryData(service.getQueryKey([nextData.id]), nextData);
+      // queryClient.invalidateQueries(service.getQueryKey(nextData.id), nextData);
+
+      queryClient.setQueryData(service.getQueryKey(nextData.id), nextData);
     },
   });
 

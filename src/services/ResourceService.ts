@@ -1,8 +1,5 @@
 import Service, { ServiceOptions } from "./Service";
-
-export interface ResourceDocument extends Record<string, any> {
-  id: string | number;
-}
+import { ResourceDocument } from "./servicesTypes";
 
 class ResourceService<T extends ResourceDocument> extends Service {
   constructor(options: ServiceOptions) {

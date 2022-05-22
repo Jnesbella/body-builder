@@ -9,7 +9,6 @@ import {
   useAnimatedValueDefaultValue,
 } from "../../AnimatedValue";
 import { useWatchAnimatedValue } from "../../hooks";
-import { log } from "../../utils";
 
 const FlubberContainer = styled(Animated.View)``;
 
@@ -39,6 +38,7 @@ const Flubber = React.forwardRef<FlubberElement, FlubberProps>(
   ) => {
     const isGreedyHeight = greedy === "height";
     const isGreedyWidth = greedy === "width";
+    const isGreedy = isGreedyHeight || isGreedyWidth;
 
     const defaultWidth = useAnimatedValueDefaultValue(widthProp, _defaultWidth);
     const width = useAnimatedValue(widthProp, defaultWidth);
@@ -53,6 +53,16 @@ const Flubber = React.forwardRef<FlubberElement, FlubberProps>(
 
     const initialized = !!widthValue && !!heightValue;
 
+    React.useEffect(function setDefaultSizeOnMount() {
+      if (defaultWidth) {
+        width?.setValue(defaultWidth);
+      }
+
+      if (defaultHeight) {
+        height?.setValue(defaultHeight);
+      }
+    }, []);
+
     const element = React.useMemo(() => ({}), []);
     React.useEffect(function handleRef() {
       if (ref && "current" in ref) {
@@ -65,29 +75,27 @@ const Flubber = React.forwardRef<FlubberElement, FlubberProps>(
     return (
       <FlubberContainer
         onLayout={(event) => {
-          if ((!initialized || isGreedyHeight) && height) {
+          if (!initialized && height) {
             const { height: h } = event.nativeEvent.layout;
 
-            if ((h && !heightValue) || isGreedyHeight) {
+            if (h && !heightValue) {
               height.setValue(h);
             }
           }
 
-          if ((!initialized || isGreedyWidth) && width) {
+          if (!initialized && width) {
             const { width: w } = event.nativeEvent.layout;
 
-            if ((w && !widthValue) || isGreedyWidth) {
+            if (w && !widthValue) {
               width.setValue(w);
             }
           }
         }}
         style={[
-          initialized && !isGreedyWidth && { width },
-          initialized && !isGreedyHeight && { height },
+          initialized
+            ? { width, height }
+            : { flex: 1, maxHeight: defaultHeight, maxWidth: defaultWidth },
           {
-            flex: 1,
-            maxWidth: !isGreedyWidth ? defaultWidth : undefined,
-            maxHeight: !isGreedyHeight ? defaultHeight : undefined,
             overflow: "hidden",
           },
         ]}

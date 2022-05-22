@@ -19,12 +19,13 @@ function useRead<T extends ResourceDocument>({ service, id }: UseCRUD<T>) {
     },
     {
       enabled: !!id,
+      suspense: true,
     }
   );
 
   const prefetch = React.useCallback(
     ({ id: innerId }: { id: T["id"] }) =>
-      queryClient.prefetchQuery(service.getQueryKey([id]), () =>
+      queryClient.prefetchQuery(service.getQueryKey(id), () =>
         service.fetch({ id: innerId })
       ),
     []
