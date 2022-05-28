@@ -31,7 +31,7 @@ export function isUnauthorized(err: unknown) {
   return getErrorMessge(err) === "unauthorized";
 }
 
-export const fetchWithRetry = async (
+export const fetchWithRetry__DEPRECATED = async (
   input: string,
   init: RequestInit,
   maybeRefreshAuthorization?: (err: unknown) => Promise<void>

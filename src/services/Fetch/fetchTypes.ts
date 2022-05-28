@@ -6,9 +6,14 @@ export type FetchHeader =
   | "Content-Type"
   | "Access-Control-Allow-Origin";
 
-export type UnauthorizedHandler = (
-  refreshToken?: Authorization["refreshToken"]
-) => Promise<void> | void;
+// export type UnauthorizedHandler = (
+//   refreshToken?: Authorization["refreshToken"]
+// ) => Promise<void> | void;
+
+export type FetchResponseInterceptor = (
+  response?: Response,
+  error?: unknown
+) => void | Promise<unknown>;
 
 export interface FetchState {
   isFetchOneAtATime: boolean;
@@ -16,7 +21,12 @@ export interface FetchState {
   origin: string;
   headers: Record<string, string>;
 
-  onUnauthorized?: UnauthorizedHandler;
+  // requestInterceptors: ((url: string, options: RequestInit) => RequestInit)[];
+  responseInterceptors: FetchResponseInterceptor[];
+
+  retryCount: number;
+
+  // onUnauthorized?: UnauthorizedHandler;
   authorization?: Authorization;
 }
 

@@ -6,5 +6,7 @@ export { default as useDelete } from "./useDelete";
 export { default as useCRUD } from "./useCRUD";
 export { default as useList } from "./useList";
 export { default as usePrefetch } from "./usePrefetch";
+export { default as useQueryUtils } from "./useQueryUtils";
 
 export * from "./resourceHookTypes";
+export * from "./resourceTypes";

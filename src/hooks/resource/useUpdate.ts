@@ -4,24 +4,27 @@ import { useMutation, useQueryClient } from "react-query";
 import { ResourceDocument } from "../../services";
 
 import { UseCRUD } from "./resourceHookTypes";
+import { OnMutationSuccess } from "./resourceTypes";
 
-function useUpdate<T extends ResourceDocument, K extends ResourceDocument = T>({
+function useUpdate<
+  TData extends ResourceDocument,
+  K extends ResourceDocument = TData
+>({
   service,
-}: UseCRUD<T>) {
+  onSuccess,
+}: UseCRUD<TData> & { onSuccess?: OnMutationSuccess<TData> }) {
   const queryClient = useQueryClient();
 
   const doUpdate = React.useCallback(
-    (payload: Partial<K> & { id: T["id"] }) => service.update<K>(payload),
+    (payload: Partial<K> & { id: TData["id"] }) => service.update<K>(payload),
     []
   );
 
   const { mutateAsync: update, isLoading: isUpdating } = useMutation(doUpdate, {
-    onSuccess: (nextData) => {
-      // queryClient.invalidateQueries(service.getQueryKey());
-
-      // queryClient.invalidateQueries(service.getQueryKey(nextData.id), nextData);
-
+    onSuccess: (nextData, ...rest) => {
       queryClient.setQueryData(service.getQueryKey(nextData.id), nextData);
+
+      onSuccess?.(nextData, ...rest);
     },
   });
 

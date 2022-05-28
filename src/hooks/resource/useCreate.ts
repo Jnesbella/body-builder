@@ -4,27 +4,27 @@ import { useMutation, useQueryClient } from "react-query";
 import { ResourceDocument } from "../../services";
 
 import { UseCRUD } from "./resourceHookTypes";
+import { OnMutationSuccess } from "./resourceTypes";
 
-function useCreate<T extends ResourceDocument, K extends ResourceDocument = T>({
+function useCreate<
+  TData extends ResourceDocument,
+  K extends ResourceDocument = TData
+>({
   service,
-}: UseCRUD<T>) {
+  onSuccess,
+}: UseCRUD<TData> & { onSuccess?: OnMutationSuccess<TData> }) {
   const queryClient = useQueryClient();
 
   const doCreate = React.useCallback(
     (payload: Partial<K> | undefined | void) => service.create(payload),
-    []
+    [service]
   );
 
   const { mutateAsync: create, isLoading: isCreating } = useMutation(doCreate, {
-    onSuccess: (data) => {
-      // queryClient.invalidateQueries(service.getQueryKey());
-
+    onSuccess: (data, ...rest) => {
       queryClient.setQueryData(service.getQueryKey(data.id), data);
 
-      const maybeList = queryClient.getQueryData(service.getQueryKey());
-      if (Array.isArray(maybeList)) {
-        queryClient.setQueryData(service.getQueryKey(), [...maybeList, data]);
-      }
+      onSuccess?.(data, ...rest);
     },
   });
 

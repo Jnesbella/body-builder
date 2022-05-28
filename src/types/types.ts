@@ -2,7 +2,7 @@ export type TokenType = "Refresh" | "Bearer";
 
 export interface Authorization {
   tokenType: TokenType;
-  accessToken: string;
+  accessToken?: string;
   refreshToken?: string;
 }
 

@@ -3,16 +3,18 @@ import { useMutation, useQueryClient } from "react-query";
 import { ResourceDocument } from "../../services";
 
 import { UseCRUD } from "./resourceHookTypes";
+import { OnMutationSuccess } from "./resourceTypes";
 
-function useDelete<T extends ResourceDocument>({ service }: UseCRUD<T>) {
-  const queryClient = useQueryClient();
-
+function useDelete<TData extends ResourceDocument>({
+  service,
+  onSuccess,
+}: UseCRUD<TData> & {
+  onSuccess?: OnMutationSuccess;
+}) {
   const { mutateAsync: deleteOne, isLoading: isDeleting } = useMutation(
-    (payload: T) => service.deleteOne(payload),
+    (payload: TData) => service.deleteOne(payload),
     {
-      onSuccess: () => {
-        queryClient.invalidateQueries(service.getQueryKey());
-      },
+      onSuccess,
     }
   );
 

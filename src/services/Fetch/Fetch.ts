@@ -1,4 +1,4 @@
-import { compact, omit } from "lodash";
+import { compact, omit, range } from "lodash";
 
 import { Authorization, TokenType } from "../../types";
 import { log } from "../../utils";
@@ -6,12 +6,12 @@ import { log } from "../../utils";
 import {
   FetchHeader,
   FetchState,
-  UnauthorizedHandler,
+  FetchResponseInterceptor,
   CustomRequstInit,
   FetchOptions,
 } from "./fetchTypes";
 import { HEADER_DELIMITER } from "./constants";
-import { isUnauthorized, fetchWithRetry } from "./fetchUtils";
+import { checkIsOkay, toJSON } from "./fetchUtils";
 import Queue from "./Queue";
 
 class Fetch {
@@ -20,11 +20,17 @@ class Fetch {
   constructor({
     origin = "http://localhost:3000",
     apiRoot = "http://localhost:3001",
+    retryCount = 0,
   }: Partial<FetchState> = {}) {
     this.state = {
       isFetchOneAtATime: true,
       apiRoot,
       origin,
+
+      // requestInterceptors: [],
+      responseInterceptors: [],
+
+      retryCount,
 
       headers: {
         "Content-Type": "application/json",
@@ -79,12 +85,6 @@ class Fetch {
     });
   };
 
-  onUnauthorized = (handler?: UnauthorizedHandler) => {
-    this.updateState({
-      onUnauthorized: handler,
-    });
-  };
-
   setAuthorizationHeader = ({
     tokenType,
     accessToken,
@@ -93,12 +93,16 @@ class Fetch {
     let token: string | undefined;
     if (tokenType === "Bearer") {
       token = accessToken;
-    } else if (tokenType === "Refresh" && refreshToken) {
+    } else if (tokenType === "Refresh") {
       token = refreshToken;
     }
 
     if (token) {
       this.setHeader("Authorization", token, { prefix: tokenType });
+    } else {
+      log("? FETCH \t Invalid authorization header. Unsetting authorization.");
+
+      this.unsetAuthorization();
     }
   };
 
@@ -124,27 +128,69 @@ class Fetch {
     this.clearAuthorizationHeader();
   };
 
-  maybeRefreshAuthorization = async (err: unknown) => {
-    const { onUnauthorized } = this.state;
-    if (isUnauthorized(err) && onUnauthorized) {
-      await onUnauthorized(this.state.authorization?.refreshToken);
-    } else {
-      throw err;
-    }
+  // maybeRefreshAuthorization = async (err: unknown) => {
+  //   const { onUnauthorized } = this.state;
+  //   if (isUnauthorized(err) && onUnauthorized) {
+  //     await onUnauthorized(this.state.authorization?.refreshToken);
+  //   } else {
+  //     throw err;
+  //   }
+  // };
+
+  addResponseInterceptor = (
+    interceptor: FetchResponseInterceptor
+  ): (() => void) => {
+    this.updateState({
+      responseInterceptors: [...this.state.responseInterceptors, interceptor],
+    });
+
+    return () => {
+      this.updateState({
+        responseInterceptors: this.state.responseInterceptors.filter(
+          (i) => i !== interceptor
+        ),
+      });
+    };
   };
 
-  fetch = (slug: string, init: CustomRequstInit) => {
-    const { headers, apiRoot } = this.state;
-    const input = `${apiRoot}${slug}`;
+  fetch = async (slug: string, init: CustomRequstInit) => {
+    const callResponseInterceptors = (response?: Response, error?: unknown) =>
+      Promise.all(
+        this.state.responseInterceptors.map((interceptor) =>
+          interceptor(response, error)
+        )
+      );
 
-    return fetchWithRetry(
-      input,
-      {
+    const doRequest = async () => {
+      const { headers, apiRoot } = this.state;
+      let input = `${apiRoot}${slug}`;
+
+      const response = await fetch(input, {
         ...init,
         headers,
-      },
-      this.maybeRefreshAuthorization
-    );
+      });
+      return checkIsOkay(response);
+    };
+
+    let response: Response | undefined;
+    let error: unknown | undefined;
+
+    const attemptsCount = this.state.retryCount + 1;
+    for (let i = 0; i < attemptsCount && !response; i++) {
+      try {
+        response = await doRequest();
+        await callResponseInterceptors(response);
+      } catch (err) {
+        error = err;
+        await callResponseInterceptors(undefined, error);
+      }
+    }
+
+    if (response) {
+      return toJSON(response);
+    }
+
+    throw error || "Network error";
   };
 
   enqueueFetch = (

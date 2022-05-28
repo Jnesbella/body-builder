@@ -8,3 +8,4 @@ export { default as useWatchAnimatedValue } from "./useWatchAnimatedValue";
 export { default as useIsMounted } from "./useIsMounted";
 export { default as useAnimatedValueListener } from "./useAnimatedValueListener";
 export { default as useAnimation } from "./useAnimation";
+export { default as useStorageState } from "./useStorageState";

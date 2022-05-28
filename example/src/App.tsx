@@ -8,6 +8,8 @@ import {
   Service,
   Fetch,
   Space,
+  isUnauthorized,
+  log,
 } from "body-builder";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 // import "body-builder/dist/index.css";
@@ -27,9 +29,33 @@ const service = new Service({
 });
 
 function Debug() {
-  const { data } = useQuery("app", () => service.get("debug"));
+  // const { data } = useQuery("app", () => service.get("debug"));
+  // return <Text>{data}</Text>;
 
-  return <Text>{data}</Text>;
+  const fetch = React.useMemo(() => {
+    return new Fetch({
+      apiRoot: "http://localhost:3002/api",
+      retryCount: 2,
+    });
+  }, []);
+
+  React.useEffect(() => {
+    const removeResponseInterceptor = fetch.addResponseInterceptor((_, err) => {
+      if (isUnauthorized(err)) {
+        log("isUnauthorized");
+      }
+    });
+
+    return () => {
+      removeResponseInterceptor();
+    };
+  }, [fetch]);
+
+  React.useEffect(() => {
+    fetch.get("/audits/debug");
+  }, [fetch]);
+
+  return null;
 }
 
 const queryClient = new QueryClient({
@@ -58,7 +84,7 @@ const App = () => {
             <Layout.Box spacingSize={1}>
               <Text>BODY BUILDER</Text>
             </Layout.Box>
-            {/* <Debug /> */}
+            <Debug />
 
             <FlubberExample />
 

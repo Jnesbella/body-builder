@@ -4,8 +4,13 @@ import { useQuery, useQueryClient } from "react-query";
 import { ResourceDocument } from "../../services";
 
 import { UseCRUD } from "./resourceHookTypes";
+import { OnQuerySuccess } from "./resourceTypes";
 
-function useRead<T extends ResourceDocument>({ service, id }: UseCRUD<T>) {
+function useRead<TData extends ResourceDocument>({
+  service,
+  id,
+  onSuccess,
+}: UseCRUD<TData> & { onSuccess?: OnQuerySuccess<TData> }) {
   const queryClient = useQueryClient();
 
   const { data, isLoading: isReading } = useQuery(
@@ -20,11 +25,12 @@ function useRead<T extends ResourceDocument>({ service, id }: UseCRUD<T>) {
     {
       enabled: !!id,
       suspense: true,
+      onSuccess,
     }
   );
 
   const prefetch = React.useCallback(
-    ({ id: innerId }: { id: T["id"] }) =>
+    ({ id: innerId }: { id: TData["id"] }) =>
       queryClient.prefetchQuery(service.getQueryKey(id), () =>
         service.fetch({ id: innerId })
       ),
