@@ -1,6 +1,6 @@
-import { compact, omit, range } from "lodash";
+import { compact, isNumber, omit } from "lodash";
 
-import { Authorization, TokenType } from "../../types";
+import { Authorization } from "../../types";
 import { log } from "../../utils";
 
 import {
@@ -23,7 +23,6 @@ class Fetch {
     retryCount = 0,
   }: Partial<FetchState> = {}) {
     this.state = {
-      isFetchOneAtATime: true,
       apiRoot,
       origin,
 
@@ -49,12 +48,6 @@ class Fetch {
 
   updateState = (updates: Partial<FetchState> = {}) => {
     this.setState({ ...this.state, ...updates });
-  };
-
-  setIsFetchOneAtATime = (nextIsFetchOneAtATime: boolean) => {
-    this.updateState({
-      isFetchOneAtATime: nextIsFetchOneAtATime,
-    });
   };
 
   setApiRoot = (nextApiRoot: string) => {
@@ -100,7 +93,12 @@ class Fetch {
     if (token) {
       this.setHeader("Authorization", token, { prefix: tokenType });
     } else {
-      log("? FETCH \t Invalid authorization header. Unsetting authorization.");
+      log("? FETCH \t Invalid authorization header. Unsetting authorization.", {
+        tokenType,
+        accessToken,
+        refreshToken,
+        token,
+      });
 
       this.unsetAuthorization();
     }
@@ -128,15 +126,6 @@ class Fetch {
     this.clearAuthorizationHeader();
   };
 
-  // maybeRefreshAuthorization = async (err: unknown) => {
-  //   const { onUnauthorized } = this.state;
-  //   if (isUnauthorized(err) && onUnauthorized) {
-  //     await onUnauthorized(this.state.authorization?.refreshToken);
-  //   } else {
-  //     throw err;
-  //   }
-  // };
-
   addResponseInterceptor = (
     interceptor: FetchResponseInterceptor
   ): (() => void) => {
@@ -153,13 +142,27 @@ class Fetch {
     };
   };
 
-  fetch = async (slug: string, init: CustomRequstInit) => {
-    const callResponseInterceptors = (response?: Response, error?: unknown) =>
-      Promise.all(
-        this.state.responseInterceptors.map((interceptor) =>
-          interceptor(response, error)
-        )
+  fetch = async (
+    slug: string,
+    init: CustomRequstInit,
+    {
+      retryCountOverride,
+    }: { retryCountOverride?: FetchState["retryCount"] } = {}
+  ) => {
+    const callResponseInterceptors = async (
+      response?: Response,
+      error?: unknown
+    ) => {
+      return Promise.all(
+        this.state.responseInterceptors.map(async (interceptor) => {
+          try {
+            await interceptor(response, error);
+          } catch (err) {
+            log("callResponseInterceptors", { err });
+          }
+        })
       );
+    };
 
     const doRequest = async () => {
       const { headers, apiRoot } = this.state;
@@ -175,7 +178,11 @@ class Fetch {
     let response: Response | undefined;
     let error: unknown | undefined;
 
-    const attemptsCount = this.state.retryCount + 1;
+    const attemptsCount =
+      (isNumber(retryCountOverride)
+        ? retryCountOverride
+        : this.state.retryCount) + 1;
+
     for (let i = 0; i < attemptsCount && !response; i++) {
       try {
         response = await doRequest();
@@ -196,13 +203,12 @@ class Fetch {
   enqueueFetch = (
     slug: string,
     init: CustomRequstInit,
-    { force = false }: FetchOptions = {}
+    { priority = "queue", retryCount }: FetchOptions = {}
   ) => {
-    const doFetch = () => this.fetch(slug, init);
+    const doFetch = () =>
+      this.fetch(slug, init, { retryCountOverride: retryCount });
 
-    return this.state.isFetchOneAtATime && !force
-      ? Queue.enqueue(doFetch)
-      : doFetch();
+    return priority === "queue" ? Queue.enqueue(doFetch) : doFetch();
   };
 
   get = (slug: string, payload?: any, options?: FetchOptions) =>
@@ -214,16 +220,24 @@ class Fetch {
       options
     );
 
-  post = (slug: string, payload?: any) =>
-    this.enqueueFetch(slug, {
-      method: "POST",
-      body: JSON.stringify(payload),
-    });
+  post = (slug: string, payload?: any, options?: FetchOptions) =>
+    this.enqueueFetch(
+      slug,
+      {
+        method: "POST",
+        body: JSON.stringify(payload),
+      },
+      options
+    );
 
-  delete = (slug: string) =>
-    this.enqueueFetch(slug, {
-      method: "DELETE",
-    });
+  delete = (slug: string, options?: FetchOptions) =>
+    this.enqueueFetch(
+      slug,
+      {
+        method: "DELETE",
+      },
+      options
+    );
 }
 
 export default Fetch;

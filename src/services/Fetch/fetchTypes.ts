@@ -16,7 +16,6 @@ export type FetchResponseInterceptor = (
 ) => void | Promise<unknown>;
 
 export interface FetchState {
-  isFetchOneAtATime: boolean;
   apiRoot: string;
   origin: string;
   headers: Record<string, string>;
@@ -36,5 +35,6 @@ export interface CustomRequstInit
 }
 
 export interface FetchOptions {
-  force?: boolean;
+  priority?: "queue" | "immediate";
+  retryCount?: FetchState["retryCount"];
 }

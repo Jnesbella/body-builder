@@ -35,12 +35,23 @@ class Service {
     ) as Promise<T>;
   }
 
-  static post<T = unknown>(parts: PathParts, payload?: any) {
-    return global.post(Service.assemblePath(parts), payload) as Promise<T>;
+  static post<T = unknown>(
+    parts: PathParts,
+    payload?: any,
+    fetchOptions?: FetchOptions
+  ) {
+    return global.post(
+      Service.assemblePath(parts),
+      payload,
+      fetchOptions
+    ) as Promise<T>;
   }
 
-  static delete<T = unknown>(parts: PathParts) {
-    return global.delete(Service.assemblePath(parts)) as Promise<T>;
+  static delete<T = unknown>(parts: PathParts, fetchOptions?: FetchOptions) {
+    return global.delete(
+      Service.assemblePath(parts),
+      fetchOptions
+    ) as Promise<T>;
   }
 
   static spreadParts = (parts: PathParts = []) =>
@@ -76,12 +87,23 @@ class Service {
     ) as Promise<T>;
   };
 
-  post = <T = unknown>(parts: PathParts = [], payload?: any) => {
-    return this.local.post(this.getPath(parts), payload) as Promise<T>;
+  post = <T = unknown>(
+    parts: PathParts = [],
+    payload?: any,
+    fetchOptions?: FetchOptions
+  ) => {
+    return this.local.post(
+      this.getPath(parts),
+      payload,
+      fetchOptions
+    ) as Promise<T>;
   };
 
-  delete = <T = unknown>(parts: PathParts = []) => {
-    return this.local.delete(this.getPath(parts)) as Promise<T>;
+  delete = <T = unknown>(
+    parts: PathParts = [],
+    fetchOptions?: FetchOptions
+  ) => {
+    return this.local.delete(this.getPath(parts), fetchOptions) as Promise<T>;
   };
 }
 

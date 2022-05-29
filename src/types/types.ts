@@ -1,10 +1,24 @@
 export type TokenType = "Refresh" | "Bearer";
 
 export interface Authorization {
-  tokenType: TokenType;
+  tokenType?: TokenType;
   accessToken?: string;
   refreshToken?: string;
 }
+
+// export type Authorization =
+//   | {
+//       tokenType: "Bearer";
+//       accessToken: string;
+//     }
+//   | {
+//       tokenType: "Refresh";
+//       refreshToken: string;
+//     }
+//   | {
+//       accessToken: string;
+//       refreshToken: string;
+//     };
 
 export type PathPart = string | number;
 
