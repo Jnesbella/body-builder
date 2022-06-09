@@ -2,6 +2,7 @@ import {
   TRANSPARENCY_DARK_AMT,
   TRANSPARENCY_LIGHT_AMT,
 } from "./stylesConstants";
+import theme from "./theme";
 
 function padZero(str: string, len?: number) {
   len = len || 2;
@@ -66,11 +67,16 @@ export const lightColor = (color: string, percent: number) =>
 export const darkenColor = (color: string, percent: number) =>
   lightenOrDarkenColor(color, -percent);
 
-const appendTransparency = (color: string, transparency: number) =>
-  `${color}${transparency}`;
+export const appendTransparency = (
+  color: string,
+  transparency: number | string
+) => `${color}${transparency}`;
 
 export const appendLightTransparency = (color: string) =>
   appendTransparency(color, TRANSPARENCY_LIGHT_AMT);
 
 export const appendDarkTransparency = (color: string) =>
   appendTransparency(color, TRANSPARENCY_DARK_AMT);
+
+export const isColorTransparent = (color: string) =>
+  color === theme.colors.transparent;

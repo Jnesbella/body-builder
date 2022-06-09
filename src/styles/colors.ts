@@ -1,10 +1,13 @@
 import { ColorSchemeName } from "react-native";
 import { AccentColor, PrimaryColor } from "./stylesTypes";
-import { appendDarkTransparency, appendLightTransparency } from "./styleUtils";
+import {
+  appendTransparency,
+  appendDarkTransparency,
+  appendLightTransparency,
+} from "./styleUtils";
 
 const black = "#000000";
 const white = "#ffffff";
-const transparent = `${black}00`;
 
 const tintColorLight = "#2f95dc";
 const tintColorDark = white;
@@ -23,7 +26,6 @@ const makeCommonColors = ({ primary, accent }: MakeCommonColorsOptions) => ({
 
   black,
   white,
-  transparent,
 
   textInfo: "#aaaaaa",
   textWarn: "#F1C40F",
@@ -49,6 +51,7 @@ const colorSchemeColors = {
   light: {
     text: black,
     background: white,
+    transparent: appendTransparency(white, "00"),
 
     tint: tintColorLight,
     tabIconSelected: tintColorLight,
@@ -57,6 +60,7 @@ const colorSchemeColors = {
   dark: {
     text: white,
     background: black,
+    transparent: appendTransparency(black, "00"),
 
     tint: tintColorDark,
     tabIconSelected: tintColorDark,

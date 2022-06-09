@@ -70,10 +70,7 @@ export const color = css<Background | Color>`
     }
 
     if ("background" in props && props.background) {
-      const isTransparent = props.background === theme.colors.transparent;
-      return getContrastColor(
-        isTransparent ? theme.colors.background : props.background
-      );
+      return getContrastColor(props.background);
     }
 
     return theme.colors.text;

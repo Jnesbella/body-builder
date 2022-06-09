@@ -6,12 +6,11 @@ import {
   theme,
   ColorProp,
   darkenColor,
-  appendDarkTransparency,
   appendLightTransparency,
+  isColorTransparent,
 } from "../styles";
 
 import { PressableState } from "./componentsTypes";
-
 import {
   background,
   color,
@@ -25,15 +24,11 @@ import {
   spacing,
   SpacingProps,
   opacity,
+  Bordered,
 } from "./styled-components";
 import Text from "./Text";
 
-const ButtonContainer = styled.View<
-  {
-    borderColor: string;
-  } & Greedy &
-    SpacingProps
->`
+const ButtonContainer = styled.View<Bordered & Greedy & SpacingProps>`
   ${background};
   ${color};
   ${outlineColor};
@@ -72,10 +67,6 @@ export interface ButtonProps extends SpacingProps {
   background?: string;
 }
 
-// type Button = React.ForwardRefExoticComponent<
-//   ButtonProps & React.RefAttributes<TouchableOpacity>
-// > & { Text: typeof ButtonText };
-
 const Button = React.forwardRef<View, ButtonProps>(
   (
     {
@@ -93,7 +84,7 @@ const Button = React.forwardRef<View, ButtonProps>(
     },
     ref
   ) => {
-    // const isPrimary = colorProp === 'primary'
+    const isPrimary = colorProp === "primary";
     const isAccent = colorProp === "accent";
     const isContained = mode === "contained";
     const isText = mode === "text";
@@ -123,8 +114,7 @@ const Button = React.forwardRef<View, ButtonProps>(
       return isContained ? themeColor : theme.colors.transparent; // theme.colors.background
     }, [isContained, isDisabled, themeColor, isSelected, backgroundProp]);
 
-    const isBackgroundTransparent =
-      backgroundColor === theme.colors.transparent;
+    const isBackgroundTransparent = isColorTransparent(backgroundColor);
 
     const textColor = React.useMemo(() => {
       if (isDisabled) {
@@ -142,18 +132,7 @@ const Button = React.forwardRef<View, ButtonProps>(
       }
 
       return theme.colors.transparent;
-
-      // if (backgroundProp) {
-      //   return backgroundProp;
-      // }
-
-      // if (isDisabled) {
-      //   return backgroundColor;
-      // }
-
-      // return isText ? backgroundColor : themeColor;
     }, [isOutlined, themeColor]);
-    // }, [isText, isDisabled, backgroundColor, themeColor, backgroundProp]);
 
     const renderChildren = (pressableState: PressableState) => {
       const backgroundHovered = isBackgroundTransparent
@@ -169,6 +148,7 @@ const Button = React.forwardRef<View, ButtonProps>(
           ? backgroundHovered
           : backgroundColor,
         opacity: pressableState.pressed ? 0.4 : 1,
+        outlineColor: isPrimary ? theme.colors.accent : theme.colors.primary,
       };
 
       const isCustomRender = typeof children === "function";
