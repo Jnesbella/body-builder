@@ -2,7 +2,7 @@ import * as React from "react";
 import { isString } from "lodash";
 import { QueryKey, useQuery, UseQueryOptions } from "react-query";
 
-import { useProvider } from "../Provider";
+import useAsyncStorageState from "../useAsyncStorageState";
 
 import { makeKey } from "./hooksUtils";
 import { DEFAULT_STORAGE_KEY_PREFIX } from "./hooksConstants";
@@ -21,7 +21,7 @@ function useStorageQuery<TData = any>(
     ...options
   }: UseQueryStorageOtpions<TData> & { keyPrefix?: string } = {}
 ) {
-  const storage = useProvider((provider) => provider.storage);
+  const storage = useAsyncStorageState((state) => state.storage);
 
   const loadItem = React.useCallback(async (): Promise<TData | undefined> => {
     await storage.deleteItemAsync(key);

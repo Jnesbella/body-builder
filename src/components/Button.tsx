@@ -1,8 +1,16 @@
 import * as React from "react";
-import { LayoutChangeEvent, TouchableOpacity } from "react-native";
+import { LayoutChangeEvent, Pressable, View } from "react-native";
 import styled from "styled-components/native";
 
-import { theme, ColorProp } from "../styles";
+import {
+  theme,
+  ColorProp,
+  darkenColor,
+  appendDarkTransparency,
+  appendLightTransparency,
+} from "../styles";
+
+import { PressableState } from "./componentsTypes";
 
 import {
   background,
@@ -16,12 +24,12 @@ import {
   Color,
   spacing,
   SpacingProps,
+  opacity,
 } from "./styled-components";
 import Text from "./Text";
 
-const ButtonContainer = styled(TouchableOpacity)<
+const ButtonContainer = styled.View<
   {
-    background: string;
     borderColor: string;
   } & Greedy &
     SpacingProps
@@ -32,6 +40,7 @@ const ButtonContainer = styled(TouchableOpacity)<
   ${flex};
   ${rounded};
   ${spacing};
+  ${opacity};
 
   border-color: ${(props) => props.borderColor};
   border-width: ${theme.borderThickness}px;
@@ -45,7 +54,9 @@ const ButtonText = styled(Text.Label).attrs({
   text-align: center;
 `;
 
-export type ButtonChildren = (props: Background & Color) => React.ReactNode;
+export type ButtonRenderer = (
+  props: Background & Color & PressableState
+) => React.ReactNode;
 
 export interface ButtonProps extends SpacingProps {
   onPress?: () => void;
@@ -54,7 +65,7 @@ export interface ButtonProps extends SpacingProps {
   title?: string;
   greedy?: boolean;
   disabled?: boolean;
-  children?: React.ReactNode | ButtonChildren;
+  children?: React.ReactNode | ButtonRenderer;
   onLayout?: (event: LayoutChangeEvent) => void;
   selected?: boolean;
   roundness?: number;
@@ -65,14 +76,13 @@ export interface ButtonProps extends SpacingProps {
 //   ButtonProps & React.RefAttributes<TouchableOpacity>
 // > & { Text: typeof ButtonText };
 
-const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
+const Button = React.forwardRef<View, ButtonProps>(
   (
     {
       title,
       onPress,
       mode = "text",
       color: colorProp,
-      greedy,
       disabled: isDisabled,
       children,
       onLayout,
@@ -87,6 +97,7 @@ const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
     const isAccent = colorProp === "accent";
     const isContained = mode === "contained";
     const isText = mode === "text";
+    const isOutlined = mode === "outlined";
 
     const themeColor = React.useMemo(() => {
       if (isAccent) {
@@ -112,50 +123,78 @@ const Button = React.forwardRef<TouchableOpacity, ButtonProps>(
       return isContained ? themeColor : theme.colors.transparent; // theme.colors.background
     }, [isContained, isDisabled, themeColor, isSelected, backgroundProp]);
 
-    const textProps = React.useMemo(() => {
+    const isBackgroundTransparent =
+      backgroundColor === theme.colors.transparent;
+
+    const textColor = React.useMemo(() => {
       if (isDisabled) {
-        return { color: theme.colors.textDisabled };
+        return theme.colors.textDisabled;
       }
 
-      return isContained
-        ? { background: backgroundColor }
-        : { color: themeColor };
-    }, [isDisabled, isContained, backgroundColor, themeColor]);
+      if (!isContained) {
+        return themeColor;
+      }
+    }, [isDisabled, isContained, themeColor]);
 
     const borderColor = React.useMemo(() => {
-      if (backgroundProp) {
-        return backgroundProp;
+      if (isOutlined) {
+        return themeColor;
       }
 
-      if (isDisabled) {
-        return backgroundColor;
+      return theme.colors.transparent;
+
+      // if (backgroundProp) {
+      //   return backgroundProp;
+      // }
+
+      // if (isDisabled) {
+      //   return backgroundColor;
+      // }
+
+      // return isText ? backgroundColor : themeColor;
+    }, [isOutlined, themeColor]);
+    // }, [isText, isDisabled, backgroundColor, themeColor, backgroundProp]);
+
+    const renderChildren = (pressableState: PressableState) => {
+      const backgroundHovered = isBackgroundTransparent
+        ? appendLightTransparency(themeColor)
+        : darkenColor(backgroundColor, 15);
+
+      const buttonProps = {
+        ...rest,
+        ...pressableState,
+        borderColor,
+        spacingSize,
+        background: pressableState.hovered
+          ? backgroundHovered
+          : backgroundColor,
+        opacity: pressableState.pressed ? 0.4 : 1,
+      };
+
+      const isCustomRender = typeof children === "function";
+      if (isCustomRender) {
+        const renderCustomButton = children as ButtonRenderer;
+        return renderCustomButton(buttonProps);
       }
 
-      return isText ? backgroundColor : themeColor;
-    }, [isText, isDisabled, backgroundColor, themeColor, backgroundProp]);
-
-    const renderChildren = () => {
-      if (children && typeof children === "function") {
-        return (children as ButtonChildren)(textProps);
-      }
-
-      return children || <ButtonText {...textProps}>{title}</ButtonText>;
+      return (
+        children || (
+          <ButtonContainer {...buttonProps} onLayout={onLayout}>
+            <ButtonText
+              color={textColor}
+              background={isContained && buttonProps.background}
+            >
+              {title}
+            </ButtonText>
+          </ButtonContainer>
+        )
+      );
     };
 
     return (
-      <ButtonContainer
-        ref={ref}
-        onPress={onPress}
-        background={backgroundColor}
-        borderColor={borderColor}
-        greedy={greedy}
-        disabled={isDisabled}
-        onLayout={onLayout}
-        spacingSize={spacingSize}
-        {...rest}
-      >
-        {renderChildren()}
-      </ButtonContainer>
+      <Pressable ref={ref} onPress={onPress} disabled={isDisabled}>
+        {renderChildren}
+      </Pressable>
     );
   }
 );

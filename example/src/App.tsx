@@ -3,18 +3,28 @@ import {
   ErrorBoundary,
   Text,
   Layout,
-  Provider,
+  AsyncStorageProvider,
   makeAsyncStorage,
   Service,
   Fetch,
   Space,
   isUnauthorized,
   log,
+  Button,
+  Divider,
+  TextInput,
 } from "body-builder";
+import { Pressable } from "react-native";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 // import "body-builder/dist/index.css";
 
 import FlubberExample from "./FlubberExample";
+
+type PressableState = Readonly<{
+  pressed: boolean;
+  hovered?: boolean;
+  focused?: boolean;
+}>;
 
 const storage = makeAsyncStorage();
 
@@ -79,18 +89,42 @@ const App = () => {
           </Layout.Box>
         }
       >
-        <Provider storage={storage}>
+        <AsyncStorageProvider storage={storage}>
           <Layout.Column greedy>
             <Layout.Box spacingSize={1}>
               <Text>BODY BUILDER</Text>
             </Layout.Box>
-            <Debug />
+            {/* <Debug /> */}
+
+            <Layout.Column spacingSize={1}>
+              <Button mode="contained" color="primary" title="APPLE" />
+              <Space />
+              <Button mode="outlined" color="primary" title="BANANA" />
+              <Space />
+              <Button mode="text" color="primary" title="ORANGE" />
+
+              <Space />
+              <Divider />
+              <Space />
+
+              <Button mode="contained" color="accent" title="APPLE" />
+              <Space />
+              <Button mode="outlined" color="accent" title="BANANA" />
+              <Space />
+              <Button mode="text" color="accent" title="ORANGE" />
+
+              <Space />
+              <Divider />
+              <Space />
+
+              <TextInput placeholder="username" />
+            </Layout.Column>
 
             <FlubberExample />
 
             <Space />
           </Layout.Column>
-        </Provider>
+        </AsyncStorageProvider>
       </ErrorBoundary>
     </QueryClientProvider>
   );

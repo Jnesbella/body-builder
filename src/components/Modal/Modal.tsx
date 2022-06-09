@@ -4,17 +4,12 @@ import { Modal as DefaultModal, ScrollView } from "react-native";
 
 import { theme } from "../../styles";
 
-import {
-  background,
-  bordered,
-  Divider,
-  rounded,
-  Space,
-} from "../styled-components";
+import { background, bordered, rounded, Space } from "../styled-components";
 import Button, { ButtonProps } from "../Button";
 import Layout from "../Layout";
 import IconButton from "../IconButton";
 import Text from "../Text";
+import Divider from "../Divider";
 
 const ModalBackdrop = styled.Pressable.attrs({
   background: theme.colors.backdrop,

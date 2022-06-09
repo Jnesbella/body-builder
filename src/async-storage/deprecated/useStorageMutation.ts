@@ -2,7 +2,7 @@ import { isUndefined } from "lodash";
 import * as React from "react";
 import { useQueryClient, useMutation, UseMutationOptions } from "react-query";
 
-import { useProvider } from "../Provider";
+import useAsyncStorageState from "../useAsyncStorageState";
 
 import { DEFAULT_STORAGE_KEY_PREFIX } from "./hooksConstants";
 import { makeKey } from "./hooksUtils";
@@ -21,7 +21,7 @@ function useStorageMutation<TData = any>(
     ...options
   }: UseMutateStorageOptions<TData> & { keyPrefix?: string } = {}
 ) {
-  const storage = useProvider((provider) => provider.storage);
+  const storage = useAsyncStorageState((state) => state.storage);
 
   const storageKey = makeKey([keyPrefix, key]);
 

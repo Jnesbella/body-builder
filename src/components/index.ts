@@ -11,6 +11,10 @@ export { default as Resource } from "./Resource";
 export { default as Text } from "./Text";
 export { default as IconButton } from "./IconButton";
 export { default as Flubber } from "./Flubber";
+export { default as TextInput } from "./TextInput";
+export { default as Surface } from "./Surface";
+export { default as Info } from "./Info";
+export { default as Divider } from "./Divider";
 
 export * from "./styled-components";
 export * from "./Flubber";

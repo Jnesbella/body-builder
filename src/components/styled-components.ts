@@ -1,8 +1,9 @@
-import { isUndefined } from "lodash";
+import { isNumber, isUndefined } from "lodash";
 import styled, { css } from "styled-components/native";
-import { TextInput as DefaultTextInput } from "react-native";
 
 import { theme, getContrastColor } from "../styles";
+
+import { PressableState } from "./componentsTypes";
 
 export interface Greedy {
   greedy?: boolean;
@@ -47,10 +48,10 @@ export interface Background {
 }
 
 export const background = css<Background>`
-  ${({ background }) => {
-    if (background) {
+  ${(props) => {
+    if (props.background) {
       return css`
-        background: ${background};
+        background: ${props.background};
       `;
     }
 
@@ -64,12 +65,15 @@ export interface Color {
 
 export const color = css<Background | Color>`
   color: ${(props) => {
-    if ("color" in props) {
+    if ("color" in props && props.color) {
       return props.color;
     }
 
-    if ("background" in props) {
-      return props.background && getContrastColor(props.background);
+    if ("background" in props && props.background) {
+      const isTransparent = props.background === theme.colors.transparent;
+      return getContrastColor(
+        isTransparent ? theme.colors.background : props.background
+      );
     }
 
     return theme.colors.text;
@@ -124,6 +128,10 @@ export const textAlign = css<TextAlignProps>`
 
 export const outlineColor = css<{ outlineColor?: string }>`
   outline-color: ${(props) => props.outlineColor || theme.colors.black};
+`;
+
+export const opacity = css<{ opacity?: number }>`
+  opacity: ${(props) => (isNumber(props.opacity) ? props.opacity : 1)};
 `;
 
 export interface Roundness {
@@ -200,25 +208,6 @@ export const bordered = css<Bordered>`
   }};
 `;
 
-export const Divider = styled.View.attrs(({ background }: Background) => ({
-  background: background || theme.colors.backgroundDivider,
-}))<{ vertical?: boolean }>`
-  ${background};
-
-  ${(props) => {
-    if (props.vertical) {
-      return css`
-        height: 100%;
-        width: ${theme.borderThickness}px;
-      `;
-    }
-
-    return css`
-      height: ${theme.borderThickness}px;
-    `;
-  }};
-`;
-
 export const Space = styled.View<SpacingProps>`
   ${(props) => {
     const spacing = props.spacing || theme.spacing;
@@ -255,78 +244,4 @@ export const flexible = css<Flexible>`
 
   align-items: ${(props) => props.alignItems};
   justify-content: ${(props) => props.justifyContent};
-`;
-
-export const LayoutBox = styled.View<Full & Greedy & Flexible & SpacingProps>`
-  ${full};
-  ${greedy};
-  ${flexible};
-  ${spacing};
-`;
-
-export const LayoutRow = styled(LayoutBox)`
-  flex-direction: row;
-`;
-
-export const LayoutColumn = styled(LayoutBox)`
-  flex-direction: column;
-`;
-
-export const LayoutGrid = styled(LayoutRow)`
-  display: inline-flex;
-  flex-wrap: wrap;
-  justify-content: center;
-`;
-
-export const Surface = styled(LayoutBox).attrs(
-  ({ background = theme.colors.background }: Background) => ({
-    background,
-  })
-)<Greedy>`
-  ${background};
-`;
-
-export const Info = styled(LayoutBox).attrs(
-  ({ background = theme.colors.backgroundInfo }: Background) => ({
-    background,
-  })
-)<Roundness>`
-  ${background};
-  ${rounded};
-`;
-
-type TextInputProps = React.ComponentProps<typeof DefaultTextInput> &
-  Greedy &
-  Full & {
-    // readonly?: boolean
-  };
-
-export const TextInput = styled.TextInput.attrs(
-  ({ editable = true }: { editable?: boolean; multiline?: boolean }) => ({
-    fontSize: FontSize.Normal,
-    outlineColor: theme.colors.primary,
-    borderColor: !editable
-      ? theme.colors.transparent
-      : theme.colors.backgroundDivider,
-  })
-)<TextInputProps>`
-  ${color};
-  ${fontSize};
-  ${outlineColor};
-  ${rounded};
-  ${bordered};
-  ${greedy};
-  ${full};
-
-  padding: 0 ${theme.spacing}px;
-  background: transparent;
-
-  ${({ multiline }) => {
-    if (multiline) {
-      return css`
-        font-size: 14px;
-        line-height: 19px;
-      `;
-    }
-  }}
 `;

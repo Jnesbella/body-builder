@@ -1,6 +1,6 @@
 import { isUndefined } from "lodash";
 
-import { useStorageQuery } from "../hooks";
+import useStorageQuery from "../async-storage/deprecated/useStorageQuery";
 import { AnimatedValueQuery } from "./animatedValueTypes";
 import useAnimatedValueId from "./useAnimatedValueId";
 

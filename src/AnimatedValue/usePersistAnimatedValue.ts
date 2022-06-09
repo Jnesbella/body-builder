@@ -1,7 +1,7 @@
 import { Animated } from "react-native";
 
 import { useWatchAnimatedValue } from "../hooks";
-import useStorageState from "../hooks/useStorageState";
+import useStorageState from "../async-storage/deprecated/useStorageState";
 
 export function usePersistAnimatedValue(
   key: string,

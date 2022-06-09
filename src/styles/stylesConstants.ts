@@ -1,0 +1,3 @@
+export const TRANSPARENCY_LIGHT_AMT = 33;
+
+export const TRANSPARENCY_DARK_AMT = 99;

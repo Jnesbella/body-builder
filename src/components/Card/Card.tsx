@@ -1,20 +1,21 @@
-import * as React from 'react'
-import styled from 'styled-components/native'
+import * as React from "react";
+import styled from "styled-components/native";
 
-import { bordered, rounded, Surface } from '../styled-components'
+import { bordered, rounded } from "../styled-components";
+import Surface from "../Surface";
 
-import CardHeader from './CardHeader'
-import CardSubHeader from './CardSubHeader'
+import CardHeader from "./CardHeader";
+import CardSubHeader from "./CardSubHeader";
 
 const Container = styled(Surface)`
   ${rounded};
   ${bordered};
-`
+`;
 
 export interface CardProps {
-  children?: React.ReactNode
-  header?: React.ReactNode
-  greedy?: boolean
+  children?: React.ReactNode;
+  header?: React.ReactNode;
+  greedy?: boolean;
 }
 
 function Card({ children, header, greedy }: CardProps) {
@@ -30,10 +31,10 @@ function Card({ children, header, greedy }: CardProps) {
 
       {children}
     </Container>
-  )
+  );
 }
 
-Card.Header = CardHeader
-Card.SubHeader = CardSubHeader
+Card.Header = CardHeader;
+Card.SubHeader = CardSubHeader;
 
-export default Card
+export default Card;

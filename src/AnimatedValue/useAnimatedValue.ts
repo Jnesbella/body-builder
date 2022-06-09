@@ -7,8 +7,8 @@ import { log } from "../utils";
 import { AnimatedValueQuery } from "./animatedValueTypes";
 import useAnimatedValueQuery from "./useAnimatedValueQuery";
 import useAnimatedValueId from "./useAnimatedValueId";
-import useAnimatedValueDefaultValue from "./useAnimatedValueDefaultValue";
-import usePersistAnimatedValue from "./usePersistAnimatedValue";
+// import useAnimatedValueDefaultValue from "./useAnimatedValueDefaultValue";
+// import usePersistAnimatedValue from "./usePersistAnimatedValue";
 
 export const ANIMATED_VALUE_ELEMENT_STORAGE_PREFIX = "animatedValueElement-";
 

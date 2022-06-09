@@ -1,50 +1,48 @@
-import { ColorSchemeName } from 'react-native'
-import { AccentColor, PrimaryColor } from './stylesTypes'
+import { ColorSchemeName } from "react-native";
+import { AccentColor, PrimaryColor } from "./stylesTypes";
+import { appendDarkTransparency, appendLightTransparency } from "./styleUtils";
 
-const black = '#000000'
-const white = '#ffffff'
-const transparent = `${black}00`
+const black = "#000000";
+const white = "#ffffff";
+const transparent = `${black}00`;
 
-const tintColorLight = '#2f95dc'
-const tintColorDark = white
-
-const transparencyLight = '33'
-const transparencyDark = '99'
+const tintColorLight = "#2f95dc";
+const tintColorDark = white;
 
 export interface MakeCommonColorsOptions {
-  primary: PrimaryColor
-  accent: AccentColor
+  primary: PrimaryColor;
+  accent: AccentColor;
 }
 
 const makeCommonColors = ({ primary, accent }: MakeCommonColorsOptions) => ({
   primary,
-  primaryLight: `${primary}${transparencyLight}`,
+  primaryLight: appendLightTransparency(primary),
 
   accent,
-  accentLight: `${accent}${transparencyLight}`,
+  accentLight: appendLightTransparency(accent),
 
   black,
   white,
   transparent,
 
-  textInfo: '#aaaaaa',
-  textWarn: '#F1C40F',
-  textError: '##CB4335',
-  textDisabled: `${black}${transparencyDark}`,
+  textInfo: "#aaaaaa",
+  textWarn: "#F1C40F",
+  textError: "##CB4335",
+  textDisabled: appendDarkTransparency(black),
 
-  backgroundInfo: '#dddddd',
-  backgroundWarn: '#F9E79F',
-  backgroundError: '#F5B7B1',
-  backgroundDisabled: `${black}${transparencyLight}`,
-  backgroundDivider: '#cccccc',
+  backgroundInfo: "#dddddd",
+  backgroundWarn: "#F9E79F",
+  backgroundError: "#F5B7B1",
+  backgroundDisabled: appendLightTransparency(black),
+  backgroundDivider: "#cccccc",
 
-  tabIconDefault: '#cccccc',
+  tabIconDefault: "#cccccc",
 
-  backdrop: `${black}${transparencyDark}`
-})
+  backdrop: appendDarkTransparency(black),
+});
 
 export interface MakeSchemeColorsOptions extends MakeCommonColorsOptions {
-  colorScheme?: ColorSchemeName
+  colorScheme?: ColorSchemeName;
 }
 
 const colorSchemeColors = {
@@ -53,7 +51,7 @@ const colorSchemeColors = {
     background: white,
 
     tint: tintColorLight,
-    tabIconSelected: tintColorLight
+    tabIconSelected: tintColorLight,
   },
 
   dark: {
@@ -61,20 +59,20 @@ const colorSchemeColors = {
     background: black,
 
     tint: tintColorDark,
-    tabIconSelected: tintColorDark
-  }
-}
+    tabIconSelected: tintColorDark,
+  },
+};
 
 export const makeSchemeColors = ({
   primary,
   accent,
-  colorScheme
+  colorScheme,
 }: MakeSchemeColorsOptions) => {
-  const commonColors = makeCommonColors({ primary, accent })
-  const schemeColors = colorSchemeColors[colorScheme || 'light']
+  const commonColors = makeCommonColors({ primary, accent });
+  const schemeColors = colorSchemeColors[colorScheme || "light"];
 
   return {
     ...commonColors,
-    ...schemeColors
-  }
-}
+    ...schemeColors,
+  };
+};

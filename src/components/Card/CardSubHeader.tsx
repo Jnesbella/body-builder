@@ -1,13 +1,15 @@
-import * as React from 'react'
+import * as React from "react";
 
-import Layout from '../Layout'
-import { Divider, Info, JustifyContent, AlignItems } from '../styled-components'
+import Layout from "../Layout";
+import { JustifyContent, AlignItems } from "../styled-components";
+import Divider from "../Divider";
+import Info from "../Info";
 
-import { theme } from '../../styles'
+import { theme } from "../../styles";
 
 export interface ClazzCardProps {
-  left?: React.ReactNode
-  right?: React.ReactNode
+  left?: React.ReactNode;
+  right?: React.ReactNode;
 }
 
 function CardSubHeader({ left, right }: ClazzCardProps) {
@@ -28,7 +30,7 @@ function CardSubHeader({ left, right }: ClazzCardProps) {
 
       <Divider background={theme.colors.background} vertical />
     </Layout.Row>
-  )
+  );
 }
 
-export default CardSubHeader
+export default CardSubHeader;
