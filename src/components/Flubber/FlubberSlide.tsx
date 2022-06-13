@@ -6,7 +6,7 @@ import {
   useAnimation,
   UseAnimation,
 } from "../../hooks";
-import { AnimatedValueQuery, useAnimatedValue } from "../../AnimatedValue";
+import { AnimatedValueQuery, useAnimatedValue } from "../../animated-value";
 
 import usePushAndPull from "./usePushAndPull";
 import Flubber, { FlubberProps } from "./Flubber";

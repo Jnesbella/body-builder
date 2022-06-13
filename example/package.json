@@ -24,7 +24,7 @@
     "@fortawesome/react-native-fontawesome": "link:../node_modules/@fortawesome/react-native-fontawesome",
     "expo-secure-store": "link:../node_modules/expo-secure-store",
     "react-native-secure-storage": "link:../node_modules/react-native-secure-storage",
-    "body-builder": "link:..",
+    "@jnesbella/body-builder": "link:..",
     "react-native-linear-gradient": "link:../node_modules/react-native-linear-gradient",
     "lodash": "link:../node_modules/lodash",
     "react": "link:../node_modules/react",
@@ -36,8 +36,8 @@
     "react-scripts": "link:../node_modules/react-scripts",
     "styled-components": "link:../node_modules/styled-components",
     "typescript": "link:../node_modules/typescript",
-    "react-native-svg": "link:../node_modules/react-native-svg"
-
+    "react-native-svg": "link:../node_modules/react-native-svg",
+    "uuid": "link:../node_modules/uuid"
   },
   "eslintConfig": {
     "extends": "react-app"

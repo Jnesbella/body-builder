@@ -13,12 +13,13 @@ import {
   Button,
   Divider,
   TextInput,
-} from "body-builder";
+} from "@jnesbella/body-builder";
 import { Pressable } from "react-native";
 import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 // import "body-builder/dist/index.css";
 
 import FlubberExample from "./FlubberExample";
+import RichTextEdtiorExample from "./RichTextEditorExample";
 
 type PressableState = Readonly<{
   pressed: boolean;
@@ -91,12 +92,13 @@ const App = () => {
       >
         <AsyncStorageProvider storage={storage}>
           <Layout.Column greedy>
-            <Layout.Box spacingSize={1}>
+            {/* <Layout.Box spacingSize={1}>
               <Text>BODY BUILDER</Text>
-            </Layout.Box>
+            </Layout.Box> */}
+
             {/* <Debug /> */}
 
-            <Layout.Column spacingSize={1}>
+            {/* <Layout.Column spacingSize={1}>
               <Button mode="contained" color="primary" title="APPLE" />
               <Space />
               <Button mode="outlined" color="primary" title="BANANA" />
@@ -122,7 +124,9 @@ const App = () => {
 
             <FlubberExample />
 
-            <Space />
+            <Space /> */}
+
+            <RichTextEdtiorExample />
           </Layout.Column>
         </AsyncStorageProvider>
       </ErrorBoundary>

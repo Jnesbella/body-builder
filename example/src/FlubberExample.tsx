@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Layout, Flubber, Info, Space } from "body-builder";
+import { Layout, Flubber, Info, Space } from "@jnesbella/body-builder";
 
 const LEFT_NAME = "left";
 const MIDDLE_NAME = "middle";

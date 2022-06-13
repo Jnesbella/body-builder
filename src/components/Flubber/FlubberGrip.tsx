@@ -5,7 +5,7 @@ import { faGripVertical as icon } from "@fortawesome/free-solid-svg-icons/faGrip
 
 import { theme } from "../../styles";
 import { OrientationProp, SizeProp } from "../../types";
-import { useAnimatedValue, AnimatedValueQuery } from "../../AnimatedValue";
+import { useAnimatedValue, AnimatedValueQuery } from "../../animated-value";
 
 import {
   flexible,

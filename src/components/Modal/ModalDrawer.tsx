@@ -4,18 +4,16 @@ import { Modal as DefaultModal, ScrollView, Animated } from "react-native";
 import { faTimes } from "@fortawesome/free-solid-svg-icons/faTimes";
 
 import { theme } from "../../styles";
-import { log } from "../../utils";
+
+import useAnimation from "../../hooks/useAnimation";
+import { useAnimatedValue } from "../../animated-value";
 
 import {
   AlignItems,
   background,
-  bordered,
-  Divider,
   greedy,
   JustifyContent,
-  rounded,
   Space,
-  Surface,
   Greedy,
   full,
   Full,
@@ -23,9 +21,8 @@ import {
 import Button, { ButtonProps } from "../Button";
 import Layout from "../Layout";
 import IconButton from "../IconButton";
-import useAnimation from "../../hooks/useAnimation";
 import Text from "../Text";
-import { useAnimatedValue } from "../../AnimatedValue";
+import Surface from "../Surface";
 
 const ModalFade = styled(Animated.View)<Greedy>`
   ${greedy}
