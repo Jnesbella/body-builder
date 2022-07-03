@@ -1,19 +1,12 @@
 import * as React from "react";
 import styled from "styled-components";
-import { faBold } from "@fortawesome/free-solid-svg-icons/faBold";
-// import { faItalic } from "@fortawesome/free-solid-svg-icons/faItalic";
-// import { faUnderline } from "@fortawesome/free-solid-svg-icons/faUnderline";
-// import { faStrikethrough } from "@fortawesome/free-solid-svg-icons/faStrikethrough";
-// import { faCode } from "@fortawesome/free-solid-svg-icons/faCode";
-// import { faHeading } from "@fortawesome/free-solid-svg-icons/faHeading";
-// import { faHighlighter } from "@fortawesome/free-solid-svg-icons/faHighlighter";
-// import { faQuoteLeft } from "@fortawesome/free-solid-svg-icons/faQuoteLeft";
-import { solid } from "@fortawesome/fontawesome-svg-core/import.macro";
+import * as Icons from "react-bootstrap-icons";
 
-import { Divider, Layout } from "../../../components";
+import { Divider, Layout, Space } from "../../../components";
 
-import MarkButton from "./MarkButton";
-import BlockButton from "./BlockButton";
+import MarkButton, { MarkButtonProps } from "./MarkButton";
+import BlockButton, { BlockButtonProps } from "./BlockButton";
+import { theme } from "../../../styles";
 
 const Container = styled.div`
   display: flex;
@@ -27,102 +20,72 @@ export interface SlateToolbarProps {
 }
 
 function SlateToolbar({ disabled }: SlateToolbarProps) {
+  const marks: {
+    mark: MarkButtonProps["mark"];
+    icon: MarkButtonProps["icon"];
+  }[] = [
+    { mark: "bold", icon: Icons.TypeBold },
+    { mark: "italic", icon: Icons.TypeItalic },
+    { mark: "underline", icon: Icons.TypeUnderline },
+    { mark: "strikethrough", icon: Icons.TypeStrikethrough },
+    { mark: "code", icon: Icons.Code },
+  ];
+
+  const blocks: {
+    block: BlockButtonProps["block"];
+    icon: BlockButtonProps["icon"];
+  }[] = [
+    // { block: "paragraph", icon: Icons.Paragraph },
+    // { block: "heading", icon: Icons.Fonts },
+    { block: "block-quote", icon: Icons.BlockquoteLeft },
+    { block: "code", icon: Icons.CodeSlash },
+
+    { block: "link", icon: Icons.Link },
+    { block: "image", icon: Icons.Image },
+
+    { block: "bullet-list", icon: Icons.ListUl },
+    { block: "number-list", icon: Icons.ListOl },
+    { block: "task-list", icon: Icons.ListCheck },
+  ];
+
   const markButtons = (
     <React.Fragment>
-      <MarkButton
-        disabled={disabled}
-        mark="bold"
-        tooltip="Bold"
-        icon={faBold}
-      />
-
-      {/* <MarkButton
-        disabled={disabled}
-        mark="italic"
-        tooltip="Italic"
-        icon={solid("italic")}
-      />
-
-      <MarkButton
-        disabled={disabled}
-        mark="underline"
-        tooltip="Underlined"
-        icon={solid("underline")}
-      />
-
-      <MarkButton
-        disabled={disabled}
-        mark="strikethrough"
-        tooltip="Strikthrough"
-        icon={solid("strikethrough")}
-      />
-
-      <MarkButton
-        disabled={disabled}
-        mark="code"
-        tooltip="Code"
-        icon={solid("code")}
-      /> */}
+      {marks.map(({ mark, icon }) => (
+        <Layout.Box key={mark} spacingSize={[0.25, 0]}>
+          <MarkButton disabled={disabled} mark={mark} icon={icon} />
+        </Layout.Box>
+      ))}
     </React.Fragment>
   );
 
   const blockButtons = (
     <React.Fragment>
-      {/* <BlockButton
-        disabled={disabled}
-        block="paragraph"
-        tooltip="Normal"
-        icon={solid("text")}
-      />
-
-      <BlockButton
-        disabled={disabled}
-        block="heading"
-        tooltip="Heading"
-        icon={solid("heading")}
-      />
-
-      <BlockButton
-        disabled={disabled}
-        block="block-quote"
-        tooltip="Quote"
-        icon={solid("block-quote")}
-      />
-
-      <BlockButton
-        disabled={disabled}
-        block="bulleted-list"
-        tooltip="Bulleted List"
-        icon={solid("list")}
-      />
-
-      <BlockButton
-        disabled={disabled}
-        block="numbered-list"
-        tooltip="Numbered List"
-        icon={solid("list-ol")}
-      />
-
-      <BlockButton
-        disabled={disabled}
-        block="task-list"
-        tooltip="Task List"
-        icon={solid("list-check")}
-      /> */}
+      {blocks.map(({ block, icon }) => (
+        <BlockButton
+          key={block}
+          block={block}
+          disabled={disabled}
+          icon={icon}
+        />
+      ))}
     </React.Fragment>
   );
 
-  {
-    /* <.Row>
+  return (
+    <Layout.Row spacingSize={[0, 0.5]} alignItems="center">
       {markButtons}
 
-       <Divider vertical />
+      <Space />
 
-       {blockButtons}
-     </Layout.Row>Layout */
-  }
+      <Divider vertical height={theme.spacing * 3} />
 
-  return <Container>{markButtons}</Container>;
+      <Space />
+
+      {blockButtons}
+    </Layout.Row>
+  );
+
+  // return <Container>{markButtons}</Container>;
 }
 
 export default SlateToolbar;

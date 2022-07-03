@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useSlate } from "slate-react";
+import { ReactEditor, useSlate } from "slate-react";
 import { Element } from "slate";
 import styled from "styled-components/native";
 
@@ -8,12 +8,13 @@ import {
   IconButtonProps as DefaultIconButtonProps,
 } from "../../../components";
 
-import SlateEditor from "./SlateEditor";
+// import SlateEditor from "./SlateEditor";
 import { Editor } from "./slate";
+import SlateButton from "./SlateButton";
 
-const IconButton = styled(DefaultIconButton)<{ isActive?: boolean }>``;
+// const IconButton = styled(DefaultIconButton)<{ isActive?: boolean }>``;
 
-interface BlockButtonProps extends DefaultIconButtonProps {
+export interface BlockButtonProps extends DefaultIconButtonProps {
   block: Element["type"];
   tooltip?: React.ReactNode;
 }
@@ -26,13 +27,20 @@ function BlockButton({
   const editor = useSlate();
 
   return (
-    <IconButton
-      {...iconButtonProps}
+    // <IconButton
+    //   {...iconButtonProps}
+    //   disabled={disabled}
+    //   isActive={Editor.isBlock(editor, block)}
+    //   onPress={() => {
+    //     Editor.toggleBlock(editor, block);
+    //   }}
+    // />
+
+    <SlateButton
       disabled={disabled}
-      isActive={Editor.isBlock(editor, block)}
-      onPress={() => {
-        Editor.toggleBlock(editor, block);
-      }}
+      isActive={Editor.isBlock(editor, { type: block })}
+      onPress={() => Editor.toggleBlock(editor, block)}
+      {...iconButtonProps}
     />
   );
 }

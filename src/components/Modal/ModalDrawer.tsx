@@ -1,7 +1,7 @@
 import * as React from "react";
 import styled from "styled-components/native";
 import { Modal as DefaultModal, ScrollView, Animated } from "react-native";
-import { faTimes } from "@fortawesome/free-solid-svg-icons/faTimes";
+import * as Icons from "react-bootstrap-icons";
 
 import { theme } from "../../styles";
 
@@ -60,7 +60,7 @@ function ModalDismissButton({ ...buttonProps }: ModalDismissButtonProps) {
 }
 
 function ModalDismissIconButton({ ...buttonProps }: ModalDismissButtonProps) {
-  return <IconButton icon={faTimes} color="primary" {...buttonProps} />;
+  return <IconButton icon={Icons.X} color="primary" {...buttonProps} />;
 }
 
 const MODAL_DRAWER_WIDTH = theme.spacing * 50;

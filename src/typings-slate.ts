@@ -5,6 +5,13 @@ import { HistoryEditor } from "slate-history";
 
 export type CustomEditor = BaseEditor & ReactEditor & HistoryEditor;
 
+export type MarkType =
+  | "bold"
+  | "italic"
+  | "underline"
+  | "code"
+  | "strikethrough";
+
 export type FormattedText = {
   text: string;
   // bold?: boolean;
@@ -16,20 +23,13 @@ export type FormattedText = {
 
 export type CustomText = FormattedText;
 
-export type BulletedListType = "bulleted-list";
+export type BulletListType = "bullet-list";
 
-export type NumberedListType = "numbered-list";
+export type NumberListType = "number-list";
 
 export type TaskListType = "task-list";
 
-export type ListType = BulletedListType | NumberedListType | TaskListType;
-
-export type MarkType =
-  | "bold"
-  | "italic"
-  | "underline"
-  | "code"
-  | "strikethrough";
+export type ListType = BulletListType | NumberListType | TaskListType;
 
 export type ParagraphElement = {
   type: "paragraph";
@@ -50,19 +50,31 @@ export type LinkElement = {
   url?: string;
 };
 
-export type BulletedListElement = {
-  type: BulletedListType;
-  children: CustomText[];
-};
+export type ImageElement = {
+  type: "image";
 
-export type NumberedListElement = {
-  type: NumberedListType;
-  children: CustomText[];
+  src?: string;
 };
 
 export type ListElement = {
   type: "list-item";
   children: CustomText[];
+  listType?: ListType;
+};
+
+export type BulletListElement = {
+  type: BulletListType;
+  children: ListElement[];
+};
+
+export type NumberListElement = {
+  type: NumberListType;
+  children: ListElement[];
+};
+
+export type TaskListElement = {
+  type: TaskListType;
+  children: ListElement[];
 };
 
 export type BlockQuoteElement = {
@@ -75,21 +87,17 @@ export type CodeElement = {
   children: CustomText[];
 };
 
-export type TaskListElement = {
-  type: TaskListType;
-  children: CustomText[];
-};
-
 export type CustomElement =
   | ParagraphElement
   | HeadingElement
   | LinkElement
-  | BulletedListElement
-  | NumberedListElement
+  | BulletListElement
+  | NumberListElement
   | ListElement
   | BlockQuoteElement
   | CodeElement
-  | TaskListElement;
+  | TaskListElement
+  | ImageElement;
 
 declare module "slate" {
   interface CustomTypes {

@@ -1,7 +1,7 @@
 import * as React from "react";
 import { PanResponder, Animated } from "react-native";
 import styled from "styled-components/native";
-import { faGripVertical as icon } from "@fortawesome/free-solid-svg-icons/faGripVertical";
+import * as Icons from "react-bootstrap-icons";
 
 import { theme } from "../../styles";
 import { OrientationProp, SizeProp } from "../../types";
@@ -169,7 +169,7 @@ const FlubberGrip = React.forwardRef<FlubberGripElement, FlubberGripProps>(
         greedy={greedy}
         orientation={orientation}
       >
-        {isIconVisible && <Icon icon={icon} />}
+        {isIconVisible && <Icon icon={Icons.GripVertical} />}
       </FlubberGripContainer>
     );
   }

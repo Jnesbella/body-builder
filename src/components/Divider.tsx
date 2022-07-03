@@ -4,15 +4,21 @@ import { theme } from "../styles";
 
 import { Background, background } from "./styled-components";
 
-const Divider = styled.View.attrs(({ background }: Background) => ({
+export interface DividerProps extends Background {
+  height?: number | string;
+  vertical?: boolean;
+}
+
+const Divider = styled.View.attrs<DividerProps>(({ background, height }) => ({
   background: background || theme.colors.backgroundDivider,
-}))<{ vertical?: boolean }>`
+  height: height || "100%",
+}))<DividerProps>`
   ${background};
 
   ${(props) => {
     if (props.vertical) {
       return css`
-        height: 100%;
+        height: ${props.height};
         width: ${theme.borderThickness}px;
       `;
     }

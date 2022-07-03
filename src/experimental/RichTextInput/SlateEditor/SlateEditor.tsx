@@ -1,18 +1,29 @@
 import * as React from "react";
 import isHotkey from "is-hotkey";
-import { Editable, withReact, Slate } from "slate-react";
+import { Editable, withReact, Slate, ReactEditor } from "slate-react";
 import { createEditor, Descendant } from "slate";
 import { withHistory } from "slate-history";
+import styled, { css } from "styled-components/native";
+
 // import { getPlainText } from "slate-react/dist/utils/dom";
 
 import SlateElement from "./SlateElement";
 import SlateLeaf from "./SlateLeaf";
 import { HOTKEYS, DEFAULT_VALUE } from "./slateConstants";
 import { Editor } from "./slate";
+import { theme } from "../../../styles";
+import { InputOutline } from "../../../components/TextInput";
+import { Pressable, PressableActions, PressableState } from "../../Pressable";
+import { isNumber, pick } from "lodash";
 
-const RenderElement = SlateElement;
+const InputPressable = styled(Pressable)`
+  overflow: hidden;
+  background: ${theme.colors.transparent};
+`;
 
-const RenderLeaf = SlateLeaf;
+const ToolbarWrapper = styled.View<{ isVisible?: boolean }>`
+  opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+`;
 
 export interface SlateEditorProps {
   defaultValue?: Descendant[];
@@ -26,139 +37,205 @@ export interface SlateEditorProps {
   readonly?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
+  children?: (props: { children: React.ReactNode }) => JSX.Element;
+  renderEditable?: (props: React.PropsWithChildren<{}>) => JSX.Element;
+  footer?: React.ReactNode;
+  isFocused?: boolean;
 }
 
-function SlateEditor(props: SlateEditorProps) {
-  const {
-    defaultValue = DEFAULT_VALUE,
-    placeholder,
-    onChange,
-    disabled,
-    maxLength,
-    // value: valueProp,
-    toolbar,
-    characterCount,
-    readonly,
-    onFocus,
-    onBlur,
-  } = props;
-  const [value, setValue] = React.useState<Descendant[]>(defaultValue);
-  const renderElement = React.useCallback(
-    (props) => <SlateElement {...props} />,
-    []
-  );
-  const renderLeaf = React.useCallback((props) => <SlateLeaf {...props} />, []);
-  const editor = React.useMemo(
-    () => withHistory(withReact(createEditor())),
-    []
-  );
+export interface SlateEditorElement {
+  focus: () => void;
+}
 
-  // React.useEffect(() => {
-  //   if (!valueProp) return;
+const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
+  (
+    {
+      defaultValue = DEFAULT_VALUE,
+      placeholder,
+      onChange,
+      disabled,
+      maxLength = -1,
+      // value: valueProp,
+      toolbar,
+      // characterCount,
+      readonly,
+      onFocus,
+      // onBlur,
+      // children: Container = React.Fragment,
+      // renderEditable: Wrapper = React.Fragment,
+      footer,
+      isFocused,
+    },
+    ref
+  ) => {
+    const [value, setValue] = React.useState<Descendant[]>(defaultValue);
 
-  //   setValue(valueProp);
-  // }, [valueProp]);
+    const isConstrainedByMaxLength = isNumber(maxLength) && maxLength >= 0;
 
-  const processHotkeys = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    let marked = false;
+    // const [isFocused, setIsFocused] = React.useState(false);
 
-    Object.values(HOTKEYS).forEach((hotkey) => {
-      const { nativeEvent } = event;
+    const renderElement = React.useCallback(
+      (props) => <SlateElement {...props} />,
+      []
+    );
 
-      const mark = isHotkey(hotkey, nativeEvent) ? HOTKEYS[hotkey] : null;
-      if (mark) {
-        marked = true;
-        Editor.toggleMark(editor, mark);
+    const renderLeaf = React.useCallback(
+      (props) => <SlateLeaf {...props} />,
+      []
+    );
+
+    const editor = React.useMemo(
+      () => withHistory(withReact(createEditor())),
+      []
+    );
+
+    console.log({ editor });
+
+    const focus = () => {
+      console.log("FOCUS");
+      ReactEditor.focus(editor);
+    };
+
+    React.useEffect(function handleRef() {
+      const element: SlateEditorElement = {
+        focus,
+      };
+
+      if (typeof ref === "function") {
+        ref(element);
+      } else if (ref && "current" in ref) {
+        ref.current = element;
       }
     });
 
-    if (marked) {
-      event.preventDefault();
-    }
-  };
+    // React.useEffect(() => {
+    //   if (!valueProp) return;
 
-  const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
-    processHotkeys(event);
-  };
+    //   setValue(valueProp);
+    // }, [valueProp]);
 
-  const handleInsertFromPaste = (event: DragEvent & InputEvent) => {
-    let text = event.dataTransfer?.getData("text/plain");
-    if (!text) {
-      return;
-    }
+    const processHotkeys = (event: React.KeyboardEvent<HTMLDivElement>) => {
+      // let marked = false;
 
-    if (maxLength) {
-      const charCount = Editor.getTextLength(editor);
-      const charsLeft = maxLength - charCount;
+      Object.values(HOTKEYS).forEach((hotkey) => {
+        const { nativeEvent } = event;
 
-      if (text.length > charsLeft) {
-        // text = text.substr(0, charsLeft);
-        text = text.substring(0, charsLeft);
+        const mark = isHotkey(hotkey, nativeEvent) ? HOTKEYS[hotkey] : null;
+        if (mark) {
+          // marked = true;
+          event.preventDefault();
+          Editor.toggleMark(editor, mark);
+        }
+      });
+
+      // if (marked) {
+      //   event.preventDefault();
+      // }
+    };
+
+    const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+      processHotkeys(event);
+    };
+
+    const handleInsertFromPaste = (event: DragEvent & InputEvent) => {
+      let text = event.dataTransfer?.getData("text/plain");
+      if (!text) {
+        return;
       }
-    }
 
-    editor.insertText(text);
-  };
+      // enforce max length
+      // TODO: maybe extract this to a helper function
+      if (isConstrainedByMaxLength) {
+        const charCount = Editor.getTextLength(editor);
+        const charsLeft = maxLength - charCount;
 
-  const onDOMBeforeInput = (event: DragEvent & InputEvent) => {
-    const { inputType } = event;
+        if (text.length > charsLeft) {
+          // text = text.substr(0, charsLeft);
+          text = text.substring(0, charsLeft);
+        }
+      }
 
-    const isInsertFromPaste = event.inputType === "insertFromPaste";
-    if (isInsertFromPaste) {
+      editor.insertText(text);
+    };
+
+    const onDOMBeforeInput = (event: DragEvent & InputEvent) => {
+      const { inputType } = event;
+
+      const isInsertFromPaste = event.inputType === "insertFromPaste";
+      if (isInsertFromPaste) {
+        event.preventDefault();
+        handleInsertFromPaste(event);
+
+        return;
+      }
+
+      const isDelete = inputType.includes("delete");
+      if (isDelete) {
+        return;
+      }
+
+      const isLengthValid =
+        !isConstrainedByMaxLength || Editor.getTextLength(editor) < maxLength;
+
+      if (isLengthValid) {
+        return;
+      }
+
       event.preventDefault();
-      handleInsertFromPaste(event);
+    };
 
-      return;
-    }
-
-    const isDelete = inputType.includes("delete");
-    if (isDelete) {
-      return;
-    }
-
-    const isLengthValid =
-      !maxLength || Editor.getTextLength(editor) < maxLength;
-    if (isLengthValid) {
-      return;
-    }
-
-    event.preventDefault();
-  };
-
-  return (
-    <Slate
-      editor={editor}
-      value={value}
-      onChange={(nextValue) => {
-        onChange?.(nextValue);
-        setValue(nextValue);
-      }}
-    >
-      {!readonly && !disabled && toolbar}
-
-      <Editable
-        placeholder={placeholder}
-        className="editable"
-        readOnly={readonly || disabled}
-        renderElement={renderLeaf}
-        renderLeaf={renderLeaf}
-        spellCheck
-        autoFocus
-        onKeyDown={handleKeyDown}
-        onDOMBeforeInput={(event) => {
-          onDOMBeforeInput(event as DragEvent & InputEvent);
+    return (
+      <Slate
+        editor={editor}
+        value={value}
+        onChange={(nextValue) => {
+          onChange?.(nextValue);
+          setValue(nextValue);
         }}
-        onFocus={() => onFocus?.()}
-        onBlur={() => onBlur?.()}
-      />
+      >
+        <InputPressable isFocused={isFocused}>
+          {(pressableProps: PressableState & PressableActions) => (
+            <React.Fragment>
+              {!readonly && !disabled && (
+                <ToolbarWrapper
+                  // isVisible
+                  isVisible={pressableProps.focused || pressableProps.hovered}
+                >
+                  {toolbar}
+                </ToolbarWrapper>
+              )}
 
-      {characterCount &&
-        React.cloneElement(characterCount, {
-          maxLength,
-          characterCount: Editor.getTextLength(editor),
-        })}
-    </Slate>
-  );
-}
+              <InputOutline
+                {...pick(pressableProps, ["focused", "pressed", "hovered"])}
+              >
+                <Editable
+                  placeholder={placeholder}
+                  className="editable"
+                  readOnly={readonly || disabled}
+                  renderElement={renderElement}
+                  renderLeaf={renderLeaf}
+                  spellCheck
+                  onKeyDown={handleKeyDown}
+                  onDOMBeforeInput={(event) => {
+                    onDOMBeforeInput(event as DragEvent & InputEvent);
+                  }}
+                  onFocus={() => {
+                    onFocus?.();
+                    pressableProps.focus();
+                  }}
+                  onBlur={() => pressableProps.blur()}
+                  // onBlur={() => setIsFocused(false)}
+                  // onFocus={() => setIsFocused(true)}
+                />
+              </InputOutline>
+            </React.Fragment>
+          )}
+        </InputPressable>
+
+        {footer}
+      </Slate>
+    );
+  }
+);
 
 export default SlateEditor;

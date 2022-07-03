@@ -1,6 +1,7 @@
 import * as React from "react";
 import styled from "styled-components/native";
 import { Modal as DefaultModal, ScrollView } from "react-native";
+import * as Icons from "react-bootstrap-icons";
 
 import { theme } from "../../styles";
 
@@ -50,7 +51,7 @@ function ModalDismissButton({ ...buttonProps }: ModalDismissButtonProps) {
 }
 
 function ModalDismissIconButton({ ...buttonProps }: ModalDismissButtonProps) {
-  return <IconButton icon="times" color="accent" {...buttonProps} />;
+  return <IconButton icon={Icons.X} color="accent" {...buttonProps} />;
 }
 
 export interface ModalProps {

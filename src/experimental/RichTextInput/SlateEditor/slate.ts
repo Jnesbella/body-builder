@@ -6,10 +6,13 @@ import {
   Editor as DefaultEditor,
   Descendant,
   Transforms,
+  Text,
+  Path,
 } from "slate";
 import { RenderElementProps } from "slate-react";
 
-import { ListType, MarkType } from "../../../typings-slate";
+import { CustomElement, ListType, MarkType } from "../../../typings-slate";
+import { log } from "../../../utils";
 
 import { LIST_TYPES } from "./slateConstants";
 import { isListType } from "./slateUtils";
@@ -76,52 +79,85 @@ export const Editor = {
     }
   },
 
-  isBlock: (editor: DefaultEditor, type: DefaultElement["type"]) => {
-    const nodes = Editor.nodes(editor, {
+  isBlock: (editor: DefaultEditor, payload: Pick<DefaultElement, "type">) => {
+    const [match] = Editor.nodes(editor, {
       match: (node) => {
         const isEditor = Editor.isEditor(node);
-        const isElementOfType = Element.isType(node, type);
+        const isElementOfType = Element.isType(node, payload.type);
 
         return !isEditor && isElementOfType;
       },
     });
 
-    return !!get(nodes, "0");
+    log("isBlock", { match });
+
+    return !!match;
   },
 
   toggleBlock: (editor: DefaultEditor, type: DefaultElement["type"]) => {
-    const isActive = Editor.isBlock(editor, type);
-    const isList = isListType(type);
+    const findBlockElement = (): [Node, Path] | undefined => {
+      const [match] = Editor.nodes(editor, {
+        match: (node) =>
+          !Editor.isEditor(node) &&
+          Element.isElement(node) &&
+          Editor.isBlock(editor, { type }),
+      });
 
-    Transforms.unwrapNodes(editor, {
-      match: (node) => {
-        const isEditor = Editor.isEditor(node);
-        const isElement = Element.isElement(node);
-        // const isList = SlateElement.isList(node);
-
-        return !isEditor && isElement;
-        // return !isEditor && (isElement || isList);
-      },
-      split: true,
-    });
-
-    const props: Partial<DefaultElement> = {
-      type,
+      return match;
     };
 
-    if (isActive) {
-      props.type = "paragraph";
-    } else if (isList) {
-      props.type = "list-item";
-    }
+    let match = findBlockElement();
 
-    Transforms.setNodes(editor, props as any);
+    const isCurrentlyActive = !!match;
+    const isList = isListType(type);
+    const selection = editor.selection;
 
-    if (!isActive && isList) {
-      Transforms.wrapNodes(editor, {
-        type: type as ListType,
-        children: [],
-      });
+    log("toggleBlock", {
+      match,
+      type,
+      isCurrentlyActive,
+      isList,
+      selection,
+    });
+
+    const setElementType = (type: DefaultElement["type"], nodeProps = {}) => {
+      Transforms.setNodes(
+        editor,
+        { ...nodeProps, type },
+        {
+          match: (node) =>
+            !Editor.isEditor(node) &&
+            Element.isElement(node) &&
+            Editor.isBlock(editor, node),
+        }
+      );
+    };
+
+    const wrapListItems = (listType: ListType) => {
+      Transforms.wrapNodes(
+        editor,
+        { type: listType, children: [] },
+        {
+          match: (node) =>
+            !Editor.isEditor(node) &&
+            Element.isElement(node) &&
+            Editor.isBlock(editor, node),
+        }
+      );
+    };
+
+    if (isList) {
+      if (!isCurrentlyActive) {
+        // convert elements to list items
+        // if element already is list item then
+        const listType = type as ListType;
+        setElementType("list-item", { listType });
+        wrapListItems(listType);
+      } else {
+      }
+    } else {
+      const nextType = isCurrentlyActive ? "paragraph" : type;
+      setElementType(nextType);
     }
   },
 

@@ -1,6 +1,7 @@
 import * as React from "react";
-import { LayoutChangeEvent, Pressable, View } from "react-native";
+import { LayoutChangeEvent, View } from "react-native";
 import styled from "styled-components/native";
+import { Pressable } from "../experimental/Pressable";
 
 import {
   theme,
@@ -8,6 +9,8 @@ import {
   darkenColor,
   appendLightTransparency,
   isColorTransparent,
+  appendDarkTransparency,
+  getContrastColor,
 } from "../styles";
 
 import { PressableState } from "./componentsTypes";
@@ -135,20 +138,32 @@ const Button = React.forwardRef<View, ButtonProps>(
     }, [isOutlined, themeColor]);
 
     const renderChildren = (pressableState: PressableState) => {
-      const backgroundHovered = isBackgroundTransparent
+      const backgroundPressed = isBackgroundTransparent
         ? appendLightTransparency(themeColor)
         : darkenColor(backgroundColor, 15);
+
+      const borderColorHovered = isBackgroundTransparent
+        ? appendDarkTransparency(themeColor)
+        : darkenColor(backgroundColor, 15);
+
+      const background = pressableState.pressed
+        ? backgroundPressed
+        : backgroundColor;
 
       const buttonProps = {
         ...rest,
         ...pressableState,
-        borderColor,
+        // borderColor,
         spacingSize,
-        background: pressableState.hovered
-          ? backgroundHovered
-          : backgroundColor,
+        // background: backgroundColor,
+        borderColor: pressableState.hovered ? borderColorHovered : borderColor,
+        // background: pressableState.pressed
+        //   ? backgroundPressed
+        //   : backgroundColor,
+        background,
         opacity: pressableState.pressed ? 0.4 : 1,
         outlineColor: isPrimary ? theme.colors.accent : theme.colors.primary,
+        color: getContrastColor(background),
       };
 
       const isCustomRender = typeof children === "function";
@@ -158,16 +173,16 @@ const Button = React.forwardRef<View, ButtonProps>(
       }
 
       return (
-        children || (
-          <ButtonContainer {...buttonProps} onLayout={onLayout}>
+        <ButtonContainer {...buttonProps} onLayout={onLayout}>
+          {children || (
             <ButtonText
               color={textColor}
               background={isContained && buttonProps.background}
             >
               {title}
             </ButtonText>
-          </ButtonContainer>
-        )
+          )}
+        </ButtonContainer>
       );
     };
 
@@ -179,7 +194,11 @@ const Button = React.forwardRef<View, ButtonProps>(
   }
 );
 
-type Button = typeof Button & { Text: typeof ButtonText };
+type Button = typeof Button & {
+  Text: typeof ButtonText;
+  Container: typeof ButtonContainer;
+};
 (Button as Button).Text = ButtonText;
+(Button as Button).Container = ButtonContainer;
 
 export default Button as Button;

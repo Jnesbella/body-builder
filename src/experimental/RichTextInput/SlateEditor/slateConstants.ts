@@ -18,7 +18,7 @@ export const HOTKEYS: Record<KeyboardShortcut, MarkType> = {
 };
 
 export const LIST_TYPES: ListType[] = [
-  "numbered-list",
-  "bulleted-list",
+  "number-list",
+  "bullet-list",
   "task-list",
 ];

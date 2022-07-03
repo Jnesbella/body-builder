@@ -9,7 +9,7 @@ import {
 import { MarkType } from "../../../typings-slate";
 import { Editor } from "./slate";
 
-const IconButton = styled(DefaultIconButton)<{ isActive?: boolean }>``;
+import SlateButton from "./SlateButton";
 
 export interface MarkButtonProps extends DefaultIconButtonProps {
   mark: MarkType;
@@ -20,12 +20,10 @@ function MarkButton({ mark, disabled, ...iconButtonProps }: MarkButtonProps) {
   const editor = useSlate();
 
   return (
-    <IconButton
+    <SlateButton
       disabled={disabled}
       isActive={Editor.hasMark(editor, mark)}
-      onPress={() => {
-        Editor.toggleMark(editor, mark);
-      }}
+      onPress={() => Editor.toggleMark(editor, mark)}
       {...iconButtonProps}
     />
   );

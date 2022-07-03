@@ -2,77 +2,98 @@ import * as React from "react";
 import { RenderLeafProps } from "slate-react";
 import styled, { css } from "styled-components";
 
-import { Text, FontWeight, FontSize } from "../../../components";
+import { FontWeight, FontSize, Color, color } from "../../../components";
+import { theme } from "../../../styles";
 import { MarkType } from "../../../typings-slate";
 import { log } from "../../../utils";
 
 interface LeafTextProps extends Partial<Record<MarkType, boolean>> {}
-
-const bold = css<{ bold?: boolean }>`
-  font-weight: ${({ bold }) => (bold ? FontWeight.Bold : FontWeight.Normal)};
-`;
-
-const italic = css<{ italic?: boolean }>`
-  font-style: ${({ italic }) => (italic ? "italic" : "normal")};
-`;
-
-const underline = css<{ underline?: boolean }>`
-  text-decoration: ${({ underline }) => (underline ? "underline" : "none")};
-`;
-
-const strikethrough = css<{ strikethrough?: boolean }>`
-  text-decoration: ${({ strikethrough }) =>
-    strikethrough ? "line-through" : "none"};
-`;
-
-// TODO
-const code = css<{ code?: boolean }>``;
 
 const text = css`
   font-size: ${FontSize.Normal}px;
   line-height: ${FontSize.Normal * 2}px;
 `;
 
+const bold = css<{ bold?: boolean }>`
+  ${({ bold }) => {
+    if (bold) {
+      return css`
+        font-weight: ${FontWeight.Bold};
+      `;
+    }
+  }};
+`;
+
+const italic = css<{ italic?: boolean }>`
+  ${({ italic }) => {
+    if (italic) {
+      return css`
+        font-style: italic;
+      `;
+    }
+  }}
+`;
+
+const underline = css<{ underline?: boolean; text?: string } & Color>`
+  ${({ underline, text: content, color }) => {
+    if (underline) {
+      return css`
+        &:before {
+          ${text};
+          content: "${content}";
+          position: absolute;
+          text-decoration: underline ${color};
+          color: ${theme.colors.transparent};
+        }
+      `;
+    }
+  }}
+`;
+
+const strikethrough = css<{ strikethrough?: boolean }>`
+  ${({ strikethrough }) => {
+    if (strikethrough) {
+      return css`
+        text-decoration: line-through;
+      `;
+    }
+  }}
+`;
+
+const code = css<{ code?: boolean }>`
+  ${({ code }) => {
+    if (code) {
+      return css`
+        font-family: monospace;
+        background: ${theme.colors.backgroundInfo};
+      `;
+    }
+  }}
+`;
+
 const LeafText = styled.span<LeafTextProps>`
+  ${text};
+  ${color};
+
   ${bold};
   ${italic};
   ${underline};
   ${strikethrough};
   ${code};
-  ${text};
 `;
 
 export interface SlateLeafProps extends RenderLeafProps {}
 
 function SlateLeaf({ children, leaf, attributes }: SlateLeafProps) {
-  log("SlateLeaf", { attributes });
+  log("SlateLeaf", { attributes, leaf });
+
+  const color = leaf.code ? theme.colors.textCode : theme.colors.text;
+
   return (
-    <LeafText {...attributes} {...leaf}>
+    <LeafText {...attributes} {...leaf} color={color}>
       {children}
     </LeafText>
   );
-
-  // const render = () => {
-  //   if (leaf.bold) {
-  //     return <strong>{children}</strong>;
-  //   }
-
-  //   if (leaf.code) {
-  //     return <code>{children}</code>;
-  //   }
-
-  //   if (leaf.italic) {
-  //     return <em>{children}</em>;
-  //   }
-
-  //   if (leaf.underline) {
-  //     return <u>{children}</u>;
-  //   }
-
-  //   return children;
-  // };
-
-  // return <Text>{render()}</Text>;
 }
 
 export default SlateLeaf;

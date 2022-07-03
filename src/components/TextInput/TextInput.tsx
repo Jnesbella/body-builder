@@ -51,7 +51,7 @@ const InputPressable = styled.Pressable`
   background: ${theme.colors.transparent};
 `;
 
-const InputOutline = styled(Layout.Box).attrs(
+export const InputOutline = styled(Layout.Box).attrs(
   ({ hovered, focused }: PressableState) => ({
     borderColor:
       hovered || focused ? theme.colors.primary : theme.colors.transparent,

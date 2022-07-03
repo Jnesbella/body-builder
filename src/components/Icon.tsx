@@ -1,27 +1,51 @@
 // https://fontawesome.com/icons
 
-import * as React from 'react'
-import { FontAwesomeIcon as FontAwesomeReact } from '@fortawesome/react-fontawesome'
-import { FontAwesomeIcon as FontAwesomeNative } from '@fortawesome/react-native-fontawesome'
-import styled from 'styled-components/native'
+import * as React from "react";
+// import styled from "styled-components/native";
+import {
+  Icon as DefaultIcon,
+  Props as DefaultIconProps,
+} from "react-bootstrap-icons";
 
-import { theme } from '../styles'
-import { log } from '../utils'
+import { theme } from "../styles";
+// import { log } from "../utils";
 
-import { color, Background, background, Color } from './styled-components'
+import {
+  SpacingProps,
+  Background,
+  // color,
+  // background,
+  // Color,
+} from "./styled-components";
+import Layout from "./Layout";
 
-const StyledIconNative = styled(FontAwesomeNative)<Background & Color>`
-  ${color};
-  ${background};
-`
+// const StyledIconNative = styled(Layout.Box)<Background & Color & SpacingProps>`
+//   ${color};
+//   ${background};
+// `;
 
-export type IconProps = React.ComponentProps<typeof FontAwesomeNative> &
-  Background
+// export type IconProps = React.ComponentProps<typeof FontAwesomeNative> &
+//   Background
 
-function Icon({ size = theme.spacing * 2.5, color, icon }: IconProps) {
-  const props = { icon, color }
-
-  return <StyledIconNative {...props} size={size} />
+export interface IconProps
+  extends Background,
+    Omit<DefaultIconProps, "spacing">,
+    SpacingProps {
+  icon: DefaultIcon;
+  size?: number;
 }
 
-export default Icon
+function Icon({
+  size = theme.spacing * 2.5,
+  // color,
+  icon: Icon,
+  ...iconProps
+}: IconProps) {
+  return (
+    // <StyledIconNative>
+    <Icon {...iconProps} size={size} />
+    // </StyledIconNative>
+  );
+}
+
+export default Icon;
