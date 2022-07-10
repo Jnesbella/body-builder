@@ -17,6 +17,7 @@ import SlateButton from "./SlateButton";
 export interface BlockButtonProps extends DefaultIconButtonProps {
   block: Element["type"];
   tooltip?: React.ReactNode;
+  isActive?: boolean;
 }
 
 function BlockButton({
@@ -38,8 +39,8 @@ function BlockButton({
 
     <SlateButton
       disabled={disabled}
-      isActive={Editor.isBlock(editor, { type: block })}
-      onPress={() => Editor.toggleBlock(editor, block)}
+      // isActive={Editor.isBlock(editor, { type: block })}
+      // onPress={() => Editor.toggleBlock(editor, block)}
       {...iconButtonProps}
     />
   );

@@ -1,5 +1,5 @@
 import * as React from "react";
-import styled from "styled-components/native";
+import styled, { css } from "styled-components/native";
 import { theme } from "../styles";
 
 import {
@@ -14,22 +14,58 @@ import {
   TextAlignProps,
 } from "./styled-components";
 
-export const DefaultText = styled.Text.attrs<{
+export interface TextProps extends Color {
   fontWeight?: FontWeight;
   fontSize?: FontSize;
   textAlign?: TextAlign;
-}>((props) => ({
-  fontWeight: props.fontWeight || FontWeight.Normal,
-  fontSize: props.fontSize || FontSize.Normal,
-  textAlign: props.textAlign || TextAlign.Left,
-}))<TextAlignProps>`
+}
+
+const text = css<TextProps>`
   ${color};
   ${fontWeight};
   ${fontSize};
   ${textAlign};
 `;
 
-export type TextProps = React.ComponentProps<typeof Text>;
+export const DefaultText = styled.Text.attrs<TextProps>((props) => ({
+  fontWeight: props.fontWeight || FontWeight.Normal,
+  fontSize: props.fontSize || FontSize.Normal,
+  textAlign: props.textAlign || TextAlign.Left,
+}))<TextAlignProps>`
+  ${text};
+`;
+
+// export type TextProps = React.ComponentProps<typeof Text>;
+
+export const paragraph = css`
+  font-size: ${FontSize.Normal}px;
+  line-height: ${FontSize.Normal * 1.5}px;
+  font-weight: ${FontWeight.Normal};
+`;
+
+export const heading = css`
+  font-size: ${FontSize.Large}px;
+  line-height: ${FontSize.Large * 1.5}px;
+  font-weight: ${FontWeight.Bold};
+`;
+
+export const subheading = css`
+  font-size: ${FontSize.Medium}px;
+  line-height: ${FontSize.Medium * 1.5}px;
+  font-weight: ${FontWeight.SemiBold};
+`;
+
+export const caption = css`
+  font-size: ${FontSize.Small}px;
+  line-height: ${FontSize.Small * 1.5}px;
+  font-weight: ${FontWeight.Light};
+`;
+
+export const label = css`
+  font-size: ${FontSize.Normal}px;
+  line-height: ${FontSize.Normal * 1.5}px;
+  font-weight: ${FontWeight.Medium};
+`;
 
 export const Paragraph = styled(Text)<Color>`
   padding-top: ${theme.spacing}px;

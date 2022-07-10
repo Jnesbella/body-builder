@@ -23,14 +23,6 @@ export type FormattedText = {
 
 export type CustomText = FormattedText;
 
-export type BulletListType = "bullet-list";
-
-export type NumberListType = "number-list";
-
-export type TaskListType = "task-list";
-
-export type ListType = BulletListType | NumberListType | TaskListType;
-
 export type ParagraphElement = {
   type: "paragraph";
   children: CustomText[];
@@ -43,6 +35,21 @@ export type HeadingElement = {
   level?: number;
 };
 
+export type SubheadingElement = {
+  type: "subheading";
+  children: CustomText[];
+};
+
+export type LabelElement = {
+  type: "label";
+  children: CustomText[];
+};
+
+export type CaptionElement = {
+  type: "caption";
+  children: CustomText[];
+};
+
 export type LinkElement = {
   type: "link";
   children: CustomText[];
@@ -50,31 +57,44 @@ export type LinkElement = {
   url?: string;
 };
 
+export type FormatElement =
+  | ParagraphElement
+  | HeadingElement
+  | SubheadingElement
+  | LabelElement
+  | CaptionElement;
+
 export type ImageElement = {
   type: "image";
 
   src?: string;
 };
 
-export type ListElement = {
-  type: "list-item";
-  children: CustomText[];
-  listType?: ListType;
+export type TaskListElement = {
+  type: "task-list";
+  children: ListItemElement[];
 };
 
 export type BulletListElement = {
-  type: BulletListType;
-  children: ListElement[];
+  type: "bullet-list";
+  children: ListItemElement[];
 };
 
 export type NumberListElement = {
-  type: NumberListType;
-  children: ListElement[];
+  type: "number-list";
+  children: ListItemElement[];
 };
 
-export type TaskListElement = {
-  type: TaskListType;
-  children: ListElement[];
+export type ListElement =
+  | BulletListElement
+  | NumberListElement
+  | TaskListElement;
+
+export type ListItemElement = {
+  type: "list-item";
+  children: FormatElement[];
+  listType?: ListElement["type"];
+  checked?: boolean;
 };
 
 export type BlockQuoteElement = {
@@ -88,15 +108,12 @@ export type CodeElement = {
 };
 
 export type CustomElement =
-  | ParagraphElement
-  | HeadingElement
-  | LinkElement
-  | BulletListElement
-  | NumberListElement
+  | FormatElement
   | ListElement
+  | ListItemElement
   | BlockQuoteElement
   | CodeElement
-  | TaskListElement
+  | LinkElement
   | ImageElement;
 
 declare module "slate" {

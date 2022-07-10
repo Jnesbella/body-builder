@@ -3,7 +3,7 @@ import styled, { css } from "styled-components/native";
 
 import { theme, getContrastColor } from "../styles";
 
-import { PressableState } from "./componentsTypes";
+import { zIndex as _zIndex } from "../styles/zIndex";
 
 export interface Greedy {
   greedy?: boolean;
@@ -241,4 +241,13 @@ export const flexible = css<Flexible>`
 
   align-items: ${(props) => props.alignItems};
   justify-content: ${(props) => props.justifyContent};
+`;
+
+export const shadow = css`
+  box-shadow: 0px ${theme.spacing / 2}px ${theme.spacing}px
+    ${theme.colors.backgroundDisabled};
+`;
+
+export const zIndex = (zIndex: keyof typeof _zIndex) => css`
+  z-index: ${_zIndex[zIndex]};
 `;

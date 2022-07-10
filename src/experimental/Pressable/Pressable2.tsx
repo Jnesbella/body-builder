@@ -17,13 +17,14 @@ const DefaultPressable = styled.div``;
 
 export interface PressableProps {
   onPress?: () => void;
+  onPressCapture?: () => void;
   disabled?: boolean;
   children?: PressableProviderProps["children"];
   isFocused?: PressableProviderProps["isFocused"];
 }
 
 const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
-  ({ children, isFocused, onPress, disabled }, ref) => {
+  ({ children, isFocused, onPress, disabled, onPressCapture }, ref) => {
     const [pressed, setPressed] = React.useState(false);
     const [hovered, setHovered] = React.useState(false);
     const [focused, setFocused] = React.useState(false);
@@ -59,6 +60,14 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
         onPointerOutCapture={() => setHovered(false)}
         onPointerDownCapture={() => setPressed(true)}
         onPointerUpCapture={() => setPressed(false)}
+        onMouseDownCapture={
+          disabled
+            ? undefined
+            : (event) => {
+                event.stopPropagation();
+                onPressCapture?.();
+              }
+        }
       >
         <PressableProvider
           children={children}

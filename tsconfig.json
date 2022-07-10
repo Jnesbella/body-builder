@@ -18,6 +18,7 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     // "strict": true,
+    "downlevelIteration": true,
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist", "example"]

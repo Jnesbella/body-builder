@@ -1,7 +1,7 @@
 import * as React from "react";
 import isHotkey from "is-hotkey";
 import { Editable, withReact, Slate, ReactEditor } from "slate-react";
-import { createEditor, Descendant } from "slate";
+import { createEditor, Descendant, Node, Path, Transforms } from "slate";
 import { withHistory } from "slate-history";
 import styled, { css } from "styled-components/native";
 
@@ -10,11 +10,17 @@ import styled, { css } from "styled-components/native";
 import SlateElement from "./SlateElement";
 import SlateLeaf from "./SlateLeaf";
 import { HOTKEYS, DEFAULT_VALUE } from "./slateConstants";
-import { Editor } from "./slate";
+import { Editor, Element } from "./slate";
 import { theme } from "../../../styles";
 import { InputOutline } from "../../../components/TextInput";
 import { Pressable, PressableActions, PressableState } from "../../Pressable";
-import { isNumber, pick } from "lodash";
+import { isNumber, last, pick } from "lodash";
+import { log } from "../../../utils";
+import {
+  CustomElement,
+  ListItemElement,
+  ParagraphElement,
+} from "../../../typings-slate";
 
 const InputPressable = styled(Pressable)`
   overflow: hidden;
@@ -70,9 +76,9 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
   ) => {
     const [value, setValue] = React.useState<Descendant[]>(defaultValue);
 
-    const isConstrainedByMaxLength = isNumber(maxLength) && maxLength >= 0;
+    console.log("value: ", { value });
 
-    // const [isFocused, setIsFocused] = React.useState(false);
+    const isConstrainedByMaxLength = isNumber(maxLength) && maxLength >= 0;
 
     const renderElement = React.useCallback(
       (props) => <SlateElement {...props} />,
@@ -92,7 +98,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     console.log({ editor });
 
     const focus = () => {
-      console.log("FOCUS");
       ReactEditor.focus(editor);
     };
 
@@ -135,6 +140,13 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
       processHotkeys(event);
+      log({ event });
+
+      const isEnter = event.key === "Enter";
+      const isArrowDown = event.key === "ArrowDown";
+      const isArrowUp = event.key === "ArrowUp";
+
+      log({ isEnter, isArrowDown, isArrowUp });
     };
 
     const handleInsertFromPaste = (event: DragEvent & InputEvent) => {
@@ -161,6 +173,9 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     const onDOMBeforeInput = (event: DragEvent & InputEvent) => {
       const { inputType } = event;
 
+      console.log("onDOMBeforeInput: ", { inputType, event });
+
+      // handle paste events
       const isInsertFromPaste = event.inputType === "insertFromPaste";
       if (isInsertFromPaste) {
         event.preventDefault();
@@ -169,19 +184,87 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
         return;
       }
 
+      // handle line length validation
       const isDelete = inputType.includes("delete");
-      if (isDelete) {
-        return;
-      }
-
       const isLengthValid =
         !isConstrainedByMaxLength || Editor.getTextLength(editor) < maxLength;
 
-      if (isLengthValid) {
+      if (!isLengthValid && !isDelete) {
+        event.preventDefault();
+
         return;
       }
 
-      event.preventDefault();
+      // handle insert paragraph
+      const isInsertParagraph = event.inputType === "insertParagraph";
+      if (isInsertParagraph) {
+        const [element, path] = Editor.getSelectedElement(editor) || [];
+
+        log({ element, path });
+
+        if (element && path) {
+          event.preventDefault();
+
+          const [parent, parentPath] = Editor.parent(editor, path);
+
+          log("----");
+          log("parent: ", { parent, parentPath });
+          log("match: ", { element, path });
+
+          // const hasListParent = (() => {
+          //   const [match] = Editor.nodes(editor, {
+          //     at: path,
+          //     match: (node) =>
+          //       !Editor.isEditor(node) &&
+          //       Element.isElement(node) &&
+          //       Element.isListElement(node),
+          //   });
+
+          //   return !!match;
+          // })();
+
+          const isListItem = Element.isListItemElement(parent);
+          const isEmpty = Editor.isEmpty(editor, element);
+
+          if (isListItem) {
+            if (isEmpty) {
+              // Editor.insertNode(editor, paragraph);
+              Transforms.setNodes(editor, { type: "paragraph" }, { at: path });
+              Transforms.liftNodes(editor, { at: path });
+            } else {
+              const lastIndex = last(parentPath);
+              const pathEnd = isNumber(lastIndex) ? lastIndex + 1 : 0;
+              const insertAtPath = parentPath.slice(0, -1).concat(pathEnd);
+
+              log({ insertAtPath, path, parentPath });
+
+              Transforms.insertNodes(
+                editor,
+                {
+                  type: "list-item",
+                  listType: (parent as ListItemElement).listType,
+                  children: [
+                    {
+                      type: element.type,
+                      children: [{ text: "" }],
+                    },
+                  ],
+                } as ListItemElement,
+                { at: insertAtPath }
+              );
+
+              Transforms.select(editor, insertAtPath);
+            }
+          } else {
+            Editor.insertNode(editor, {
+              type: "paragraph",
+              children: [{ text: "" }],
+            });
+          }
+        }
+
+        return;
+      }
     };
 
     return (
@@ -193,17 +276,19 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
           setValue(nextValue);
         }}
       >
+        {toolbar}
+
         <InputPressable isFocused={isFocused}>
           {(pressableProps: PressableState & PressableActions) => (
             <React.Fragment>
-              {!readonly && !disabled && (
+              {/* {!readonly && !disabled && (
                 <ToolbarWrapper
-                  // isVisible
-                  isVisible={pressableProps.focused || pressableProps.hovered}
+                  isVisible
+                  // isVisible={pressableProps.focused || pressableProps.hovered}
                 >
                   {toolbar}
                 </ToolbarWrapper>
-              )}
+              )} */}
 
               <InputOutline
                 {...pick(pressableProps, ["focused", "pressed", "hovered"])}
@@ -224,8 +309,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                     pressableProps.focus();
                   }}
                   onBlur={() => pressableProps.blur()}
-                  // onBlur={() => setIsFocused(false)}
-                  // onFocus={() => setIsFocused(true)}
                 />
               </InputOutline>
             </React.Fragment>

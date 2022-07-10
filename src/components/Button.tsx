@@ -1,8 +1,8 @@
 import * as React from "react";
 import { LayoutChangeEvent, View } from "react-native";
 import styled from "styled-components/native";
-import { Pressable } from "../experimental/Pressable";
 
+import { Pressable } from "../experimental/Pressable";
 import {
   theme,
   ColorProp,
@@ -44,6 +44,7 @@ const ButtonContainer = styled.View<Bordered & Greedy & SpacingProps>`
   border-width: ${theme.borderThickness}px;
   border-style: solid;
   justify-content: center;
+  cursor: pointer;
 `;
 
 const ButtonText = styled(Text.Label).attrs({
@@ -58,6 +59,7 @@ export type ButtonRenderer = (
 
 export interface ButtonProps extends SpacingProps {
   onPress?: () => void;
+  onPressCapture?: () => void;
   mode?: "contained" | "outlined" | "text";
   color?: ColorProp;
   title?: string;
@@ -70,7 +72,7 @@ export interface ButtonProps extends SpacingProps {
   background?: string;
 }
 
-const Button = React.forwardRef<View, ButtonProps>(
+const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
   (
     {
       title,
@@ -83,6 +85,7 @@ const Button = React.forwardRef<View, ButtonProps>(
       selected: isSelected,
       background: backgroundProp,
       spacingSize = [1, 0],
+      onPressCapture,
       ...rest
     },
     ref
@@ -187,7 +190,12 @@ const Button = React.forwardRef<View, ButtonProps>(
     };
 
     return (
-      <Pressable ref={ref} onPress={onPress} disabled={isDisabled}>
+      <Pressable
+        ref={ref}
+        onPress={onPress}
+        disabled={isDisabled}
+        onPressCapture={onPressCapture}
+      >
         {renderChildren}
       </Pressable>
     );

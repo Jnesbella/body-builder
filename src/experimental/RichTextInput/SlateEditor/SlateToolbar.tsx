@@ -1,25 +1,32 @@
 import * as React from "react";
 import styled from "styled-components";
 import * as Icons from "react-bootstrap-icons";
+import { ReactEditor, useSlate, useSlateStatic } from "slate-react";
+import { Transforms } from "slate";
+import { startCase } from "lodash";
 
-import { Divider, Layout, Space } from "../../../components";
+import { Divider, Layout, SelectInput, Space, Text } from "../../../components";
+import { theme } from "../../../styles";
+import { Normal, Heading, Subheading, Caption, Label } from "./SlateElement";
+import { log } from "../../../utils";
+import {
+  CustomElement,
+  FormatElement,
+  ListElement,
+} from "../../../typings-slate";
 
 import MarkButton, { MarkButtonProps } from "./MarkButton";
 import BlockButton, { BlockButtonProps } from "./BlockButton";
-import { theme } from "../../../styles";
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-`;
+import { FORMAT_TYPES } from "./slateConstants";
+import { Editor, Element } from "./slate";
 
 export interface SlateToolbarProps {
   disabled?: boolean;
 }
 
 function SlateToolbar({ disabled }: SlateToolbarProps) {
+  const editor = useSlate();
+
   const marks: {
     mark: MarkButtonProps["mark"];
     icon: MarkButtonProps["icon"];
@@ -35,14 +42,21 @@ function SlateToolbar({ disabled }: SlateToolbarProps) {
     block: BlockButtonProps["block"];
     icon: BlockButtonProps["icon"];
   }[] = [
-    // { block: "paragraph", icon: Icons.Paragraph },
-    // { block: "heading", icon: Icons.Fonts },
     { block: "block-quote", icon: Icons.BlockquoteLeft },
     { block: "code", icon: Icons.CodeSlash },
 
-    { block: "link", icon: Icons.Link },
-    { block: "image", icon: Icons.Image },
+    { block: "bullet-list", icon: Icons.ListUl },
+    { block: "number-list", icon: Icons.ListOl },
+    { block: "task-list", icon: Icons.ListCheck },
 
+    // { block: "link", icon: Icons.Link },
+    // { block: "image", icon: Icons.Image },
+  ];
+
+  const listBlocks: {
+    block: ListElement["type"];
+    icon: BlockButtonProps["icon"];
+  }[] = [
     { block: "bullet-list", icon: Icons.ListUl },
     { block: "number-list", icon: Icons.ListOl },
     { block: "task-list", icon: Icons.ListCheck },
@@ -71,9 +85,89 @@ function SlateToolbar({ disabled }: SlateToolbarProps) {
     </React.Fragment>
   );
 
+  const listBlockButtons = (
+    <React.Fragment>
+      {listBlocks.map(({ block: listType, icon }) => (
+        <BlockButton
+          key={listType}
+          block={listType}
+          disabled={disabled}
+          icon={icon}
+          onPress={() => {
+            Editor.toggleListElement(editor, listType);
+          }}
+          isActive={Editor.isListBlock(editor, listType)}
+        />
+      ))}
+    </React.Fragment>
+  );
+
+  const activeFormatType: FormatElement["type"] | undefined =
+    React.useMemo(() => {
+      const [match] =
+        Editor.nodes(editor, {
+          match: (node) =>
+            !Editor.isEditor(node) &&
+            Element.isElement(node) &&
+            Element.isFormatElement(node),
+          mode: "lowest",
+        }) || [];
+      const [element] = match || [];
+
+      log("activeFormatType: ", { element });
+
+      const { type } = (element as FormatElement) || {};
+
+      return type ? type : undefined;
+    }, [editor, editor.selection]);
+
   return (
-    <Layout.Row spacingSize={[0, 0.5]} alignItems="center">
+    <Layout.Row alignItems="center">
       {markButtons}
+
+      {/* <Space /> */}
+      {/* <Divider vertical height={theme.spacing * 3} />
+      <Space /> */}
+
+      <SelectInput
+        options={FORMAT_TYPES}
+        value={activeFormatType}
+        onChangeOption={(option) => {
+          // const { selection } = editor;
+
+          Editor.setFormatElement(editor, { type: option });
+
+          // ReactEditor.focus(editor);
+
+          // if (selection) {
+          //   Transforms.select(editor, selection);
+          // }
+        }}
+        getInputValue={(option) => startCase(option)}
+        renderOption={({ option }) => {
+          let Wrapper: (props: any) => JSX.Element = Normal;
+
+          switch (option) {
+            case "heading":
+              Wrapper = Heading;
+              break;
+
+            case "subheading":
+              Wrapper = Subheading;
+              break;
+
+            case "caption":
+              Wrapper = Caption;
+              break;
+
+            case "label":
+              Wrapper = Label;
+              break;
+          }
+
+          return <Wrapper>{startCase(option)}</Wrapper>;
+        }}
+      />
 
       <Space />
 
@@ -81,7 +175,10 @@ function SlateToolbar({ disabled }: SlateToolbarProps) {
 
       <Space />
 
-      {blockButtons}
+      {/* {blockButtons} */}
+      {/* <Space /> */}
+
+      {listBlockButtons}
     </Layout.Row>
   );
 

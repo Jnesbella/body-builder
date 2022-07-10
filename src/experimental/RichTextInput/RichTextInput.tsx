@@ -26,6 +26,7 @@ import {
   full,
   background,
   Background,
+  Space,
 } from "../../components";
 import { InputOutline } from "../../components/TextInput";
 
@@ -73,7 +74,7 @@ function RichTextInput({
   onChangeText,
   disabled,
   placeholder,
-  isFocused,
+  // isFocused,
   onFocus,
 }: RichTextInputProps) {
   // const [isFocused, setIsFocused] = React.useState(false);
@@ -83,13 +84,18 @@ function RichTextInput({
     <SlateEditor
       ref={editorRef}
       placeholder={placeholder}
-      toolbar={<SlateEditorToolbar disabled={disabled} />}
+      toolbar={
+        <React.Fragment>
+          <SlateEditorToolbar disabled={disabled} />
+          <Space />
+        </React.Fragment>
+      }
       // onBlur={() => setIsFocused(false)}
       // onFocus={() => setIsFocused(true)}
       defaultValue={defaultValue ? Editor.fromJSON(defaultValue) : undefined}
       onChange={(nextValue) => onChangeText?.(Editor.toJSON(nextValue))}
       disabled={disabled}
-      isFocused={isFocused}
+      // isFocused={isFocused}
       onFocus={onFocus}
       // renderEditable={({ children }) => {
       //   return (
@@ -107,7 +113,12 @@ function RichTextInput({
       //     </InputPressable>
       //   );
       // }}
-      footer={<SlateEditorFooter />}
+      footer={
+        <React.Fragment>
+          <Space />
+          <SlateEditorFooter />
+        </React.Fragment>
+      }
     />
   );
 }

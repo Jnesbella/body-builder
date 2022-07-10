@@ -29,7 +29,7 @@ function SlateFooter({}: SlateFooterProps) {
   const wordsCount = 0;
 
   return (
-    <Layout.Row spacingSize={0.5}>
+    <Layout.Row>
       <FooterItem>
         <FooterText>Page 1 of 10</FooterText>
       </FooterItem>

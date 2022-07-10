@@ -1,6 +1,6 @@
 import { Element } from "slate";
 
-import { MarkType, ListType } from "../../../typings-slate";
+import { MarkType, ListElement, FormatElement } from "../../../typings-slate";
 
 export const DEFAULT_VALUE: Element[] = [
   {
@@ -17,8 +17,16 @@ export const HOTKEYS: Record<KeyboardShortcut, MarkType> = {
   "mod+`": "code",
 };
 
-export const LIST_TYPES: ListType[] = [
+export const LIST_TYPES: ListElement["type"][] = [
   "number-list",
   "bullet-list",
   "task-list",
+];
+
+export const FORMAT_TYPES: FormatElement["type"][] = [
+  "heading",
+  "subheading",
+  "label",
+  "caption",
+  "paragraph",
 ];
