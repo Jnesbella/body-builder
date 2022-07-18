@@ -13,11 +13,15 @@ import {
   background,
   greedy,
   Info,
+  shadow,
+  bordered,
+  IconButton,
 } from "@jnesbella/body-builder";
 import { v4 as uuidv4 } from "uuid";
 import * as Icons from "react-bootstrap-icons";
 import { ScrollView } from "react-native";
 import styled from "styled-components/native";
+import { isNumber } from "lodash";
 
 const Container = styled(ScrollView).attrs({
   background: theme.colors.backgroundInfo,
@@ -41,21 +45,39 @@ const createPage = (index: number, payload?: Partial<Page>) => ({
   ...payload,
 });
 
+const PageWrapper = styled(Layout.Column)`
+  // ${shadow};
+  ${bordered};
+`;
+
 function Page({
   page,
   isFocused,
   onFocus,
+  pageCount,
+  onChange,
 }: {
   page: Page;
   onFocus?: () => void;
   isFocused?: boolean;
+  pageCount?: number;
+  onChange?: (page: Page) => void;
 }) {
-  const [title, setTitle] = React.useState(page.title);
+  // const [title, setTitle] = React.useState(page.title);
+
+  const toolbar = isFocused && <RichTextInput.Toolbar />;
+
+  // React.useEffect(
+  //   function handlePageChange() {
+  //     if (onChange) {
+  //       onChange({ ...page, title });
+  //     }
+  //   },
+  //   [onChange, title, page]
+  // );
 
   return (
     <Layout.Column>
-      <Space />
-
       {/* <Layout.Box spacingSize={[0.5, 0]}>
         <TextInput
           placeholder="Title"
@@ -70,8 +92,9 @@ function Page({
       <Surface spacingSize={1}>
         <TextInput
           placeholder="Title your page"
-          value={title}
-          onChangeText={setTitle}
+          value={page.title}
+          // onChangeText={setTitle}
+          onChangeText={(text) => onChange?.({ ...page, title: text })}
           fullWidth
         />
 
@@ -86,6 +109,28 @@ function Page({
           placeholder="Write your content"
           isFocused={isFocused}
           onFocus={onFocus}
+          // toolbar={toolbar}
+          onChangeText={(text) => onChange?.({ ...page, content: text })}
+          footer={
+            <>
+              <Space />
+
+              {toolbar}
+
+              <Space spacingSize={0.5} />
+
+              <RichTextInput.Footer>
+                {isNumber(pageCount) && (
+                  <RichTextInput.Footer.PageNumberItem
+                    pageNum={page.index + 1}
+                    pageCount={pageCount}
+                  />
+                )}
+
+                <RichTextInput.Footer.WordCountItem />
+              </RichTextInput.Footer>
+            </>
+          }
         />
       </Surface>
     </Layout.Column>
@@ -152,6 +197,43 @@ function RichTextEdtiorExample() {
     number | undefined
   >();
 
+  const addPage = () =>
+    setPages((prevPages) => [...prevPages, createPage(prevPages.length)]);
+
+  const insertPage = (index: number) =>
+    setPages((prevPages) => [
+      ...prevPages.slice(0, index),
+      createPage(index),
+      ...prevPages.slice(index),
+    ]);
+
+  const AddPageButton = ({ pageIndex }: { pageIndex: number }) => (
+    <IconButton icon={Icons.Plus} onPress={() => insertPage(pageIndex)} />
+  );
+
+  const addPageButton = (
+    <Button
+      // mode="contained"
+      onPress={addPage}
+    >
+      {(buttonProps) => (
+        <Button.Container {...buttonProps}>
+          <Layout.Row alignItems="center" spacingSize={[1, 0]}>
+            <Icon
+              color={buttonProps.color}
+              background={buttonProps.background}
+              icon={Icons.Plus}
+            />
+
+            <Space />
+
+            <Button.Text color={buttonProps.color}>Add Page</Button.Text>
+          </Layout.Row>
+        </Button.Container>
+      )}
+    </Button>
+  );
+
   return (
     // <ScrollView contentContainerStyle={{ flex: 1 }}>
     <Container>
@@ -160,40 +242,33 @@ function RichTextEdtiorExample() {
       </Layout.Box>
 
       <Layout.Row justifyContent="center">
-        <Button
-          // mode="contained"
-          onPress={() =>
-            setPages((prevPages) => [
-              ...prevPages,
-              createPage(prevPages.length),
-            ])
-          }
-        >
-          {(buttonProps) => (
-            <Button.Container {...buttonProps}>
-              <Layout.Row alignItems="center" spacingSize={[1, 0]}>
-                <Icon
-                  color={buttonProps.color}
-                  background={buttonProps.background}
-                  icon={Icons.Plus}
-                />
-
-                <Space />
-
-                <Button.Text color={buttonProps.color}>Add Page</Button.Text>
-              </Layout.Row>
-            </Button.Container>
-          )}
-        </Button>
+        <AddPageButton pageIndex={0} />
       </Layout.Row>
 
       {pages.map((page, index) => (
-        <Page
-          key={page.id}
-          page={page}
-          isFocused={focusedPageIndex === index}
-          onFocus={() => setFocusedPageIndex(index)}
-        />
+        <React.Fragment key={page.id}>
+          <Layout.Box spacingSize={[4, 1]}>
+            <PageWrapper>
+              <Page
+                page={page}
+                isFocused={focusedPageIndex === index}
+                onFocus={() => setFocusedPageIndex(index)}
+                pageCount={pages.length}
+                onChange={(page) =>
+                  setPages((prevPages) => [
+                    ...prevPages.slice(0, index),
+                    page,
+                    ...prevPages.slice(index + 1),
+                  ])
+                }
+              />
+            </PageWrapper>
+          </Layout.Box>
+
+          <Layout.Row justifyContent="center">
+            <AddPageButton pageIndex={index + 1} />
+          </Layout.Row>
+        </React.Fragment>
       ))}
 
       <Space />

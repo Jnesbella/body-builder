@@ -1,7 +1,15 @@
 import * as React from "react";
 import isHotkey from "is-hotkey";
 import { Editable, withReact, Slate, ReactEditor } from "slate-react";
-import { createEditor, Descendant, Node, Path, Transforms } from "slate";
+import {
+  createEditor,
+  Descendant,
+  Node,
+  Path,
+  Range,
+  Transforms,
+  Editor as DefaultEditor,
+} from "slate";
 import { withHistory } from "slate-history";
 import styled, { css } from "styled-components/native";
 
@@ -18,6 +26,7 @@ import { isNumber, last, pick } from "lodash";
 import { log } from "../../../utils";
 import {
   CustomElement,
+  ListElement,
   ListItemElement,
   ParagraphElement,
 } from "../../../typings-slate";
@@ -51,6 +60,7 @@ export interface SlateEditorProps {
 
 export interface SlateEditorElement {
   focus: () => void;
+  editor?: DefaultEditor;
 }
 
 const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
@@ -140,6 +150,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
       processHotkeys(event);
+
       log({ event });
 
       const isEnter = event.key === "Enter";
@@ -195,71 +206,138 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
         return;
       }
 
+      const { selection } = editor;
+      const isSelectionCollapsed = selection && Range.isCollapsed(selection);
+
+      const isDeleteBackwards = event.inputType === "deleteContentBackward";
+      if (isDeleteBackwards) {
+        const [element, path] = Editor.getSelectedElement(editor) || [];
+
+        if (element && path) {
+          const [parent, parentPath] = Editor.parent(editor, path);
+          const isListItem = Element.isListItemElement(parent);
+          const isEmpty = Editor.isEmpty(editor, element);
+
+          if (isEmpty && isSelectionCollapsed) {
+            // is empty element
+            // so remove the node
+
+            event.preventDefault();
+
+            const pathToSiblings = isListItem ? parentPath : path;
+
+            const [prevSibling] = Path.hasPrevious(pathToSiblings)
+              ? Editor.node(editor, Path.previous(pathToSiblings))
+              : [];
+
+            const [nextSibling] = Node.has(editor, Path.next(pathToSiblings))
+              ? Editor.node(editor, Path.next(pathToSiblings))
+              : [];
+
+            const shouldMergeSiblings =
+              prevSibling &&
+              Element.isElement(prevSibling) &&
+              nextSibling &&
+              Element.isElement(nextSibling) &&
+              Element.isListElement(prevSibling) &&
+              nextSibling.type === prevSibling.type;
+
+            Editor.deleteBackward(editor);
+
+            if (shouldMergeSiblings) {
+              Transforms.mergeNodes(editor, { at: path });
+            }
+          }
+        }
+
+        return;
+      }
+
       // handle insert paragraph
       const isInsertParagraph = event.inputType === "insertParagraph";
       if (isInsertParagraph) {
         const [element, path] = Editor.getSelectedElement(editor) || [];
 
-        log({ element, path });
-
         if (element && path) {
-          event.preventDefault();
-
           const [parent, parentPath] = Editor.parent(editor, path);
-
-          log("----");
-          log("parent: ", { parent, parentPath });
-          log("match: ", { element, path });
-
-          // const hasListParent = (() => {
-          //   const [match] = Editor.nodes(editor, {
-          //     at: path,
-          //     match: (node) =>
-          //       !Editor.isEditor(node) &&
-          //       Element.isElement(node) &&
-          //       Element.isListElement(node),
-          //   });
-
-          //   return !!match;
-          // })();
-
           const isListItem = Element.isListItemElement(parent);
           const isEmpty = Editor.isEmpty(editor, element);
 
           if (isListItem) {
+            event.preventDefault();
+
             if (isEmpty) {
-              // Editor.insertNode(editor, paragraph);
-              Transforms.setNodes(editor, { type: "paragraph" }, { at: path });
+              // is empty list item
+              // so lift format element out of list
+
+              // TODO: confirm this line can be removed
+              // Transforms.setNodes(editor, { type: "paragraph" }, { at: path });
+
+              // lift to the list-item level
               Transforms.liftNodes(editor, { at: path });
+
+              // lift to the list level
+              // Transforms.liftNodes(editor, { at: path.slice(0, -1) });
+              Transforms.liftNodes(editor, { at: Path.parent(path) });
             } else {
+              // is list-item with content
+              // so insert a new list item
+
               const lastIndex = last(parentPath);
               const pathEnd = isNumber(lastIndex) ? lastIndex + 1 : 0;
               const insertAtPath = parentPath.slice(0, -1).concat(pathEnd);
 
-              log({ insertAtPath, path, parentPath });
+              // debugger;
 
-              Transforms.insertNodes(
+              Editor.insertBreak(editor);
+
+              // wrap each format element in a list-item element
+              Transforms.wrapNodes(
                 editor,
                 {
                   type: "list-item",
                   listType: (parent as ListItemElement).listType,
-                  children: [
-                    {
-                      type: element.type,
-                      children: [{ text: "" }],
-                    },
-                  ],
-                } as ListItemElement,
-                { at: insertAtPath }
+                  children: [],
+                },
+                {
+                  at: Path.next(path),
+                  match: (node) =>
+                    !Editor.isEditor(node) &&
+                    Element.isElement(node) &&
+                    Element.isFormatElement(node),
+                  // mode: "lowest",
+                }
               );
 
-              Transforms.select(editor, insertAtPath);
+              Transforms.liftNodes(editor, { at: Path.next(path) });
+
+              // lift to the list-item level
+              // Transforms.liftNodes(editor, { at: path });
+
+              // // insert new list-item
+              // Transforms.insertNodes(
+              //   editor,
+              //   {
+              //     type: "list-item",
+              //     listType: (parent as ListItemElement).listType,
+              //     children: [
+              //       {
+              //         type: element.type,
+              //         children: [{ text: "" }],
+              //       },
+              //     ],
+              //   } as ListItemElement,
+              //   { at: insertAtPath }
+              // );
+
+              // // focus new list-item
+              // Transforms.select(editor, insertAtPath);
             }
           } else {
-            Editor.insertNode(editor, {
-              type: "paragraph",
-              children: [{ text: "" }],
-            });
+            // Editor.insertNode(editor, {
+            //   type: "paragraph",
+            //   children: [{ text: "" }],
+            // });
           }
         }
 

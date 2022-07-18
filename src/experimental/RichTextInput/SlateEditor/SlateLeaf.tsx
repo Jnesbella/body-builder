@@ -32,7 +32,7 @@ const LeafText = styled.span<LeafTextProps>`
 export interface SlateLeafProps extends RenderLeafProps {}
 
 function SlateLeaf({ children, leaf, attributes }: SlateLeafProps) {
-  log("SlateLeaf", { attributes, leaf });
+  // log("SlateLeaf", { attributes, leaf });
 
   const color = leaf.code ? theme.colors.textCode : theme.colors.text;
 

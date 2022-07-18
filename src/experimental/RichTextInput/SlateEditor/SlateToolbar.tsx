@@ -2,7 +2,7 @@ import * as React from "react";
 import styled from "styled-components";
 import * as Icons from "react-bootstrap-icons";
 import { ReactEditor, useSlate, useSlateStatic } from "slate-react";
-import { Transforms } from "slate";
+import { Transforms, Editor as DefaultEditor } from "slate";
 import { startCase } from "lodash";
 
 import { Divider, Layout, SelectInput, Space, Text } from "../../../components";
@@ -10,6 +10,7 @@ import { theme } from "../../../styles";
 import { Normal, Heading, Subheading, Caption, Label } from "./SlateElement";
 import { log } from "../../../utils";
 import {
+  CustomEditor,
   CustomElement,
   FormatElement,
   ListElement,
@@ -22,10 +23,12 @@ import { Editor, Element } from "./slate";
 
 export interface SlateToolbarProps {
   disabled?: boolean;
+  editor?: DefaultEditor;
 }
 
-function SlateToolbar({ disabled }: SlateToolbarProps) {
-  const editor = useSlate();
+function SlateToolbar({ disabled, editor: editorProp }: SlateToolbarProps) {
+  const defaultEditor = useSlate();
+  const editor = editorProp || defaultEditor;
 
   const marks: {
     mark: MarkButtonProps["mark"];

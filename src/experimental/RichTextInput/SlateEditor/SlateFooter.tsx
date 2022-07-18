@@ -19,30 +19,68 @@ const FooterItem = styled(Layout.Box).attrs({
 
 const FooterText = styled(Text.Caption).attrs({})``;
 
-export interface SlateFooterProps {
-  disabled?: boolean;
+function countWords(s: string) {
+  s = s.replace(/(^\s*)|(\s*$)/gi, ""); //exclude  start and end white-space
+  s = s.replace(/[ ]{2,}/gi, " "); //2 or more space to 1
+  s = s.replace(/\n /, "\n"); // exclude newline with a start spacing
+  return s.split(" ").filter(function (str: string) {
+    return str != "";
+  }).length;
+  //return s.split(' ').filter(String).length; - this can also be used
 }
 
-function SlateFooter({}: SlateFooterProps) {
+function WordCountItem() {
+  const editor = useSlate();
+  const wordsCount = countWords(Editor.getText(editor));
+
+  return (
+    <FooterItem>
+      <FooterText>{wordsCount} words</FooterText>
+    </FooterItem>
+  );
+}
+
+function CharacterCountItem() {
   const editor = useSlate();
   const characterCount = Editor.getTextLength(editor);
-  const wordsCount = 0;
 
+  return (
+    <FooterItem>
+      <FooterText>{characterCount} characters</FooterText>
+    </FooterItem>
+  );
+}
+
+export interface PageNumberItemProps {
+  pageNum: number;
+  pageCount: number;
+}
+
+function PageNumberItem({ pageNum, pageCount }: PageNumberItemProps) {
   return (
     <Layout.Row>
       <FooterItem>
-        <FooterText>Page 1 of 10</FooterText>
-      </FooterItem>
-
-      <FooterItem>
-        <FooterText>{wordsCount} words</FooterText>
-      </FooterItem>
-
-      <FooterItem>
-        <FooterText>{characterCount} characters</FooterText>
+        <FooterText>
+          Page {pageNum} of {pageCount}
+        </FooterText>
       </FooterItem>
     </Layout.Row>
   );
 }
+
+export interface SlateFooterProps {
+  disabled?: boolean;
+  children?: React.ReactNode;
+}
+
+function SlateFooter({ children }: SlateFooterProps) {
+  return <Layout.Row>{children}</Layout.Row>;
+}
+
+SlateFooter.Text = FooterText;
+SlateFooter.Item = FooterItem;
+SlateFooter.WordCountItem = WordCountItem;
+SlateFooter.CharacterCountItem = CharacterCountItem;
+SlateFooter.PageNumberItem = PageNumberItem;
 
 export default SlateFooter;

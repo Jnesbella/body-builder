@@ -187,7 +187,7 @@ const ListItem = React.forwardRef<any, ListItemProps>(
 function SlateElement(props: SlateElementProps) {
   const { children, element, attributes } = props;
 
-  log("SlateElement", { attributes, element });
+  // log("SlateElement", { attributes, element });
 
   switch (element.type) {
     // case "block-quote":

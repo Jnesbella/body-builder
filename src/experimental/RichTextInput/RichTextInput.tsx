@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled, { css } from "styled-components/native";
+import { Editor as DefaultEditor } from "slate";
 
 import SlateEditor, {
   Editor,
@@ -60,6 +61,10 @@ const InputPressable = styled.Pressable`
 //   padding: 0 ${theme.spacing}px;
 // `;
 
+export interface RichTextInputElement {
+  editor?: DefaultEditor;
+}
+
 export interface RichTextInputProps {
   onChangeText?: (text: string) => void;
   defaultValue?: string;
@@ -67,60 +72,94 @@ export interface RichTextInputProps {
   placeholder?: SlateEditorProps["placeholder"];
   isFocused?: SlateEditorProps["isFocused"];
   onFocus?: SlateEditorProps["onFocus"];
+  footer?: SlateEditorProps["footer"];
+  toolbar?: SlateEditorProps["toolbar"];
 }
 
-function RichTextInput({
-  defaultValue,
-  onChangeText,
-  disabled,
-  placeholder,
-  // isFocused,
-  onFocus,
-}: RichTextInputProps) {
-  // const [isFocused, setIsFocused] = React.useState(false);
-  const editorRef = React.useRef<SlateEditorElement>(null);
+const RichTextInput = React.forwardRef<
+  RichTextInputElement,
+  RichTextInputProps
+>(
+  (
+    {
+      defaultValue,
+      onChangeText,
+      disabled,
+      placeholder,
+      // isFocused,
+      onFocus,
+      footer,
+      toolbar,
+    },
+    ref
+  ) => {
+    // const [isFocused, setIsFocused] = React.useState(false);
+    const editorRef = React.useRef<SlateEditorElement>(null);
 
-  return (
-    <SlateEditor
-      ref={editorRef}
-      placeholder={placeholder}
-      toolbar={
-        <React.Fragment>
-          <SlateEditorToolbar disabled={disabled} />
-          <Space />
-        </React.Fragment>
-      }
-      // onBlur={() => setIsFocused(false)}
-      // onFocus={() => setIsFocused(true)}
-      defaultValue={defaultValue ? Editor.fromJSON(defaultValue) : undefined}
-      onChange={(nextValue) => onChangeText?.(Editor.toJSON(nextValue))}
-      disabled={disabled}
-      // isFocused={isFocused}
-      onFocus={onFocus}
-      // renderEditable={({ children }) => {
-      //   return (
-      //     <InputPressable
-      //       onPress={() => {
-      //         console.log("FOCUS");
-      //         editorRef.current?.focus();
-      //       }}
-      //     >
-      //       {(state: PressableState) => (
-      //         <InputOutline {...state} focused={state.focused || isFocused}>
-      //           {children}
-      //         </InputOutline>
-      //       )}
-      //     </InputPressable>
-      //   );
-      // }}
-      footer={
-        <React.Fragment>
-          <Space />
-          <SlateEditorFooter />
-        </React.Fragment>
-      }
-    />
-  );
-}
+    React.useEffect(() => {
+      const element: RichTextInputElement = {
+        editor: editorRef.current?.editor,
+      };
 
-export default RichTextInput;
+      if (typeof ref === "function") {
+        ref(element);
+      } else if (ref) {
+        ref.current = element;
+      }
+    });
+
+    return (
+      <SlateEditor
+        ref={editorRef}
+        placeholder={placeholder}
+        toolbar={toolbar}
+        // toolbar={
+        //   <React.Fragment>
+        //     <SlateEditorToolbar disabled={disabled} />
+        //     <Space />
+        //   </React.Fragment>
+        // }
+        // onBlur={() => setIsFocused(false)}
+        // onFocus={() => setIsFocused(true)}
+        defaultValue={defaultValue ? Editor.fromJSON(defaultValue) : undefined}
+        onChange={(nextValue) => onChangeText?.(Editor.toJSON(nextValue))}
+        disabled={disabled}
+        // isFocused={isFocused}
+        onFocus={onFocus}
+        // renderEditable={({ children }) => {
+        //   return (
+        //     <InputPressable
+        //       onPress={() => {
+        //         console.log("FOCUS");
+        //         editorRef.current?.focus();
+        //       }}
+        //     >
+        //       {(state: PressableState) => (
+        //         <InputOutline {...state} focused={state.focused || isFocused}>
+        //           {children}
+        //         </InputOutline>
+        //       )}
+        //     </InputPressable>
+        //   );
+        // }}
+        footer={footer}
+        // footer={
+        //   <React.Fragment>
+        //     <Space />
+        //     <SlateEditorFooter />
+        //   </React.Fragment>
+        // }
+      />
+    );
+  }
+);
+
+type RichTextInput = typeof RichTextInput & {
+  Toolbar: typeof SlateEditorToolbar;
+  Footer: typeof SlateEditorFooter;
+};
+
+(RichTextInput as RichTextInput).Toolbar = SlateEditorToolbar;
+(RichTextInput as RichTextInput).Footer = SlateEditorFooter;
+
+export default RichTextInput as RichTextInput;

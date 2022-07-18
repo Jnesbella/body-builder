@@ -193,6 +193,8 @@ export const Editor = {
           );
         });
 
+        Editor.mergeListNodes(editor, listType);
+
         // Transforms.setNodes(
         //   editor,
         //   { type: listType },
@@ -236,6 +238,22 @@ export const Editor = {
         log("----");
         log("toggleListElement", { node, path });
 
+        // const [prevSibling, previousSiblingPath] = Path.hasPrevious(path)
+        //   ? Editor.node(editor, Path.previous(path))
+        //   : [];
+        // const [nextSibling, nextSiblingPath] =
+        //   Editor.node(editor, Path.next(path)) || [];
+
+        // const shouldMergeSiblings =
+        //   prevSibling &&
+        //   Element.isElement(prevSibling) &&
+        //   nextSibling &&
+        //   Element.isElement(nextSibling) &&
+        //   Element.isListElement(prevSibling) &&
+        //   nextSibling.type === prevSibling.type;
+
+        // log({ shouldMergeSiblings, prevSibling, nextSibling });
+
         // wrap each format element in a list-item element
         Transforms.wrapNodes(
           editor,
@@ -249,6 +267,46 @@ export const Editor = {
             // mode: "lowest",
           }
         );
+
+        // const [prevSibling] = Editor.node(editor, Path.previous(path)) || [];
+        // const [nextSibling] = Editor.node(editor, Path.next(path)) || [];
+
+        // const isPrevSiblingList = Element.isListElement(prevSibling);
+        // const isNextSiblingList = Element.isListElement(nextSibling);
+        // const shouldMergeSiblings = isPrevSiblingList && isNextSiblingList;
+
+        // Editor.deleteBackward(editor);
+
+        // wrap all the list-item elements in a list element
+        // Transforms.wrapNodes(
+        //   editor,
+        //   { type: listType, children: [] },
+        //   {
+        //     match: (node) =>
+        //       !Editor.isEditor(node) &&
+        //       Element.isElement(node) &&
+        //       Element.isElementType(node, "list-item"),
+        //     mode: "highest",
+        //   }
+        // );
+
+        // if (
+        //   nextSiblingPath &&
+        //   Element.isElement(nextSibling) &&
+        //   Element.isListElement(nextSibling, listType)
+        // ) {
+        //   Transforms.mergeNodes(editor, { at: nextSiblingPath });
+        // }
+
+        // if (
+        //   previousSiblingPath &&
+        //   Element.isElement(prevSibling) &&
+        //   Element.isListElement(prevSibling, listType)
+        // ) {
+        //   Transforms.mergeNodes(editor, { at: path });
+        // }
+
+        // return;
       });
 
       // Transforms.wrapNodes(
@@ -288,6 +346,8 @@ export const Editor = {
           mode: "lowest",
         }
       );
+
+      Editor.mergeListNodes(editor, listType);
     }
   },
 
@@ -309,6 +369,61 @@ export const Editor = {
         Element.isElement(node) &&
         Element.isFormatElement(node),
       // mode: "all",
+    });
+  },
+
+  mergeListNodes: (
+    editor: DefaultEditor,
+    listType: ListElement["type"]
+    // { at }: { at: Path }
+  ) => {
+    const matches = Editor.nodes(editor, {
+      match: (node) =>
+        !Editor.isEditor(node) &&
+        Element.isElement(node) &&
+        Element.isListElement(node, listType),
+      // mode: "lowest",
+    });
+
+    log("-----");
+
+    log("mergeListNodes: ", { matches, listType });
+
+    [...matches].forEach((match) => {
+      const [node, path] = match;
+
+      log(".");
+      log("match: ", { node, path });
+
+      if (Node.has(editor, Path.next(path))) {
+        const [nextSibling, nextSiblingPath] = Editor.node(
+          editor,
+          Path.next(path)
+        );
+
+        const isNextSiblingList = Element.isListElement(nextSibling, listType);
+
+        log({ isNextSiblingList });
+
+        if (isNextSiblingList) {
+          Transforms.mergeNodes(editor, { at: nextSiblingPath });
+        }
+      }
+
+      if (Path.hasPrevious(path)) {
+        // if (Node.has(editor, Path.previous(path))) {
+        const [prevSibling, previousSiblingPath] = Editor.node(
+          editor,
+          Path.previous(path)
+        );
+        const isPrevSiblingList = Element.isListElement(prevSibling, listType);
+
+        log({ isPrevSiblingList });
+
+        if (isPrevSiblingList) {
+          Transforms.mergeNodes(editor, { at: path });
+        }
+      }
     });
   },
 
@@ -381,8 +496,11 @@ export const Editor = {
 
   getText: (editor: DefaultEditor) => {
     const { children } = editor;
+    const text = children.map(Element.getText).join("\b");
 
-    return children.map(Element.getText).join("");
+    console.log("getText: ", { text });
+
+    return text;
   },
 
   getTextLength: (editor: DefaultEditor) => {
