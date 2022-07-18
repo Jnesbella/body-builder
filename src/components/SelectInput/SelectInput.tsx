@@ -2,6 +2,7 @@ import * as React from "react";
 import ReactDOM from "react-dom";
 import { get, isEqual } from "lodash";
 import styled from "styled-components/native";
+import { LayoutRectangle } from "react-native";
 
 import { theme } from "../../styles";
 
@@ -18,7 +19,7 @@ import {
   shadow,
   zIndex,
 } from "../styled-components";
-import { LayoutRectangle } from "react-native";
+import Tooltip from "../Tooltip";
 
 const OptionText = styled(Text).attrs<{ isSelected?: boolean }>(
   ({ isSelected }) => ({
@@ -28,45 +29,74 @@ const OptionText = styled(Text).attrs<{ isSelected?: boolean }>(
   ${fontWeight};
 `;
 
-const SelectInputContainer = styled(Layout.Column)`
+const SelectInputContainer = styled(Layout.Column)<{
+  layout?: LayoutRectangle;
+}>`
   position: relative;
 `;
 
 const SelectInputOptions = styled(Layout.Column).attrs({ fullWidth: true })<{
-  top: number;
-  left: number;
+  // top: number;
+  // left: number;
 }>`
   ${rounded};
   ${full};
   ${shadow};
-  ${zIndex("aboveAll")};
-
-  top: ${({ top }) => top}px;
-  left: ${({ left }) => left}px;
 
   background: ${theme.colors.background};
   max-width: ${theme.spacing * 30}px;
   max-height: ${theme.spacing * 40}px;
-  position: absolute;
   elevation: 1;
 `;
 
-function Portal({ children }: { children: React.ReactNode }) {
-  const [container] = React.useState(document.createElement("div"));
+// const PortalChildrenWrapper = styled(Layout.Box)``;
 
-  React.useEffect(
-    function removeContainerOnUnmount() {
-      document.body.appendChild(container);
+// function Portal({ children }: { children: React.ReactNode }) {
+//   const [container] = React.useState(document.createElement("div"));
 
-      return () => {
-        document.body.removeChild(container);
-      };
-    },
-    [container]
-  );
+//   React.useEffect(
+//     function removeContainerOnUnmount() {
+//       const applyContainerStyles = () => {
+//         container.style.position = "fixed";
+//         container.style.top = "0";
+//         container.style.left = "0";
+//         container.style.width = "100%";
+//         container.style.height = "100%";
+//       };
 
-  return ReactDOM.createPortal(children, container);
-}
+//       applyContainerStyles();
+
+//       document.body.appendChild(container);
+
+//       return () => {
+//         document.body.removeChild(container);
+//       };
+//     },
+//     [container]
+//   );
+
+//   return ReactDOM.createPortal(
+//     <PortalChildrenWrapper>{children}</PortalChildrenWrapper>,
+//     container
+//   );
+// }
+
+// const TooltipContainer = styled(Layout.Box).attrs({
+//   fullWidth: true,
+// })`
+//   ${full};
+//   position: asbolute;
+//   ${zIndex("aboveAll")};
+//   height: 0;
+// `;
+
+// export interface TooltipProps {
+//   children: React.ReactNode;
+// }
+
+// export function Tooltip({ children }: TooltipProps) {
+//   return <TooltipContainer>{children}</TooltipContainer>;
+// }
 
 export interface SelectInputProps<Option>
   extends Omit<TextInputProps, "value"> {
@@ -80,6 +110,7 @@ export interface SelectInputProps<Option>
   value?: Option;
   isEqual?: typeof isEqual;
   getInputValue?: (option: Option) => string;
+  disabled?: boolean;
 }
 
 function SelectInput<Option>({
@@ -90,22 +121,31 @@ function SelectInput<Option>({
   value,
   isEqual: isEqualProp = isEqual,
   getInputValue,
+  disabled,
   ...textInputProps
 }: SelectInputProps<Option>) {
   const [isFocused, setIsFocused] = React.useState(false);
   const [layout, setLayout] = React.useState<LayoutRectangle>();
-  const left = get(layout, "left", 0);
-  const top = get(layout, "top", 0) + get(layout, "height", 0);
+  // const left = get(layout, "left", 0);
+  // const top = get(layout, "top", 0) + get(layout, "height", 0);
 
   return (
-    <SelectInputContainer
-      onLayout={(event) => setLayout(event.nativeEvent.layout)}
-    >
+    <Layout.Column>
+      {/* <SelectInputContainer
+      onLayout={(event) => {
+        log("onLayout", { event });
+        setLayout(event.nativeEvent.layout);
+      }}
+   > */}
       <TextInput
         {...textInputProps}
         editable={false}
         onFocus={() => setIsFocused(true)}
         onBlur={() => setIsFocused(false)}
+        onLayout={(event) => {
+          log("onLayout", { event });
+          setLayout(event.nativeEvent.layout);
+        }}
         value={
           (value && getInputValue?.(value)) ||
           (typeof value === "string" && value) ||
@@ -113,32 +153,36 @@ function SelectInput<Option>({
         }
       />
 
-      {isFocused && (
-        <Portal>
-          <SelectInputOptions left={left} top={top}>
-            {options?.map((option) => (
-              <Button
-                key={
-                  getKey?.(option) ||
-                  (typeof option === "string" ? option : undefined)
-                }
-                onPressCapture={() => onChangeOption?.(option)}
-              >
-                {renderOption?.({
-                  option,
-                  isSelected: isEqualProp?.(option, value),
-                }) ||
-                  (typeof option === "string" ? (
-                    <OptionText isSelected={isEqualProp?.(option, value)}>
-                      {option}
-                    </OptionText>
-                  ) : null)}
-              </Button>
-            ))}
+      <Tooltip layout={layout}>
+        {!disabled && isFocused && (
+          <SelectInputOptions>
+            {options?.map((option) => {
+              const isSelected = isEqualProp?.(option, value);
+
+              return (
+                <Button
+                  key={
+                    getKey?.(option) ||
+                    (typeof option === "string" ? option : undefined)
+                  }
+                  onPressCapture={() => onChangeOption?.(option)}
+                  selected={isSelected}
+                >
+                  {renderOption?.({
+                    option,
+                    isSelected,
+                  }) ||
+                    (typeof option === "string" ? (
+                      <OptionText isSelected={isSelected}>{option}</OptionText>
+                    ) : null)}
+                </Button>
+              );
+            })}
           </SelectInputOptions>
-        </Portal>
-      )}
-    </SelectInputContainer>
+        )}
+      </Tooltip>
+      {/* </SelectInputContainer> */}
+    </Layout.Column>
   );
 }
 

@@ -57,18 +57,6 @@ export const Element = {
 
   getText: (node: Node): string => {
     return Node.string(node);
-
-    // let text: string | undefined;
-
-    // if ("text" in node) {
-    //   ({ text } = node);
-    // } else if (Element.hasChildren(node)) {
-    //   const children = Element.getChildren(node) || [];
-
-    //   text = children.map(Element.getText).join("");
-    // }
-
-    // return text || "";
   },
 };
 
@@ -91,21 +79,6 @@ export const Editor = {
     }
   },
 
-  // isBlock: (editor: DefaultEditor, payload: Pick<DefaultElement, "type">) => {
-  //   const [match] = Editor.nodes(editor, {
-  //     match: (node) => {
-  //       const isEditor = Editor.isEditor(node);
-  //       const isElementOfType = Element.isType(node, payload.type);
-
-  //       return !isEditor && isElementOfType;
-  //     },
-  //   });
-
-  //   log("isBlock", { match });
-
-  //   return !!match;
-  // },
-
   isListBlock: (editor: DefaultEditor, listType?: ListElement["type"]) => {
     const [match] = Editor.nodes(editor, {
       match: (node) =>
@@ -118,19 +91,8 @@ export const Editor = {
   },
 
   toggleListElement: (editor: DefaultEditor, listType: ListElement["type"]) => {
-    // const [match] = Editor.nodes(editor, {
-    //   match: (node) =>
-    //     !Editor.isEditor(node) &&
-    //     Element.isElement(node) &&
-    //     Element.isListElement(node),
-    // });
-
-    // return match;
-
     const isListElement = Editor.isListBlock(editor);
     const isActiveListElement = Editor.isListBlock(editor, listType);
-
-    log("toggleListElement", { isListElement, isActiveListElement });
 
     // handle the case of an existing list element
     if (isListElement) {
@@ -194,30 +156,6 @@ export const Editor = {
         });
 
         Editor.mergeListNodes(editor, listType);
-
-        // Transforms.setNodes(
-        //   editor,
-        //   { type: listType },
-        //   {
-        //     match: (node) =>
-        //       !Editor.isEditor(node) &&
-        //       Element.isElement(node) &&
-        //       Element.isListElement(node),
-        //     // mode: "all",
-        //   }
-        // );
-
-        // Transforms.setNodes(
-        //   editor,
-        //   { listType },
-        //   {
-        //     match: (node) =>
-        //       !Editor.isEditor(node) &&
-        //       Element.isElement(node) &&
-        //       Element.isElementType(node, "list-item"),
-        //     // mode: "lowest",
-        //   }
-        // );
       }
     }
     // handle the case of no existing list element
@@ -235,25 +173,6 @@ export const Editor = {
       [...formatElementMatches].forEach((match) => {
         const [node, path] = match;
 
-        log("----");
-        log("toggleListElement", { node, path });
-
-        // const [prevSibling, previousSiblingPath] = Path.hasPrevious(path)
-        //   ? Editor.node(editor, Path.previous(path))
-        //   : [];
-        // const [nextSibling, nextSiblingPath] =
-        //   Editor.node(editor, Path.next(path)) || [];
-
-        // const shouldMergeSiblings =
-        //   prevSibling &&
-        //   Element.isElement(prevSibling) &&
-        //   nextSibling &&
-        //   Element.isElement(nextSibling) &&
-        //   Element.isListElement(prevSibling) &&
-        //   nextSibling.type === prevSibling.type;
-
-        // log({ shouldMergeSiblings, prevSibling, nextSibling });
-
         // wrap each format element in a list-item element
         Transforms.wrapNodes(
           editor,
@@ -267,59 +186,7 @@ export const Editor = {
             // mode: "lowest",
           }
         );
-
-        // const [prevSibling] = Editor.node(editor, Path.previous(path)) || [];
-        // const [nextSibling] = Editor.node(editor, Path.next(path)) || [];
-
-        // const isPrevSiblingList = Element.isListElement(prevSibling);
-        // const isNextSiblingList = Element.isListElement(nextSibling);
-        // const shouldMergeSiblings = isPrevSiblingList && isNextSiblingList;
-
-        // Editor.deleteBackward(editor);
-
-        // wrap all the list-item elements in a list element
-        // Transforms.wrapNodes(
-        //   editor,
-        //   { type: listType, children: [] },
-        //   {
-        //     match: (node) =>
-        //       !Editor.isEditor(node) &&
-        //       Element.isElement(node) &&
-        //       Element.isElementType(node, "list-item"),
-        //     mode: "highest",
-        //   }
-        // );
-
-        // if (
-        //   nextSiblingPath &&
-        //   Element.isElement(nextSibling) &&
-        //   Element.isListElement(nextSibling, listType)
-        // ) {
-        //   Transforms.mergeNodes(editor, { at: nextSiblingPath });
-        // }
-
-        // if (
-        //   previousSiblingPath &&
-        //   Element.isElement(prevSibling) &&
-        //   Element.isListElement(prevSibling, listType)
-        // ) {
-        //   Transforms.mergeNodes(editor, { at: path });
-        // }
-
-        // return;
       });
-
-      // Transforms.wrapNodes(
-      //   editor,
-      //   { type: "list-item", listType, children: [] },
-      //   {
-      //     match: (node) =>
-      //       !Editor.isEditor(node) &&
-      //       Element.isElement(node) &&
-      //       Element.isFormatElement(node),
-      //     // mode: "lowest",
-      //   }
-      // );
 
       // wrap all the list-item elements in a list element
       Transforms.wrapNodes(
@@ -497,8 +364,6 @@ export const Editor = {
   getText: (editor: DefaultEditor) => {
     const { children } = editor;
     const text = children.map(Element.getText).join("\b");
-
-    console.log("getText: ", { text });
 
     return text;
   },

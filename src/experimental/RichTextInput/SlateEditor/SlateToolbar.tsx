@@ -20,6 +20,7 @@ import MarkButton, { MarkButtonProps } from "./MarkButton";
 import BlockButton, { BlockButtonProps } from "./BlockButton";
 import { FORMAT_TYPES } from "./slateConstants";
 import { Editor, Element } from "./slate";
+import SlateFormatSelectInput from "./SlateFormatSelectInput";
 
 export interface SlateToolbarProps {
   disabled?: boolean;
@@ -105,81 +106,17 @@ function SlateToolbar({ disabled, editor: editorProp }: SlateToolbarProps) {
     </React.Fragment>
   );
 
-  const activeFormatType: FormatElement["type"] | undefined =
-    React.useMemo(() => {
-      const [match] =
-        Editor.nodes(editor, {
-          match: (node) =>
-            !Editor.isEditor(node) &&
-            Element.isElement(node) &&
-            Element.isFormatElement(node),
-          mode: "lowest",
-        }) || [];
-      const [element] = match || [];
-
-      log("activeFormatType: ", { element });
-
-      const { type } = (element as FormatElement) || {};
-
-      return type ? type : undefined;
-    }, [editor, editor.selection]);
-
   return (
     <Layout.Row alignItems="center">
       {markButtons}
 
-      {/* <Space /> */}
-      {/* <Divider vertical height={theme.spacing * 3} />
-      <Space /> */}
-
-      <SelectInput
-        options={FORMAT_TYPES}
-        value={activeFormatType}
-        onChangeOption={(option) => {
-          // const { selection } = editor;
-
-          Editor.setFormatElement(editor, { type: option });
-
-          // ReactEditor.focus(editor);
-
-          // if (selection) {
-          //   Transforms.select(editor, selection);
-          // }
-        }}
-        getInputValue={(option) => startCase(option)}
-        renderOption={({ option }) => {
-          let Wrapper: (props: any) => JSX.Element = Normal;
-
-          switch (option) {
-            case "heading":
-              Wrapper = Heading;
-              break;
-
-            case "subheading":
-              Wrapper = Subheading;
-              break;
-
-            case "caption":
-              Wrapper = Caption;
-              break;
-
-            case "label":
-              Wrapper = Label;
-              break;
-          }
-
-          return <Wrapper>{startCase(option)}</Wrapper>;
-        }}
-      />
+      <SlateFormatSelectInput />
 
       <Space />
 
       <Divider vertical height={theme.spacing * 3} />
 
       <Space />
-
-      {/* {blockButtons} */}
-      {/* <Space /> */}
 
       {listBlockButtons}
     </Layout.Row>

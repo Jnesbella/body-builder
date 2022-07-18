@@ -105,8 +105,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       []
     );
 
-    console.log({ editor });
-
     const focus = () => {
       ReactEditor.focus(editor);
     };
@@ -283,12 +281,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
               // is list-item with content
               // so insert a new list item
 
-              const lastIndex = last(parentPath);
-              const pathEnd = isNumber(lastIndex) ? lastIndex + 1 : 0;
-              const insertAtPath = parentPath.slice(0, -1).concat(pathEnd);
-
-              // debugger;
-
               Editor.insertBreak(editor);
 
               // wrap each format element in a list-item element
@@ -310,28 +302,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
               );
 
               Transforms.liftNodes(editor, { at: Path.next(path) });
-
-              // lift to the list-item level
-              // Transforms.liftNodes(editor, { at: path });
-
-              // // insert new list-item
-              // Transforms.insertNodes(
-              //   editor,
-              //   {
-              //     type: "list-item",
-              //     listType: (parent as ListItemElement).listType,
-              //     children: [
-              //       {
-              //         type: element.type,
-              //         children: [{ text: "" }],
-              //       },
-              //     ],
-              //   } as ListItemElement,
-              //   { at: insertAtPath }
-              // );
-
-              // // focus new list-item
-              // Transforms.select(editor, insertAtPath);
             }
           } else {
             // Editor.insertNode(editor, {

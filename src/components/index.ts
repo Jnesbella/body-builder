@@ -15,7 +15,9 @@ export { default as TextInput } from "./TextInput";
 export { default as Surface } from "./Surface";
 export { default as Info } from "./Info";
 export { default as Divider } from "./Divider";
-export { default as SelectInput } from "./SelectInput/SelectInput";
+export { default as SelectInput } from "./SelectInput";
+export { default as Portal } from "./Portal";
+export { default as Tooltip } from "./Tooltip";
 
 export * from "./styled-components";
 export * from "./Flubber";
@@ -30,4 +32,6 @@ export * from "./List";
 export * from "./Resource";
 export * from "./Text";
 export * from "./IconButton";
-export * from "./SelectInput/SelectInput";
+export * from "./SelectInput";
+export * from "./Portal";
+export * from "./Tooltip";

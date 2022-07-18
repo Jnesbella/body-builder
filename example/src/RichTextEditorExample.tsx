@@ -16,6 +16,7 @@ import {
   shadow,
   bordered,
   IconButton,
+  Portal,
 } from "@jnesbella/body-builder";
 import { v4 as uuidv4 } from "uuid";
 import * as Icons from "react-bootstrap-icons";
@@ -237,41 +238,43 @@ function RichTextEdtiorExample() {
   return (
     // <ScrollView contentContainerStyle={{ flex: 1 }}>
     <Container>
-      <Layout.Box spacingSize={[1, 0]}>
-        <Text.Title>Train of Thought</Text.Title>
-      </Layout.Box>
+      <Portal.Provider>
+        <Layout.Box spacingSize={[1, 0]}>
+          <Text.Title>Train of Thought</Text.Title>
+        </Layout.Box>
 
-      <Layout.Row justifyContent="center">
-        <AddPageButton pageIndex={0} />
-      </Layout.Row>
+        <Layout.Row justifyContent="center">
+          <AddPageButton pageIndex={0} />
+        </Layout.Row>
 
-      {pages.map((page, index) => (
-        <React.Fragment key={page.id}>
-          <Layout.Box spacingSize={[4, 1]}>
-            <PageWrapper>
-              <Page
-                page={page}
-                isFocused={focusedPageIndex === index}
-                onFocus={() => setFocusedPageIndex(index)}
-                pageCount={pages.length}
-                onChange={(page) =>
-                  setPages((prevPages) => [
-                    ...prevPages.slice(0, index),
-                    page,
-                    ...prevPages.slice(index + 1),
-                  ])
-                }
-              />
-            </PageWrapper>
-          </Layout.Box>
+        {pages.map((page, index) => (
+          <React.Fragment key={page.id}>
+            <Layout.Box spacingSize={[4, 1]}>
+              <PageWrapper>
+                <Page
+                  page={page}
+                  isFocused={focusedPageIndex === index}
+                  onFocus={() => setFocusedPageIndex(index)}
+                  pageCount={pages.length}
+                  onChange={(page) =>
+                    setPages((prevPages) => [
+                      ...prevPages.slice(0, index),
+                      page,
+                      ...prevPages.slice(index + 1),
+                    ])
+                  }
+                />
+              </PageWrapper>
+            </Layout.Box>
 
-          <Layout.Row justifyContent="center">
-            <AddPageButton pageIndex={index + 1} />
-          </Layout.Row>
-        </React.Fragment>
-      ))}
+            <Layout.Row justifyContent="center">
+              <AddPageButton pageIndex={index + 1} />
+            </Layout.Row>
+          </React.Fragment>
+        ))}
 
-      <Space />
+        <Space />
+      </Portal.Provider>
     </Container>
     // </ScrollView>
   );
