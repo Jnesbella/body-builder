@@ -27,13 +27,13 @@ export function usePortalState<Output>(
   return selector(state);
 }
 
-function PortalProvider({
-  children,
-  ...rest
-}: React.DetailedHTMLProps<
-  React.HTMLAttributes<HTMLDivElement>,
-  HTMLDivElement
->) {
+export interface PortalProviderProps
+  extends React.DetailedHTMLProps<
+    React.HTMLAttributes<HTMLDivElement>,
+    HTMLDivElement
+  > {}
+
+function PortalProvider({ children, ...rest }: PortalProviderProps) {
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
 
   return (

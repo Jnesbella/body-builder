@@ -17,6 +17,7 @@ import {
   bordered,
   IconButton,
   Portal,
+  Tooltip,
 } from "@jnesbella/body-builder";
 import { v4 as uuidv4 } from "uuid";
 import * as Icons from "react-bootstrap-icons";
@@ -238,7 +239,7 @@ function RichTextEdtiorExample() {
   return (
     // <ScrollView contentContainerStyle={{ flex: 1 }}>
     <Container>
-      <Portal.Provider>
+      <Tooltip.Provider>
         <Layout.Box spacingSize={[1, 0]}>
           <Text.Title>Train of Thought</Text.Title>
         </Layout.Box>
@@ -274,7 +275,7 @@ function RichTextEdtiorExample() {
         ))}
 
         <Space />
-      </Portal.Provider>
+      </Tooltip.Provider>
     </Container>
     // </ScrollView>
   );

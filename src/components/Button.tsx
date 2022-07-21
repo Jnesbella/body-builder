@@ -12,6 +12,7 @@ import {
   appendDarkTransparency,
   getContrastColor,
 } from "../styles";
+import { SizeProp } from "../types";
 
 import { PressableState } from "./componentsTypes";
 import {
@@ -31,7 +32,9 @@ import {
 } from "./styled-components";
 import Text from "./Text";
 
-const ButtonContainer = styled.View<Bordered & Greedy & SpacingProps>`
+const ButtonContainer = styled.View<
+  Bordered & Greedy & Omit<SpacingProps, "size">
+>`
   ${background};
   ${color};
   ${outlineColor};
@@ -57,7 +60,7 @@ export type ButtonRenderer = (
   props: Background & Color & PressableState
 ) => React.ReactNode;
 
-export interface ButtonProps extends SpacingProps {
+export interface ButtonProps extends Omit<SpacingProps, "size"> {
   onPress?: () => void;
   onPressCapture?: () => void;
   mode?: "contained" | "outlined" | "text";
@@ -70,6 +73,9 @@ export interface ButtonProps extends SpacingProps {
   selected?: boolean;
   roundness?: number;
   background?: string;
+  onFocus?: () => void;
+  onBlur?: () => void;
+  size?: SizeProp;
 }
 
 const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
@@ -86,6 +92,7 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
       background: backgroundProp,
       spacingSize = [1, 0],
       onPressCapture,
+      size,
       ...rest
     },
     ref

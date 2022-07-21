@@ -15,6 +15,7 @@ import {
   subheading,
   caption,
   label,
+  Space,
 } from "../../../components";
 import { ListItemElement } from "../../../typings-slate";
 import { log } from "../../../utils";
@@ -22,8 +23,12 @@ import { Editor } from "./slate";
 import { Element, Node, Transforms } from "slate";
 import { isNumber, last } from "lodash";
 import { theme } from "../../../styles";
+import SlateFormatInput from "./SlateFormatInput";
+import { Pressable } from "../../Pressable";
 
 export interface SlateElementProps extends RenderElementProps {}
+
+// const ElementContainer =
 
 const Paragraph = styled.p`
   ${paragraph};
@@ -187,6 +192,12 @@ const ListItem = React.forwardRef<any, ListItemProps>(
 function SlateElement(props: SlateElementProps) {
   const { children, element, attributes } = props;
 
+  const editor = useSlate();
+  const path = ReactEditor.findPath(editor, element);
+
+  let content = <Paragraph {...attributes}>{children}</Paragraph>;
+  let spacingSize = 0.5;
+
   // log("SlateElement", { attributes, element });
 
   switch (element.type) {
@@ -194,36 +205,64 @@ function SlateElement(props: SlateElementProps) {
     //   return <blockquote {...attributes}>{children}</blockquote>;
 
     case "bullet-list":
-      return <BulletList {...attributes}>{children}</BulletList>;
+      content = <BulletList {...attributes}>{children}</BulletList>;
+      break;
 
     case "number-list":
-      return <NumberList {...attributes}>{children}</NumberList>;
+      content = <NumberList {...attributes}>{children}</NumberList>;
+      break;
 
     case "task-list":
-      return <TaskList {...attributes}>{children}</TaskList>;
+      content = <TaskList {...attributes}>{children}</TaskList>;
+      break;
 
     case "heading":
-      return <Heading {...attributes}>{children}</Heading>;
+      content = <Heading {...attributes}>{children}</Heading>;
+      spacingSize = 1;
+      break;
 
     case "subheading":
-      return <Subheading {...attributes}>{children}</Subheading>;
+      content = <Subheading {...attributes}>{children}</Subheading>;
+      break;
 
     case "caption":
-      return <Caption {...attributes}>{children}</Caption>;
+      content = <Caption {...attributes}>{children}</Caption>;
+      break;
 
     case "label":
-      return <Label {...attributes}>{children}</Label>;
+      content = <Label {...attributes}>{children}</Label>;
+      break;
 
     case "list-item":
-      return (
+      content = (
         <ListItem {...attributes} element={element}>
           {children}
         </ListItem>
       );
-
-    default:
-      return <Paragraph {...attributes}>{children}</Paragraph>;
+      break;
   }
+
+  return (
+    <Pressable>
+      {({ hovered }) => (
+        <Layout.Row>
+          <div contentEditable={false}>
+            <Layout.Column>
+              <Space spacingSize={spacingSize} />
+
+              <Layout.Row>
+                <SlateFormatInput hovered={hovered} />
+
+                <Space />
+              </Layout.Row>
+            </Layout.Column>
+          </div>
+
+          {content}
+        </Layout.Row>
+      )}
+    </Pressable>
+  );
 }
 
 export default SlateElement;

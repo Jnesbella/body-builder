@@ -127,7 +127,11 @@ export const outlineColor = css<{ outlineColor?: string }>`
   outline-color: ${(props) => props.outlineColor || theme.colors.black};
 `;
 
-export const opacity = css<{ opacity?: number }>`
+export interface Opacity {
+  opacity?: number;
+}
+
+export const opacity = css<Opacity>`
   opacity: ${(props) => (isNumber(props.opacity) ? props.opacity : 1)};
 `;
 

@@ -20,6 +20,7 @@ import {
   zIndex,
 } from "../styled-components";
 import Tooltip from "../Tooltip";
+import Menu from "../Menu";
 
 const OptionText = styled(Text).attrs<{ isSelected?: boolean }>(
   ({ isSelected }) => ({
@@ -29,74 +30,19 @@ const OptionText = styled(Text).attrs<{ isSelected?: boolean }>(
   ${fontWeight};
 `;
 
-const SelectInputContainer = styled(Layout.Column)<{
-  layout?: LayoutRectangle;
-}>`
-  position: relative;
-`;
-
-const SelectInputOptions = styled(Layout.Column).attrs({ fullWidth: true })<{
-  // top: number;
-  // left: number;
-}>`
-  ${rounded};
-  ${full};
-  ${shadow};
-
-  background: ${theme.colors.background};
-  max-width: ${theme.spacing * 30}px;
-  max-height: ${theme.spacing * 40}px;
-  elevation: 1;
-`;
-
-// const PortalChildrenWrapper = styled(Layout.Box)``;
-
-// function Portal({ children }: { children: React.ReactNode }) {
-//   const [container] = React.useState(document.createElement("div"));
-
-//   React.useEffect(
-//     function removeContainerOnUnmount() {
-//       const applyContainerStyles = () => {
-//         container.style.position = "fixed";
-//         container.style.top = "0";
-//         container.style.left = "0";
-//         container.style.width = "100%";
-//         container.style.height = "100%";
-//       };
-
-//       applyContainerStyles();
-
-//       document.body.appendChild(container);
-
-//       return () => {
-//         document.body.removeChild(container);
-//       };
-//     },
-//     [container]
-//   );
-
-//   return ReactDOM.createPortal(
-//     <PortalChildrenWrapper>{children}</PortalChildrenWrapper>,
-//     container
-//   );
-// }
-
-// const TooltipContainer = styled(Layout.Box).attrs({
-//   fullWidth: true,
-// })`
+// const SelectInputOptions = styled(Layout.Column).attrs({ fullWidth: true })<{
+//   // top: number;
+//   // left: number;
+// }>`
+//   ${rounded};
 //   ${full};
-//   position: asbolute;
-//   ${zIndex("aboveAll")};
-//   height: 0;
+//   ${shadow};
+
+//   background: ${theme.colors.background};
+//   max-width: ${theme.spacing * 30}px;
+//   max-height: ${theme.spacing * 40}px;
+//   elevation: 1;
 // `;
-
-// export interface TooltipProps {
-//   children: React.ReactNode;
-// }
-
-// export function Tooltip({ children }: TooltipProps) {
-//   return <TooltipContainer>{children}</TooltipContainer>;
-// }
 
 export interface SelectInputProps<Option>
   extends Omit<TextInputProps, "value"> {
@@ -124,43 +70,21 @@ function SelectInput<Option>({
   disabled,
   ...textInputProps
 }: SelectInputProps<Option>) {
-  const [isFocused, setIsFocused] = React.useState(false);
-  const [layout, setLayout] = React.useState<LayoutRectangle>();
+  // const [isFocused, setIsFocused] = React.useState(false);
+  // const [layout, setLayout] = React.useState<LayoutRectangle>();
   // const left = get(layout, "left", 0);
   // const top = get(layout, "top", 0) + get(layout, "height", 0);
 
   return (
-    <Layout.Column>
-      {/* <SelectInputContainer
-      onLayout={(event) => {
-        log("onLayout", { event });
-        setLayout(event.nativeEvent.layout);
-      }}
-   > */}
-      <TextInput
-        {...textInputProps}
-        editable={false}
-        onFocus={() => setIsFocused(true)}
-        onBlur={() => setIsFocused(false)}
-        onLayout={(event) => {
-          log("onLayout", { event });
-          setLayout(event.nativeEvent.layout);
-        }}
-        value={
-          (value && getInputValue?.(value)) ||
-          (typeof value === "string" && value) ||
-          ""
-        }
-      />
-
-      <Tooltip layout={layout}>
-        {!disabled && isFocused && (
-          <SelectInputOptions>
+    <Tooltip
+      content={
+        !disabled && (
+          <Menu>
             {options?.map((option) => {
               const isSelected = isEqualProp?.(option, value);
 
               return (
-                <Button
+                <Menu.Item
                   key={
                     getKey?.(option) ||
                     (typeof option === "string" ? option : undefined)
@@ -173,19 +97,34 @@ function SelectInput<Option>({
                     isSelected,
                   }) ||
                     (typeof option === "string" ? (
-                      <OptionText isSelected={isSelected}>{option}</OptionText>
+                      <Menu.Text isSelected={isSelected}>{option}</Menu.Text>
                     ) : null)}
-                </Button>
+                </Menu.Item>
               );
             })}
-          </SelectInputOptions>
-        )}
-      </Tooltip>
-      {/* </SelectInputContainer> */}
-    </Layout.Column>
+          </Menu>
+        )
+      }
+    >
+      {({ onLayout, onFocus, onBlur }) => (
+        <Layout.Box onLayout={onLayout}>
+          <TextInput
+            {...textInputProps}
+            editable={false}
+            onFocus={onFocus}
+            onBlur={onBlur}
+            value={
+              (value && getInputValue?.(value)) ||
+              (typeof value === "string" && value) ||
+              ""
+            }
+          />
+        </Layout.Box>
+      )}
+    </Tooltip>
   );
 }
 
-SelectInput.OptionText = OptionText;
+// SelectInput.OptionText = OptionText;
 
 export default SelectInput;

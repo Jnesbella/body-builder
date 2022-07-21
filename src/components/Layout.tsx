@@ -9,13 +9,18 @@ import {
   greedy,
   flexible,
   spacing,
+  opacity,
+  Opacity,
 } from "./styled-components";
 
-export const LayoutBox = styled.View<Full & Greedy & Flexible & SpacingProps>`
+export const LayoutBox = styled.View<
+  Full & Greedy & Flexible & SpacingProps & Opacity
+>`
   ${full};
   ${greedy};
   ${flexible};
   ${spacing};
+  ${opacity};
 `;
 
 export const LayoutRow = styled(LayoutBox)`
