@@ -35,14 +35,13 @@ const Container = styled(ScrollView).attrs({
 
 interface Page {
   id: string;
-  index: number;
   title: string;
   content?: string;
+  index?: number;
 }
 
-const createPage = (index: number, payload?: Partial<Page>) => ({
+const createPage = (payload?: Partial<Page>) => ({
   id: uuidv4(),
-  index,
   title: "",
   ...payload,
 });
@@ -58,12 +57,14 @@ function Page({
   onFocus,
   pageCount,
   onChange,
+  pageNum,
 }: {
   page: Page;
   onFocus?: () => void;
   isFocused?: boolean;
   pageCount?: number;
   onChange?: (page: Page) => void;
+  pageNum?: number;
 }) {
   // const [title, setTitle] = React.useState(page.title);
 
@@ -100,11 +101,11 @@ function Page({
           fullWidth
         />
 
-        <Layout.Box spacingSize={[0, 1]}>
+        {/* <Layout.Box spacingSize={[0, 1]}>
           <Divider />
-        </Layout.Box>
+        </Layout.Box> */}
 
-        {/* <Space spacingSize={0.5} /> */}
+        <Space spacingSize={2} />
 
         <RichTextInput
           defaultValue={page.content}
@@ -117,14 +118,14 @@ function Page({
             <>
               <Space />
 
-              {toolbar}
+              {/* {toolbar}
 
-              <Space spacingSize={0.5} />
+              <Space spacingSize={0.5} /> */}
 
               <RichTextInput.Footer>
-                {isNumber(pageCount) && (
+                {isNumber(pageCount) && isNumber(pageNum) && (
                   <RichTextInput.Footer.PageNumberItem
-                    pageNum={page.index + 1}
+                    pageNum={pageNum}
                     pageCount={pageCount}
                   />
                 )}
@@ -192,20 +193,19 @@ const initialValue = JSON.stringify([
 
 function RichTextEdtiorExample() {
   const [pages, setPages] = React.useState<Page[]>([
-    createPage(0, { content: initialValue }),
+    createPage({ content: initialValue }),
   ]);
 
   const [focusedPageIndex, setFocusedPageIndex] = React.useState<
     number | undefined
   >();
 
-  const addPage = () =>
-    setPages((prevPages) => [...prevPages, createPage(prevPages.length)]);
+  const addPage = () => setPages((prevPages) => [...prevPages, createPage()]);
 
   const insertPage = (index: number) =>
     setPages((prevPages) => [
       ...prevPages.slice(0, index),
-      createPage(index),
+      createPage(),
       ...prevPages.slice(index),
     ]);
 
@@ -241,7 +241,7 @@ function RichTextEdtiorExample() {
     <Container>
       <Tooltip.Provider>
         <Layout.Box spacingSize={[1, 0]}>
-          <Text.Title>Train of Thought</Text.Title>
+          {/* <Text.Title>Train of Thought</Text.Title> */}
         </Layout.Box>
 
         <Layout.Row justifyContent="center">
@@ -254,6 +254,7 @@ function RichTextEdtiorExample() {
               <PageWrapper>
                 <Page
                   page={page}
+                  pageNum={index + 1}
                   isFocused={focusedPageIndex === index}
                   onFocus={() => setFocusedPageIndex(index)}
                   pageCount={pages.length}

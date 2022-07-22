@@ -56,9 +56,11 @@ function SlateFormatMenu({ disabled, value, onChange }: SlateFormatMenuProps) {
 
         return (
           <Menu.Item
+            key={type}
             disabled={disabled}
             selected={isSelected}
-            onPressCapture={() => onChange?.(type)}
+            onPress={() => onChange?.(type)}
+            // onPressCapture={() => onChange?.(type)}
           >
             <Wrapper>{startCase(type)}</Wrapper>
           </Menu.Item>

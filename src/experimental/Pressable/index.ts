@@ -1,3 +1,3 @@
-export { default as Pressable } from "./Pressable2";
+export { default as Pressable } from "./Pressable";
 
-export * from "./PressableContext";
+export * from "./PressableProvider";

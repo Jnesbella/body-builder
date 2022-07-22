@@ -47,16 +47,47 @@ export interface PressableProviderProps {
   children?:
     | React.ReactNode
     | ((props: PressableState & PressableActions) => React.ReactNode);
-  state?: PressableState;
+  defaultState?: PressableState;
   isFocused?: boolean;
+  onBlur?: () => void;
+  onFocus?: () => void;
 }
 
-export function PressableProvider({
+function PressableProvider({
   children,
-  state: stateProp = DEFAULT_STATE,
-  isFocused: isFocusedProp,
+  defaultState = DEFAULT_STATE,
+  onBlur,
+  onFocus,
 }: PressableProviderProps) {
-  const [isFocused, setIsFocused] = React.useState(isFocusedProp);
+  const [_isFocused, setIsFocused] = React.useState(
+    defaultState.focused || false
+  );
+
+  const isFocused = _isFocused || defaultState.focused;
+
+  const isFocusedRef = React.useRef(isFocused);
+
+  const isFocusChanged = isFocused !== isFocusedRef.current;
+
+  React.useEffect(
+    function cacheIsFocused() {
+      isFocusedRef.current = isFocused;
+    },
+    [isFocused]
+  );
+
+  React.useEffect(
+    function handleFocusChange() {
+      if (isFocusChanged) {
+        if (isFocused) {
+          onFocus?.();
+        } else {
+          onBlur?.();
+        }
+      }
+    },
+    [isFocusChanged, isFocused, onBlur, onFocus]
+  );
 
   const focus = React.useCallback(() => {
     setIsFocused(true);
@@ -67,8 +98,8 @@ export function PressableProvider({
   }, []);
 
   const state: PressableState = {
-    ...stateProp,
-    focused: stateProp.focused || isFocused || isFocusedProp,
+    ...defaultState,
+    focused: isFocused,
   };
 
   const actions: PressableActions = {
@@ -86,3 +117,5 @@ export function PressableProvider({
     </PressableState.Provider>
   );
 }
+
+export default PressableProvider;

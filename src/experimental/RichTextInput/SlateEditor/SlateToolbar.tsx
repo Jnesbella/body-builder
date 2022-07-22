@@ -5,7 +5,15 @@ import { ReactEditor, useSlate, useSlateStatic } from "slate-react";
 import { Transforms, Editor as DefaultEditor } from "slate";
 import { startCase } from "lodash";
 
-import { Divider, Layout, SelectInput, Space, Text } from "../../../components";
+import {
+  Divider,
+  FontSize,
+  IconButton,
+  Layout,
+  SelectInput,
+  Space,
+  Text,
+} from "../../../components";
 import { theme } from "../../../styles";
 import { Normal, Heading, Subheading, Caption, Label } from "./SlateElement";
 import { log } from "../../../utils";
@@ -21,6 +29,30 @@ import BlockButton, { BlockButtonProps } from "./BlockButton";
 import { FORMAT_TYPES } from "./slateConstants";
 import { Editor, Element } from "./slate";
 import SlateFormatSelectInput from "./SlateFormatSelectInput";
+import SlateFormatInput from "./SlateFormatInput";
+import { useActiveFormat, useSetFormatElement } from "./slateHooks";
+
+interface SlateToolbarItemProps {
+  label?: string;
+  icon?: React.ReactNode;
+  isExpanded?: boolean;
+}
+
+function SlateToolbarItem({ icon, label, isExpanded }: SlateToolbarItemProps) {
+  return (
+    <Layout.Row alignItems="center">
+      {icon}
+
+      {label && isExpanded && (
+        <React.Fragment>
+          <Space />
+
+          <Text.Label fontSize={FontSize.ExtraSmall}>{label}</Text.Label>
+        </React.Fragment>
+      )}
+    </Layout.Row>
+  );
+}
 
 export interface SlateToolbarProps {
   disabled?: boolean;
@@ -30,6 +62,8 @@ export interface SlateToolbarProps {
 function SlateToolbar({ disabled, editor: editorProp }: SlateToolbarProps) {
   const defaultEditor = useSlate();
   const editor = editorProp || defaultEditor;
+
+  const [isExpanded, setIsExpanded] = React.useState(false);
 
   const marks: {
     mark: MarkButtonProps["mark"];
@@ -69,8 +103,19 @@ function SlateToolbar({ disabled, editor: editorProp }: SlateToolbarProps) {
   const markButtons = (
     <React.Fragment>
       {marks.map(({ mark, icon }) => (
-        <Layout.Box key={mark} spacingSize={[0.25, 0]}>
-          <MarkButton disabled={disabled} mark={mark} icon={icon} />
+        <Layout.Box key={mark} spacingSize={0.25}>
+          <SlateToolbarItem
+            isExpanded={isExpanded}
+            icon={
+              <MarkButton
+                disabled={disabled}
+                mark={mark}
+                icon={icon}
+                size="small"
+              />
+            }
+            label={startCase(mark)}
+          />
         </Layout.Box>
       ))}
     </React.Fragment>
@@ -84,6 +129,7 @@ function SlateToolbar({ disabled, editor: editorProp }: SlateToolbarProps) {
           block={block}
           disabled={disabled}
           icon={icon}
+          size="small"
         />
       ))}
     </React.Fragment>
@@ -92,34 +138,63 @@ function SlateToolbar({ disabled, editor: editorProp }: SlateToolbarProps) {
   const listBlockButtons = (
     <React.Fragment>
       {listBlocks.map(({ block: listType, icon }) => (
-        <BlockButton
-          key={listType}
-          block={listType}
-          disabled={disabled}
-          icon={icon}
-          onPress={() => {
-            Editor.toggleListElement(editor, listType);
-          }}
-          isActive={Editor.isListBlock(editor, listType)}
+        <SlateToolbarItem
+          isExpanded={isExpanded}
+          label={startCase(listType)}
+          icon={
+            <BlockButton
+              key={listType}
+              block={listType}
+              disabled={disabled}
+              icon={icon}
+              onPress={() => {
+                Editor.toggleListElement(editor, listType);
+              }}
+              isActive={Editor.isListBlock(editor, listType)}
+              size="small"
+            />
+          }
         />
       ))}
     </React.Fragment>
   );
 
-  return (
-    <Layout.Row alignItems="center">
-      {markButtons}
+  const activeFormat = useActiveFormat();
 
-      <SlateFormatSelectInput />
+  const setFormatElement = useSetFormatElement();
+
+  return (
+    <Layout.Column alignItems="flex-start">
+      <IconButton
+        icon={isExpanded ? Icons.ArrowLeft : Icons.ArrowRight}
+        size="small"
+        onPress={() => setIsExpanded(!isExpanded)}
+      />
 
       <Space />
 
-      <Divider vertical height={theme.spacing * 3} />
+      {markButtons}
+
+      <Space />
+
+      <SlateToolbarItem
+        isExpanded={isExpanded}
+        icon={
+          <SlateFormatInput
+            name="elementFormatType"
+            value={activeFormat}
+            onChange={(type) => setFormatElement({ type })}
+          />
+        }
+        label="Format"
+      />
+
+      {/* <Divider width={theme.spacing * 4} /> */}
 
       <Space />
 
       {listBlockButtons}
-    </Layout.Row>
+    </Layout.Column>
   );
 
   // return <Container>{markButtons}</Container>;

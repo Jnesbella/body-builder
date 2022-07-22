@@ -16,15 +16,22 @@ import {
   caption,
   label,
   Space,
+  Tooltip,
 } from "../../../components";
-import { ListItemElement } from "../../../typings-slate";
+import {
+  CustomElement,
+  FormatElement,
+  ListItemElement,
+} from "../../../typings-slate";
 import { log } from "../../../utils";
-import { Editor } from "./slate";
-import { Element, Node, Transforms } from "slate";
+import { Editor, Element } from "./slate";
+import { Node, Transforms } from "slate";
 import { isNumber, last } from "lodash";
 import { theme } from "../../../styles";
 import SlateFormatInput from "./SlateFormatInput";
-import { Pressable } from "../../Pressable";
+import { Pressable, PressableState } from "../../Pressable";
+import SlateToolbar from "./SlateToolbar";
+import Menu from "../../../components/Menu";
 
 export interface SlateElementProps extends RenderElementProps {}
 
@@ -55,6 +62,54 @@ export const Caption = styled(Normal)`
 export const Label = styled(Normal)`
   ${label};
 `;
+
+interface FormatElementTextProps {
+  type?: FormatElement["type"];
+  children?: React.ReactNode;
+  contentEditable?: boolean;
+}
+
+const FormatElementText = React.forwardRef<
+  HTMLParagraphElement,
+  FormatElementTextProps
+>(({ type, children, ...attributes }, ref) => {
+  switch (type) {
+    case "heading":
+      return (
+        <Heading {...attributes} ref={ref}>
+          {children}
+        </Heading>
+      );
+
+    case "subheading":
+      return (
+        <Subheading {...attributes} ref={ref}>
+          {children}
+        </Subheading>
+      );
+
+    case "caption":
+      return (
+        <Caption {...attributes} ref={ref}>
+          {children}
+        </Caption>
+      );
+
+    case "label":
+      return (
+        <Label {...attributes} ref={ref}>
+          {children}
+        </Label>
+      );
+
+    default:
+      return (
+        <Paragraph {...attributes} ref={ref}>
+          {children}
+        </Paragraph>
+      );
+  }
+});
 
 const ListContainer = styled.div.attrs({ spacingSize: [0, 0.5] })`
   ${spacing};
@@ -111,23 +166,11 @@ type ListItemProps = SlateElementProps["attributes"] & {
   children: SlateElementProps["children"];
 };
 
-const ListItemContainer = styled.div``;
-
-const ListItemWrapper = styled.span<{ index?: number }>`
-  :before {
-    content: "${(props) => (props.index ? `${props.index}.` : "")}";
-  }
-`;
-
-const ListItemIconWrapper = styled.span.attrs({
-  contentEditable: false,
-  spacingSize: [1, 0],
-})`
+const ListItemIconWrapper = styled.span`
   ${spacing};
 
   min-width: ${theme.spacing * (theme.spacing - 1)}px;
   display: flex;
-  align-items: center;
   justify-content: right;
 `;
 
@@ -137,6 +180,16 @@ const ListItem = React.forwardRef<any, ListItemProps>(
 
     const path = ReactEditor.findPath(editor, element);
     const index = last(path);
+    const [firstChild] = element.children || [];
+    const { type: formatType } = firstChild || {};
+
+    // const formatType = React.useMemo<FormatElement["type"] | undefined>(() => {
+    //   return Element.isElement(firstChild) && Element.isFormatElement(element)
+    //     ? firstChild.type
+    //     : undefined;
+    // }, [firstChild?.type]);
+
+    console.log("ListElement: ", { formatType, element, firstChild });
 
     const toggleChecked = () => {
       Transforms.setNodes(
@@ -155,11 +208,12 @@ const ListItem = React.forwardRef<any, ListItemProps>(
     };
 
     return (
-      <ListItemContainer>
-        <Layout.Row alignItems="center">
-          <ListItemIconWrapper>
+      <Layout.Row {...rest} ref={ref} alignItems="baseline">
+        <ListItemIconWrapper spacingSize={[1, 0]}>
+          <FormatElementText type={formatType} contentEditable={false}>
             {element.listType === "task-list" && (
               <IconButton
+                size="small"
                 icon={element.checked ? Icons.CheckCircle : Icons.Circle}
                 onPress={toggleChecked}
               />
@@ -170,21 +224,11 @@ const ListItem = React.forwardRef<any, ListItemProps>(
             {element.listType === "number-list" && isNumber(index) && (
               <React.Fragment>{index + 1}.</React.Fragment>
             )}
-          </ListItemIconWrapper>
+          </FormatElementText>
+        </ListItemIconWrapper>
 
-          <ListItemWrapper
-            {...rest}
-            ref={ref}
-            // index={
-            //   element.listType === "number-list" && isNumber(index)
-            //     ? index + 1
-            //     : undefined
-            // }
-          >
-            {children}
-          </ListItemWrapper>
-        </Layout.Row>
-      </ListItemContainer>
+        {children}
+      </Layout.Row>
     );
   }
 );
@@ -195,74 +239,97 @@ function SlateElement(props: SlateElementProps) {
   const editor = useSlate();
   const path = ReactEditor.findPath(editor, element);
 
-  let content = <Paragraph {...attributes}>{children}</Paragraph>;
-  let spacingSize = 0.5;
+  // const activeFormatType: FormatElement["type"] | undefined =
+  //   Element.isFormatElement(element)
+  //     ? (element as FormatElement).type
+  //     : undefined;
 
-  // log("SlateElement", { attributes, element });
+  if (Element.isElement(element) && Element.isFormatElement(element)) {
+    return (
+      <FormatElementText {...attributes} type={(element as FormatElement).type}>
+        {children}
+      </FormatElementText>
+    );
+  }
 
   switch (element.type) {
     // case "block-quote":
     //   return <blockquote {...attributes}>{children}</blockquote>;
 
     case "bullet-list":
-      content = <BulletList {...attributes}>{children}</BulletList>;
-      break;
+      return <BulletList {...attributes}>{children}</BulletList>;
 
     case "number-list":
-      content = <NumberList {...attributes}>{children}</NumberList>;
-      break;
+      return <NumberList {...attributes}>{children}</NumberList>;
 
     case "task-list":
-      content = <TaskList {...attributes}>{children}</TaskList>;
-      break;
-
-    case "heading":
-      content = <Heading {...attributes}>{children}</Heading>;
-      spacingSize = 1;
-      break;
-
-    case "subheading":
-      content = <Subheading {...attributes}>{children}</Subheading>;
-      break;
-
-    case "caption":
-      content = <Caption {...attributes}>{children}</Caption>;
-      break;
-
-    case "label":
-      content = <Label {...attributes}>{children}</Label>;
-      break;
+      return <TaskList {...attributes}>{children}</TaskList>;
 
     case "list-item":
-      content = (
+      return (
         <ListItem {...attributes} element={element}>
           {children}
         </ListItem>
       );
-      break;
   }
 
-  return (
-    <Pressable>
-      {({ hovered }) => (
-        <Layout.Row>
-          <div contentEditable={false}>
-            <Layout.Column>
-              <Space spacingSize={spacingSize} />
+  return <React.Fragment />;
 
-              <Layout.Row>
-                <SlateFormatInput hovered={hovered} />
+  // const Controls = ({ hovered }: { hovered?: PressableState["hovered"] }) => (
+  //   <div contentEditable={false}>
+  //     <Layout.Column>
+  //       <Space spacingSize={spacingSize} />
 
-                <Space />
-              </Layout.Row>
-            </Layout.Column>
-          </div>
+  //       <Layout.Row>
+  //         <SlateFormatInput
+  //           value={activeFormatType}
+  //           hovered={hovered}
+  //           name={`SlateElement.Tooltip.Format.${path.map(String).join("_")}`}
+  //           onChange={(value) => {
+  //             Editor.setFormatElement(editor, { type: value, at: path });
+  //           }}
+  //         />
 
-          {content}
-        </Layout.Row>
-      )}
-    </Pressable>
-  );
+  //         <Space />
+
+  //         <Tooltip
+  //           content={
+  //             <Menu>
+  //               <SlateToolbar />
+  //             </Menu>
+  //           }
+  //           placement="top"
+  //           id={`SlateElement.Tooltip.Rest.${path.map(String).join("_")}`}
+  //         >
+  //           {({ onPress, focused, onLayout }) => (
+  //             <Layout.Box
+  //               opacity={hovered || focused ? 1 : 0}
+  //               onLayout={onLayout}
+  //             >
+  //               <IconButton
+  //                 icon={Icons.ThreeDotsVertical}
+  //                 size="small"
+  //                 onPress={onPress}
+  //               />
+  //             </Layout.Box>
+  //           )}
+  //         </Tooltip>
+
+  //         <Space />
+  //       </Layout.Row>
+  //     </Layout.Column>
+  //   </div>
+  // );
+
+  // return (
+  //   <Pressable>
+  //     {({ hovered }) => (
+  //       <Layout.Row>
+  //         <Controls hovered={hovered} /> {content}
+  //       </Layout.Row>
+  //     )}
+  //   </Pressable>
+  // );
 }
 
 export default SlateElement;

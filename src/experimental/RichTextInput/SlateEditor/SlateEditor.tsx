@@ -30,6 +30,8 @@ import {
   ListItemElement,
   ParagraphElement,
 } from "../../../typings-slate";
+import { Divider, Layout, Space, useTooltipActions } from "../../../components";
+import SlateToolbar from "./SlateToolbar";
 
 const InputPressable = styled(Pressable)`
   overflow: hidden;
@@ -38,6 +40,16 @@ const InputPressable = styled(Pressable)`
 
 const ToolbarWrapper = styled.View<{ isVisible?: boolean }>`
   opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
+`;
+
+const EditableWrapper = styled(Layout.Box).attrs({ greedy: true })`
+  .editable {
+    flex: 1;
+  }
+`;
+
+const DividerWrapper = styled(Layout.Box).attrs({ greedy: true })`
+  max-width: 2px;
 `;
 
 export interface SlateEditorProps {
@@ -72,7 +84,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       disabled,
       maxLength = -1,
       // value: valueProp,
-      toolbar,
+      // toolbar,
       // characterCount,
       readonly,
       onFocus,
@@ -104,6 +116,14 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       () => withHistory(withReact(createEditor())),
       []
     );
+
+    const { selection } = editor;
+
+    // const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
+
+    // React.useEffect(() => {
+    //   blurTooltip();
+    // }, [blurTooltip, selection]);
 
     const focus = () => {
       ReactEditor.focus(editor);
@@ -204,7 +224,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
         return;
       }
 
-      const { selection } = editor;
       const isSelectionCollapsed = selection && Range.isCollapsed(selection);
 
       const isDeleteBackwards = event.inputType === "deleteContentBackward";
@@ -324,9 +343,9 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
           setValue(nextValue);
         }}
       >
-        {toolbar}
+        {/* {toolbar} */}
 
-        <InputPressable isFocused={isFocused}>
+        <InputPressable isFocused={isFocused} onFocus={onFocus}>
           {(pressableProps: PressableState & PressableActions) => (
             <React.Fragment>
               {/* {!readonly && !disabled && (
@@ -341,23 +360,43 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
               <InputOutline
                 {...pick(pressableProps, ["focused", "pressed", "hovered"])}
               >
-                <Editable
-                  placeholder={placeholder}
-                  className="editable"
-                  readOnly={readonly || disabled}
-                  renderElement={renderElement}
-                  renderLeaf={renderLeaf}
-                  spellCheck
-                  onKeyDown={handleKeyDown}
-                  onDOMBeforeInput={(event) => {
-                    onDOMBeforeInput(event as DragEvent & InputEvent);
-                  }}
-                  onFocus={() => {
-                    onFocus?.();
-                    pressableProps.focus();
-                  }}
-                  onBlur={() => pressableProps.blur()}
-                />
+                <Layout.Row spacingSize={0.5}>
+                  <Layout.Row
+                    opacity={
+                      pressableProps.focused || pressableProps.hovered ? 1 : 0
+                    }
+                  >
+                    <SlateToolbar />
+
+                    <Space />
+
+                    <DividerWrapper>
+                      <Divider vertical height="100%" />
+                    </DividerWrapper>
+
+                    <Space spacingSize={1.5} />
+                  </Layout.Row>
+
+                  <Editable
+                    placeholder={placeholder}
+                    className="editable"
+                    readOnly={readonly || disabled}
+                    renderElement={renderElement}
+                    renderLeaf={renderLeaf}
+                    spellCheck
+                    onKeyDown={handleKeyDown}
+                    onDOMBeforeInput={(event) => {
+                      onDOMBeforeInput(event as DragEvent & InputEvent);
+                    }}
+                    onFocus={() => pressableProps.focus()}
+                    onBlur={() => pressableProps.blur()}
+                    style={{
+                      flex: 1,
+                    }}
+                  />
+
+                  <Space spacingSize={6.25} />
+                </Layout.Row>
               </InputOutline>
             </React.Fragment>
           )}

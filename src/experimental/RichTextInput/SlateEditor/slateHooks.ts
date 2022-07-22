@@ -5,13 +5,34 @@ import { Editor as DefaultEditor } from "slate";
 import { FormatElement } from "../../../typings-slate";
 import { Editor, Element } from "./slate";
 
+export function useSetFormatElement({
+  editor: editorProp,
+}: {
+  editor?: DefaultEditor;
+} = {}) {
+  const defaultEditor = useSlate();
+  const editor = editorProp || defaultEditor;
+
+  const setFormatElement = React.useCallback(
+    ({ type }: Partial<FormatElement>) => {
+      if (type) {
+        Editor.setFormatElement(editor, { type });
+      }
+    },
+    []
+  );
+
+  return setFormatElement;
+}
+
 export function useActiveFormat({
   editor: editorProp,
 }: {
-  editor: DefaultEditor;
-}) {
+  editor?: DefaultEditor;
+} = {}) {
   const defaultEditor = useSlate();
   const editor = editorProp || defaultEditor;
+  const { selection } = editor;
 
   const activeFormatType: FormatElement["type"] | undefined =
     React.useMemo(() => {
@@ -28,7 +49,7 @@ export function useActiveFormat({
       const { type } = (element as FormatElement) || {};
 
       return type ? type : undefined;
-    }, [editor, editor.selection]);
+    }, [editor, selection]);
 
   return activeFormatType;
 }

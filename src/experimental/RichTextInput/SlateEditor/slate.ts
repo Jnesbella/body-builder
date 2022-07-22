@@ -9,6 +9,7 @@ import {
   Text,
   Path,
   NodeEntry,
+  Location,
 } from "slate";
 import { RenderElementProps } from "slate-react";
 
@@ -220,7 +221,7 @@ export const Editor = {
 
   setFormatElement: (
     editor: DefaultEditor,
-    options: { type: FormatElement["type"] }
+    { at, ...options }: { type: FormatElement["type"]; at?: Location }
   ) => {
     // const [match] = Editor.nodes(editor, {
     //   match: (node) =>
@@ -236,6 +237,7 @@ export const Editor = {
         Element.isElement(node) &&
         Element.isFormatElement(node),
       // mode: "all",
+      at,
     });
   },
 

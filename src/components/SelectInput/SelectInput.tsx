@@ -57,6 +57,7 @@ export interface SelectInputProps<Option>
   isEqual?: typeof isEqual;
   getInputValue?: (option: Option) => string;
   disabled?: boolean;
+  name?: string;
 }
 
 function SelectInput<Option>({
@@ -68,6 +69,7 @@ function SelectInput<Option>({
   isEqual: isEqualProp = isEqual,
   getInputValue,
   disabled,
+  name,
   ...textInputProps
 }: SelectInputProps<Option>) {
   // const [isFocused, setIsFocused] = React.useState(false);
@@ -77,6 +79,7 @@ function SelectInput<Option>({
 
   return (
     <Tooltip
+      id={name}
       content={
         !disabled && (
           <Menu>

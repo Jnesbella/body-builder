@@ -18,6 +18,7 @@ export enum FontWeight {
 }
 
 export enum FontSize {
+  ExtraSmall = theme.spacing * 1,
   Small = theme.spacing * 1.5,
   Normal = theme.spacing * 2,
   Medium = theme.spacing * 2.5,
