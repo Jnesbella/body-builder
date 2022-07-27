@@ -1,4 +1,5 @@
 import * as React from "react";
+import { log } from "../../utils";
 
 import Portal, { PortalProviderProps } from "../Portal";
 
@@ -50,13 +51,24 @@ function TooltipProvider({ children, ...rest }: TooltipProviderProps) {
 
   const state: TooltipState = { focusedTooltipId };
 
-  const focusTooltip = React.useCallback((id: TooltipProps["id"]) => {
-    setFocusedTooltipId(id);
-  }, []);
+  log("TooltipProvider: ", state);
+
+  const focusTooltip = React.useCallback(
+    (id: TooltipProps["id"]) => {
+      log("focusTooltip: ", id);
+      if (focusedTooltipId !== id) {
+        setFocusedTooltipId(id);
+      }
+    },
+    [focusedTooltipId]
+  );
 
   const blurTooltip = React.useCallback(() => {
-    setFocusedTooltipId(undefined);
-  }, []);
+    log("blurTooltip");
+    if (!!focusedTooltipId) {
+      setFocusedTooltipId(undefined);
+    }
+  }, [focusedTooltipId]);
 
   const isTooltipFocused = React.useCallback(
     (id: TooltipProps["id"]) => focusedTooltipId === id,
@@ -64,6 +76,7 @@ function TooltipProvider({ children, ...rest }: TooltipProviderProps) {
   );
 
   const toggleTooltip = React.useCallback((id: TooltipProps["id"]) => {
+    log("toggleTooltip: ", id);
     setFocusedTooltipId((prevFocusedTooltipId) =>
       prevFocusedTooltipId === id ? undefined : id
     );

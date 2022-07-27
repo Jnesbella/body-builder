@@ -60,9 +60,9 @@ function Tooltip({
     [toggleTooltip, id]
   );
 
-  if (layout) {
-    console.log("Tooltip: ", { layout });
-  }
+  // if (layout) {
+  //   console.log("Tooltip: ", { layout });
+  // }
 
   const horizontalOffset = React.useMemo(() => {
     return 0;

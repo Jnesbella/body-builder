@@ -68,7 +68,7 @@ export function Portal({
   const left = get(layout, "left", 0);
   const top = get(layout, "top", 0) + get(layout, "height", 0);
 
-  log("Portal: ", { container, layout });
+  // log("Portal: ", { container, layout });
 
   return (
     <React.Fragment>

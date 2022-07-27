@@ -22,7 +22,7 @@ import { Editor, Element } from "./slate";
 import { theme } from "../../../styles";
 import { InputOutline } from "../../../components/TextInput";
 import { Pressable, PressableActions, PressableState } from "../../Pressable";
-import { isNumber, last, pick } from "lodash";
+import { isNumber, last, pick, range } from "lodash";
 import { log } from "../../../utils";
 import {
   CustomElement,
@@ -68,6 +68,7 @@ export interface SlateEditorProps {
   renderEditable?: (props: React.PropsWithChildren<{}>) => JSX.Element;
   footer?: React.ReactNode;
   isFocused?: boolean;
+  name?: string;
 }
 
 export interface SlateEditorElement {
@@ -93,6 +94,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       // renderEditable: Wrapper = React.Fragment,
       footer,
       isFocused,
+      name = "",
     },
     ref
   ) => {
@@ -230,12 +232,49 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       if (isDeleteBackwards) {
         const [element, path] = Editor.getSelectedElement(editor) || [];
 
+        // TODO
+        // is first element
+        // is list item
+        // is start edge
+
         if (element && path) {
           const [parent, parentPath] = Editor.parent(editor, path);
           const isListItem = Element.isListItemElement(parent);
           const isEmpty = Editor.isEmpty(editor, element);
+          const { focus } = editor.selection || {};
 
-          if (isEmpty && isSelectionCollapsed) {
+          const isSelectionFocusStart = focus
+            ? Editor.isStart(editor, focus, path)
+            : false;
+
+          const isFirstElement = path.every((index) => index === 0);
+
+          console.log({
+            isListItem,
+            isSelectionFocusStart,
+            isSelectionCollapsed,
+            path,
+            parentPath,
+            isFirstElement,
+          });
+
+          if (
+            isListItem &&
+            isSelectionFocusStart &&
+            isSelectionCollapsed &&
+            isFirstElement
+          ) {
+            // is at beginning of list item
+            // so toggle the list item
+
+            event.preventDefault();
+
+            const { listType } = parent as ListItemElement;
+            log("BANANA: ", { listType });
+            if (listType) {
+              Editor.toggleListElement(editor, listType);
+            }
+          } else if (isEmpty && isSelectionCollapsed) {
             // is empty element
             // so remove the node
 
@@ -334,6 +373,8 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       }
     };
 
+    const gutter = <Space spacingSize={6.25} />;
+
     return (
       <Slate
         editor={editor}
@@ -359,43 +400,46 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
               <InputOutline
                 {...pick(pressableProps, ["focused", "pressed", "hovered"])}
+                spacingSize={0}
               >
-                <Layout.Row spacingSize={0.5}>
+                <Layout.Row>
                   <Layout.Row
                     opacity={
                       pressableProps.focused || pressableProps.hovered ? 1 : 0
                     }
                   >
-                    <SlateToolbar />
-
-                    <Space />
+                    <Layout.Box spacingSize={1}>
+                      <SlateToolbar name={name} editor={editor} />
+                    </Layout.Box>
 
                     <DividerWrapper>
                       <Divider vertical height="100%" />
                     </DividerWrapper>
 
-                    <Space spacingSize={1.5} />
+                    <Space />
                   </Layout.Row>
 
-                  <Editable
-                    placeholder={placeholder}
-                    className="editable"
-                    readOnly={readonly || disabled}
-                    renderElement={renderElement}
-                    renderLeaf={renderLeaf}
-                    spellCheck
-                    onKeyDown={handleKeyDown}
-                    onDOMBeforeInput={(event) => {
-                      onDOMBeforeInput(event as DragEvent & InputEvent);
-                    }}
-                    onFocus={() => pressableProps.focus()}
-                    onBlur={() => pressableProps.blur()}
-                    style={{
-                      flex: 1,
-                    }}
-                  />
+                  <Layout.Box spacingSize={[0, 0.5]} greedy>
+                    <Editable
+                      placeholder={placeholder}
+                      className="editable"
+                      readOnly={readonly || disabled}
+                      renderElement={renderElement}
+                      renderLeaf={renderLeaf}
+                      spellCheck
+                      onKeyDown={handleKeyDown}
+                      onDOMBeforeInput={(event) => {
+                        onDOMBeforeInput(event as DragEvent & InputEvent);
+                      }}
+                      onFocus={() => pressableProps.focus()}
+                      onBlur={() => pressableProps.blur()}
+                      style={{
+                        flex: 1,
+                      }}
+                    />
+                  </Layout.Box>
 
-                  <Space spacingSize={6.25} />
+                  {gutter}
                 </Layout.Row>
               </InputOutline>
             </React.Fragment>

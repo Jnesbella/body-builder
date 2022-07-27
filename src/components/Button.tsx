@@ -3,6 +3,7 @@ import { LayoutChangeEvent, View } from "react-native";
 import styled from "styled-components/native";
 
 import { Pressable } from "../experimental/Pressable";
+import { PressableProps } from "../experimental/Pressable/Pressable";
 import {
   theme,
   ColorProp,
@@ -29,11 +30,13 @@ import {
   SpacingProps,
   opacity,
   Bordered,
+  full,
+  Full,
 } from "./styled-components";
 import Text from "./Text";
 
 const ButtonContainer = styled.View<
-  Bordered & Greedy & Omit<SpacingProps, "size">
+  Bordered & Greedy & Omit<SpacingProps, "size"> & Full
 >`
   ${background};
   ${color};
@@ -42,6 +45,7 @@ const ButtonContainer = styled.View<
   ${rounded};
   ${spacing};
   ${opacity};
+  ${full};
 
   border-color: ${(props) => props.borderColor};
   border-width: ${theme.borderThickness}px;
@@ -60,7 +64,7 @@ export type ButtonRenderer = (
   props: Background & Color & PressableState
 ) => React.ReactNode;
 
-export interface ButtonProps extends Omit<SpacingProps, "size"> {
+export interface ButtonProps extends Omit<SpacingProps, "size">, Full {
   onPress?: () => void;
   onPressCapture?: () => void;
   mode?: "contained" | "outlined" | "text";
@@ -71,11 +75,18 @@ export interface ButtonProps extends Omit<SpacingProps, "size"> {
   children?: React.ReactNode | ButtonRenderer;
   onLayout?: (event: LayoutChangeEvent) => void;
   selected?: boolean;
+  active?: boolean;
   roundness?: number;
   background?: string;
   onFocus?: () => void;
   onBlur?: () => void;
   size?: SizeProp;
+  focusOnPress?: PressableProps["focusOnPress"];
+  focusOnPressCapture?: PressableProps["focusOnPressCapture"];
+  preventDefault?: PressableProps["preventDefault"];
+  stopPropagation?: PressableProps["stopPropagation"];
+  focusMode?: PressableProps["focusMode"];
+  onPointerDownCapture?: PressableProps["onPointerDownCapture"];
 }
 
 const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
@@ -89,10 +100,20 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
       children,
       onLayout,
       selected: isSelected,
+      active: isActive,
       background: backgroundProp,
       spacingSize = [1, 0],
       onPressCapture,
       size,
+      fullWidth,
+      onBlur,
+      onFocus,
+      focusOnPress,
+      stopPropagation,
+      preventDefault,
+      focusOnPressCapture,
+      focusMode,
+      onPointerDownCapture,
       ...rest
     },
     ref
@@ -116,7 +137,7 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
         return backgroundProp;
       }
 
-      if (isSelected) {
+      if (isSelected || isActive) {
         return theme.colors.accentLight;
       }
 
@@ -125,7 +146,14 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
       }
 
       return isContained ? themeColor : theme.colors.transparent; // theme.colors.background
-    }, [isContained, isDisabled, themeColor, isSelected, backgroundProp]);
+    }, [
+      isContained,
+      isDisabled,
+      themeColor,
+      isSelected,
+      backgroundProp,
+      isActive,
+    ]);
 
     const isBackgroundTransparent = isColorTransparent(backgroundColor);
 
@@ -164,9 +192,13 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
         ...rest,
         ...pressableState,
         // borderColor,
+        fullWidth,
         spacingSize,
         // background: backgroundColor,
-        borderColor: pressableState.hovered ? borderColorHovered : borderColor,
+        borderColor:
+          pressableState.hovered || pressableState.focused
+            ? borderColorHovered
+            : borderColor,
         // background: pressableState.pressed
         //   ? backgroundPressed
         //   : backgroundColor,
@@ -198,10 +230,19 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
 
     return (
       <Pressable
+        fullWidth={fullWidth}
         ref={ref}
         onPress={onPress}
         disabled={isDisabled}
         onPressCapture={onPressCapture}
+        onBlur={onBlur}
+        onFocus={onFocus}
+        focusOnPress={focusOnPress}
+        focusOnPressCapture={focusOnPressCapture}
+        stopPropagation={stopPropagation}
+        preventDefault={preventDefault}
+        focusMode={focusMode}
+        onPointerDownCapture={onPointerDownCapture}
       >
         {renderChildren}
       </Pressable>

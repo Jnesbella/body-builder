@@ -43,22 +43,24 @@ const DEFAULT_STATE: PressableState = {
   pressed: false,
 };
 
+export interface PressableProviderElement
+  extends PressableActions,
+    PressableState {}
+
 export interface PressableProviderProps {
   children?:
     | React.ReactNode
-    | ((props: PressableState & PressableActions) => React.ReactNode);
+    | ((props: PressableProviderElement) => React.ReactNode);
   defaultState?: PressableState;
   isFocused?: boolean;
   onBlur?: () => void;
   onFocus?: () => void;
 }
 
-function PressableProvider({
-  children,
-  defaultState = DEFAULT_STATE,
-  onBlur,
-  onFocus,
-}: PressableProviderProps) {
+const PressableProvider = React.forwardRef<
+  PressableProviderElement,
+  PressableProviderProps
+>(({ children, defaultState = DEFAULT_STATE, onBlur, onFocus }, ref) => {
   const [_isFocused, setIsFocused] = React.useState(
     defaultState.focused || false
   );
@@ -107,15 +109,25 @@ function PressableProvider({
     blur,
   };
 
+  const element: PressableProviderElement = { ...actions, ...state };
+
+  React.useEffect(function handleRef() {
+    if (typeof ref === "function") {
+      ref(element);
+    } else if (ref) {
+      ref.current = element;
+    }
+  });
+
   return (
     <PressableState.Provider value={state}>
       <PressableActions.Provider value={actions}>
         {children && typeof children === "function"
-          ? children?.({ ...state, ...actions })
+          ? (children as unknown as any)(element)
           : children}
       </PressableActions.Provider>
     </PressableState.Provider>
   );
-}
+});
 
 export default PressableProvider;

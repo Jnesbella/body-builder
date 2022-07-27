@@ -26,9 +26,15 @@ export interface SlateFormatMenuProps {
   disabled?: boolean;
   value?: FormatElement["type"];
   onChange?: (type: FormatElement["type"]) => void;
+  onChangeCapture?: (type: FormatElement["type"]) => void;
 }
 
-function SlateFormatMenu({ disabled, value, onChange }: SlateFormatMenuProps) {
+function SlateFormatMenu({
+  disabled,
+  value,
+  onChange,
+  onChangeCapture,
+}: SlateFormatMenuProps) {
   return (
     <Menu>
       {FORMAT_TYPES.map((type) => {
@@ -60,7 +66,7 @@ function SlateFormatMenu({ disabled, value, onChange }: SlateFormatMenuProps) {
             disabled={disabled}
             selected={isSelected}
             onPress={() => onChange?.(type)}
-            // onPressCapture={() => onChange?.(type)}
+            onPointerDownCapture={() => onChangeCapture?.(type)}
           >
             <Wrapper>{startCase(type)}</Wrapper>
           </Menu.Item>

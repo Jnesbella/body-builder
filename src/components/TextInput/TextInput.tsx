@@ -1,6 +1,7 @@
 import * as React from "react";
 import { TextInput as DefaultTextInput } from "react-native";
 import styled, { css } from "styled-components/native";
+import { Pressable, PressableActions } from "../../experimental/Pressable";
 
 import { darkenColor, theme } from "../../styles";
 import { log } from "../../utils";
@@ -20,6 +21,8 @@ import {
   full,
   background,
   Background,
+  SpacingProps,
+  spacing,
 } from "../styled-components";
 
 export type TextInputProps = Omit<
@@ -52,24 +55,29 @@ const StyledTextInput = styled.TextInput.attrs({
   }}
 `;
 
-const InputPressable = styled.Pressable`
+const InputPressable = styled(Pressable)`
   overflow: hidden;
   background: ${theme.colors.transparent};
 `;
 
 export const InputOutline = styled(Layout.Box).attrs(
-  ({ hovered, focused }: PressableState) => ({
+  ({
+    hovered,
+    focused,
+    spacingSize = [1, 0],
+  }: PressableState & SpacingProps) => ({
     borderColor:
       hovered || focused ? theme.colors.primary : theme.colors.transparent,
 
     background: focused ? theme.colors.background : theme.colors.transparent,
+
+    spacingSize,
   })
 )<PressableState>`
   ${background};
   ${rounded};
   ${bordered};
-
-  padding: 0 ${theme.spacing}px;
+  ${spacing};
 `;
 
 function TextInput({
@@ -78,47 +86,51 @@ function TextInput({
   onBlur,
   ...textInputProps
 }: TextInputProps) {
-  const [isFocused, setIsFocused] = React.useState(false);
+  // const [isFocused, setIsFocused] = React.useState(false);
 
-  // log("TextInput", { isFocused });
+  // // log("TextInput", { isFocused });
 
-  const Input = React.useCallback(
-    (state: PressableState) => (
-      <InputOutline {...state} focused={isFocused}>
-        <StyledTextInput
-          {...(textInputProps as unknown as any)}
-          onFocus={(_e) => {
-            // onFocus?.(e);
-            // setIsFocused(true);
-          }}
-          onBlur={(_e) => {
-            // onBlur?.(e);
-            // setIsFocused(false);
-          }}
-        />
-      </InputOutline>
-    ),
-    []
-  );
+  // const Input = React.useCallback(
+  //   (state: PressableState) => (
+  //     <InputOutline {...state} focused={isFocused}>
+  //       <StyledTextInput
+  //         {...(textInputProps as unknown as any)}
+  //         onFocus={(_e) => {
+  //           // onFocus?.(e);
+  //           // setIsFocused(true);
+  //         }}
+  //         onBlur={(_e) => {
+  //           // onBlur?.(e);
+  //           // setIsFocused(false);
+  //         }}
+  //       />
+  //     </InputOutline>
+  //   ),
+  //   []
+  // );
 
   return (
     <InputPressable>
       {
-        (state: PressableState) => (
-          <InputOutline {...state} focused={isFocused}>
-            <StyledTextInput
-              {...(textInputProps as unknown as any)}
-              onFocus={(e) => {
-                onFocus?.(e);
-                setIsFocused(true);
-              }}
-              onBlur={(e) => {
-                onBlur?.(e);
-                setIsFocused(false);
-              }}
-            />
-          </InputOutline>
-        )
+        (pressableProps: PressableState & PressableActions) => {
+          // console.log("pressableProps: ", { pressableProps });
+
+          return (
+            <InputOutline {...pressableProps}>
+              <StyledTextInput
+                {...(textInputProps as unknown as any)}
+                onFocus={(e) => {
+                  onFocus?.(e);
+                  pressableProps.focus();
+                }}
+                onBlur={(e) => {
+                  onBlur?.(e);
+                  pressableProps.blur();
+                }}
+              />
+            </InputOutline>
+          );
+        }
         // typeof Children === "function" ? (
         //   <Children {...state}>{Input}</Children>
         // ) : (

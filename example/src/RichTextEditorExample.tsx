@@ -94,20 +94,21 @@ function Page({
 
       <Surface spacingSize={1}>
         <TextInput
-          placeholder="Title your page"
           value={page.title}
           // onChangeText={setTitle}
           onChangeText={(text) => onChange?.({ ...page, title: text })}
           fullWidth
+          placeholder="Title your page"
         />
 
         {/* <Layout.Box spacingSize={[0, 1]}>
           <Divider />
         </Layout.Box> */}
 
-        <Space spacingSize={2} />
+        <Space spacingSize={1} />
 
         <RichTextInput
+          name={`page-${page.id}`}
           defaultValue={page.content}
           placeholder="Write your content"
           isFocused={isFocused}
@@ -116,7 +117,7 @@ function Page({
           onChangeText={(text) => onChange?.({ ...page, content: text })}
           footer={
             <>
-              <Space />
+              <Space spacingSize={1} />
 
               {/* {toolbar}
 
