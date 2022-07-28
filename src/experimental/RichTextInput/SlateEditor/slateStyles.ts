@@ -29,17 +29,23 @@ export const italic = css<{ italic?: boolean }>`
 `;
 
 export const underline = css<{ underline?: boolean; text?: string } & Color>`
-  ${({ underline, text: content, color }) => {
+  ${({ underline, color }) => {
     if (underline) {
       return css`
-        &:before {
-          ${text};
-          content: "${content}";
-          position: absolute;
-          text-decoration: underline ${color};
-          color: ${theme.colors.transparent};
-        }
+        border-bottom: 1px solid ${color || theme.colors.primary};
       `;
+
+      // return css`
+      //   &:before {
+      //     ${text};
+      //     content: "${content}";
+      //     position: absolute;
+      //     top: 0;
+      //     left: 0;
+      //     text-decoration: underline ${color};
+      //     color: ${theme.colors.transparent};
+      //   }
+      // `;
     }
   }}
 `;

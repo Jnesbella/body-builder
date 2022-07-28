@@ -88,17 +88,19 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       // toolbar,
       // characterCount,
       readonly,
-      onFocus,
+      // onFocus,
       // onBlur,
       // children: Container = React.Fragment,
       // renderEditable: Wrapper = React.Fragment,
       footer,
-      isFocused,
+      // isFocused,
       name = "",
     },
     ref
   ) => {
     const [value, setValue] = React.useState<Descendant[]>(defaultValue);
+
+    const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
 
     console.log("value: ", { value });
 
@@ -386,7 +388,16 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       >
         {/* {toolbar} */}
 
-        <InputPressable isFocused={isFocused} onFocus={onFocus}>
+        <InputPressable
+          // isFocused={isFocused}
+          // onFocus={onFocus}
+          onPress={!ReactEditor.isFocused(editor) ? focus : undefined}
+          // onPointerDownCapture={() => focus()}
+          preventDefault
+          onBlur={() => {
+            // blurTooltip();
+          }}
+        >
           {(pressableProps: PressableState & PressableActions) => (
             <React.Fragment>
               {/* {!readonly && !disabled && (
@@ -432,7 +443,9 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                         onDOMBeforeInput(event as DragEvent & InputEvent);
                       }}
                       onFocus={() => pressableProps.focus()}
-                      onBlur={() => pressableProps.blur()}
+                      onBlur={() => {
+                        pressableProps.blur();
+                      }}
                       style={{
                         flex: 1,
                       }}

@@ -11,19 +11,21 @@ import TooltipProvider, {
   useTooltipState,
 } from "./TooltipProvider";
 
+export interface TooltipCallbackProps {
+  onLayout: ((event: LayoutChangeEvent) => void) | undefined;
+  onFocus: () => void;
+  onBlur: () => void;
+  onPress: () => void;
+  focused: boolean;
+}
+
+export type TooltipCallback = (props: TooltipCallbackProps) => React.ReactNode;
+
 export interface TooltipProps {
   id?: string;
-  content?: React.ReactNode;
   placement?: "top" | "bottom" | "right"; // | "left" ;
-  children:
-    | React.ReactNode
-    | ((props: {
-        onLayout: ((event: LayoutChangeEvent) => void) | undefined;
-        onFocus: () => void;
-        onBlur: () => void;
-        onPress: () => void;
-        focused: boolean;
-      }) => React.ReactNode);
+  content?: React.ReactNode | TooltipCallback;
+  children: React.ReactNode | TooltipCallback;
 }
 
 function Tooltip({
@@ -81,18 +83,23 @@ function Tooltip({
     }
   }, []);
 
+  const renderTooltipCallback = (
+    children?: React.ReactNode | TooltipCallback
+  ) =>
+    typeof children === "function"
+      ? children({ onLayout, onFocus, onBlur, onPress, focused: isFocused })
+      : children;
+
   return (
     <React.Fragment>
-      {typeof children === "function"
-        ? children({ onLayout, onFocus, onBlur, onPress, focused: isFocused })
-        : children}
+      {renderTooltipCallback(children)}
 
       <Portal
         layout={layout}
         horizontalOffset={horizontalOffset}
         verticalOffset={verticalOffset}
       >
-        {isFocused && content}
+        {isFocused && renderTooltipCallback(content)}
       </Portal>
     </React.Fragment>
   );

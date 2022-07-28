@@ -107,7 +107,15 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
         tabIndex={!disabled && isFocusable ? 0 : undefined}
         onFocus={
           !disabled && isFocusable
-            ? () => {
+            ? (event) => {
+                if (preventDefault) {
+                  event.preventDefault();
+                }
+
+                if (stopPropagation) {
+                  event.stopPropagation();
+                }
+
                 // window.setTimeout(() => {
                 console.log("FOCUS");
                 innerRef.current?.focus();
@@ -117,7 +125,15 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
         }
         onBlur={
           !disabled && isFocusable
-            ? () => {
+            ? (event) => {
+                if (preventDefault) {
+                  event.preventDefault();
+                }
+
+                if (stopPropagation) {
+                  event.stopPropagation();
+                }
+
                 // window.setTimeout(() => {
                 console.log("BLUR");
                 innerRef.current?.blur();

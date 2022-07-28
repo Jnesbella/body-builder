@@ -5,6 +5,7 @@ import { Editor as DefaultEditor, Transforms } from "slate";
 import { FormatElement } from "../../../typings-slate";
 import { Editor, Element } from "./slate";
 import { isNull } from "lodash";
+import { log } from "../../../utils";
 
 export function useSetFormatElement({
   editor: editorProp,
@@ -51,25 +52,4 @@ export function useActiveFormat({
   })();
 
   return activeFormatType;
-}
-
-export function useFocusEditor({
-  editor: editorProp,
-}: { editor?: DefaultEditor } = {}) {
-  const defaultEditor = useSlate();
-  const editor = editorProp || defaultEditor;
-  const { selection } = editor;
-
-  const focusEditor = React.useCallback(
-    ({ force = false }: { force?: boolean } = {}) => {
-      ReactEditor.focus(editor);
-
-      if (selection && force) {
-        Transforms.setSelection(editor, selection);
-      }
-    },
-    [editor, selection]
-  );
-
-  return focusEditor;
 }

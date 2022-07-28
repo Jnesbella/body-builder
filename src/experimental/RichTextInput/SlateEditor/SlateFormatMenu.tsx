@@ -65,8 +65,10 @@ function SlateFormatMenu({
             key={type}
             disabled={disabled}
             selected={isSelected}
+            // preventDefault
+            // stopPropagation
             onPress={() => onChange?.(type)}
-            onPointerDownCapture={() => onChangeCapture?.(type)}
+            onPressCapture={() => onChangeCapture?.(type)}
           >
             <Wrapper>{startCase(type)}</Wrapper>
           </Menu.Item>
