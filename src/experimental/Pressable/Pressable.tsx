@@ -95,105 +95,74 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
 
     const focusMode =
       focusModeProp ||
-      (!onPress && !onPressCapture && !onPointerDownCapture
-        ? "controlled"
-        : "uncontrolled");
+      ([onPress, onPressCapture, onPointerDownCapture].some(
+        (handler) => !!handler
+      )
+        ? "uncontrolled"
+        : "controlled");
+
     const isFocusable = focusMode === "uncontrolled";
+
+    const handleEvent = (callback?: () => void) =>
+      !disabled && isFocusable
+        ? (
+            event:
+              | React.FocusEvent<HTMLDivElement, Element>
+              | React.MouseEvent<HTMLDivElement, MouseEvent>
+          ) => {
+            if (preventDefault) {
+              event.preventDefault();
+            }
+
+            if (stopPropagation) {
+              event.stopPropagation();
+            }
+
+            callback?.();
+          }
+        : undefined;
 
     return (
       <DefaultPressable
         fullWidth={fullWidth}
         ref={ref}
         tabIndex={!disabled && isFocusable ? 0 : undefined}
-        onFocus={
-          !disabled && isFocusable
-            ? (event) => {
-                if (preventDefault) {
-                  event.preventDefault();
-                }
-
-                if (stopPropagation) {
-                  event.stopPropagation();
-                }
-
-                // window.setTimeout(() => {
-                console.log("FOCUS");
-                innerRef.current?.focus();
-                // }, 0);
-              }
-            : undefined
-        }
-        onBlur={
-          !disabled && isFocusable
-            ? (event) => {
-                if (preventDefault) {
-                  event.preventDefault();
-                }
-
-                if (stopPropagation) {
-                  event.stopPropagation();
-                }
-
-                // window.setTimeout(() => {
-                console.log("BLUR");
-                innerRef.current?.blur();
-                // }, 1);
-              }
-            : undefined
-        }
+        onFocus={handleEvent(() => {
+          innerRef.current?.focus();
+        })}
+        onBlur={handleEvent(() => {
+          console.log("BLUR");
+          innerRef.current?.blur();
+        })}
         onClickCapture={
-          !disabled && isFocusable
-            ? (event) => {
-                if (onPressCapture) {
-                  console.log("ON PRESS CAPTURE");
+          onPressCapture &&
+          handleEvent(() => {
+            onPressCapture();
 
-                  if (preventDefault) {
-                    event.preventDefault();
-                  }
-
-                  if (stopPropagation) {
-                    event.stopPropagation();
-                  }
-
-                  onPressCapture();
-
-                  if (focusOnPressCapture) {
-                    innerRef.current?.focus();
-                  }
-                }
-              }
-            : undefined
+            if (focusOnPressCapture) {
+              innerRef.current?.focus();
+            }
+          })
         }
         onClick={
-          !disabled && isFocusable
-            ? (event) => {
-                if (onPress) {
-                  console.log("ON PRESS");
+          onPress &&
+          handleEvent(() => {
+            onPress();
 
-                  if (preventDefault) {
-                    event.preventDefault();
-                  }
-
-                  if (stopPropagation) {
-                    event.stopPropagation();
-                  }
-
-                  onPress();
-
-                  if (focusOnPress) {
-                    innerRef.current?.focus();
-                  }
-                }
-              }
-            : undefined
+            if (focusOnPress) {
+              innerRef.current?.focus();
+            }
+          })
         }
-        onPointerOverCapture={() => setHovered(true)}
-        onPointerOutCapture={() => setHovered(false)}
         onPointerDownCapture={() => {
           onPointerDownCapture?.();
-          setPressed(true);
         }}
-        onPointerUpCapture={() => setPressed(false)}
+        // hovered
+        onPointerOver={() => setHovered(true)}
+        onPointerOut={() => setHovered(false)}
+        // pressed
+        onPointerDown={() => setPressed(false)}
+        onPointerUp={() => setPressed(false)}
       >
         <PressableProvider
           defaultState={state}

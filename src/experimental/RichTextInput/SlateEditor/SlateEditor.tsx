@@ -420,7 +420,11 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                     }
                   >
                     <Layout.Box spacingSize={1}>
-                      <SlateToolbar name={name} editor={editor} />
+                      <SlateToolbar
+                        name={name}
+                        editor={editor}
+                        isFocused={pressableProps.focused}
+                      />
                     </Layout.Box>
 
                     <DividerWrapper>

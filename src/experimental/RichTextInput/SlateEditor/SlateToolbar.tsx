@@ -68,7 +68,6 @@ function SlateToolbarItem({
       active={active}
       focusMode={focusMode}
       onPress={() => {
-        // ReactEditor.focus(editor);
         onPress?.();
         ReactEditor.focus(editor);
       }}
@@ -125,13 +124,19 @@ export interface SlateToolbarProps {
   disabled?: boolean;
   editor?: DefaultEditor;
   name?: string;
+  isFocused?: boolean;
 }
 
-function SlateToolbar({ editor: editorProp, name }: SlateToolbarProps) {
+function SlateToolbar({
+  editor: editorProp,
+  isFocused,
+  name,
+}: SlateToolbarProps) {
   const defaultEditor = useSlate();
   const editor = editorProp || defaultEditor;
 
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  const [_isExpanded, setIsExpanded] = React.useState(false);
+  const isExpanded = _isExpanded && isFocused;
 
   const marks: {
     mark: MarkButtonProps["mark"];
