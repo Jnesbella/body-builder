@@ -51,24 +51,17 @@ function TooltipProvider({ children, ...rest }: TooltipProviderProps) {
 
   const state: TooltipState = { focusedTooltipId };
 
-  log("TooltipProvider: ", state);
+  // log("TooltipProvider: ", state);
 
-  const focusTooltip = React.useCallback(
-    (id: TooltipProps["id"]) => {
-      log("focusTooltip: ", id);
-      if (focusedTooltipId !== id) {
-        setFocusedTooltipId(id);
-      }
-    },
-    [focusedTooltipId]
-  );
+  const focusTooltip = React.useCallback((id: TooltipProps["id"]) => {
+    log("focusTooltip: ", id);
+    setFocusedTooltipId(id);
+  }, []);
 
   const blurTooltip = React.useCallback(() => {
     log("blurTooltip");
-    if (!!focusedTooltipId) {
-      setFocusedTooltipId(undefined);
-    }
-  }, [focusedTooltipId]);
+    setFocusedTooltipId(undefined);
+  }, []);
 
   const isTooltipFocused = React.useCallback(
     (id: TooltipProps["id"]) => focusedTooltipId === id,

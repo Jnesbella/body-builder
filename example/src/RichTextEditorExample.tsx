@@ -91,7 +91,7 @@ function Page({
 
   return (
     <PageContainer>
-      <Pressable isFocused={isTitleFocused || isContentFocused}>
+      <Pressable isFocused={isTitleFocused || isContentFocused} name="Page">
         {(pressableProps) => (
           <Layout.Column>
             {/* <Layout.Box spacingSize={[0.5, 0]}>
@@ -120,6 +120,7 @@ function Page({
                         ? "Title your page"
                         : ""
                     }
+                    // placeholder="Title your page"
                     onFocus={() => {
                       setIsTitleFocused(true);
                     }}
@@ -150,6 +151,7 @@ function Page({
                     ? "Write your content"
                     : ""
                 }
+                // placeholder="Write your content"
                 isFocused={isFocused}
                 onFocus={() => {
                   setIsContentFocused(true);

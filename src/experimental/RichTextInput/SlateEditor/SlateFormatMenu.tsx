@@ -20,13 +20,14 @@ import MarkButton, { MarkButtonProps } from "./MarkButton";
 import BlockButton, { BlockButtonProps } from "./BlockButton";
 import { FORMAT_TYPES } from "./slateConstants";
 import { Editor, Element } from "./slate";
-import Menu from "../../../components/Menu";
+import Menu, { MenuItemProps } from "../../../components/Menu";
 
 export interface SlateFormatMenuProps {
   disabled?: boolean;
   value?: FormatElement["type"];
   onChange?: (type: FormatElement["type"]) => void;
   onChangeCapture?: (type: FormatElement["type"]) => void;
+  onFocus?: MenuItemProps["onFocus"];
 }
 
 function SlateFormatMenu({
@@ -34,6 +35,7 @@ function SlateFormatMenu({
   value,
   onChange,
   onChangeCapture,
+  onFocus,
 }: SlateFormatMenuProps) {
   return (
     <Menu>
@@ -63,12 +65,12 @@ function SlateFormatMenu({
         return (
           <Menu.Item
             key={type}
+            name={type}
             disabled={disabled}
             selected={isSelected}
-            // preventDefault
-            // stopPropagation
             onPress={() => onChange?.(type)}
             onPressCapture={() => onChangeCapture?.(type)}
+            onFocus={onFocus}
           >
             <Wrapper>{startCase(type)}</Wrapper>
           </Menu.Item>

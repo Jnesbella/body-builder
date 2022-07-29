@@ -21,6 +21,8 @@ export const LayoutBox = styled.View<
   ${flexible};
   ${spacing};
   ${opacity};
+
+  position: static;
 `;
 
 export const LayoutRow = styled(LayoutBox)`

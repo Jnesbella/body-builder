@@ -112,7 +112,7 @@ function TextInput({
   // );
 
   return (
-    <InputPressable onFocus={onFocus} onBlur={onBlur}>
+    <InputPressable name="TextInput" onFocus={onFocus} onBlur={onBlur}>
       {
         (pressableProps: PressableState & PressableActions) => {
           // console.log("pressableProps: ", { pressableProps });

@@ -133,6 +133,10 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       ReactEditor.focus(editor);
     };
 
+    const blur = () => {
+      ReactEditor.blur(editor);
+    };
+
     React.useEffect(function handleRef() {
       const element: SlateEditorElement = {
         focus,
@@ -379,18 +383,23 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
         {/* {toolbar} */}
 
         <InputPressable
-          // isFocused={isFocused}
+          name="SlateEditor"
+          // isFocused={ReactEditor.isFocused(editor)}
           // onFocus={onFocus}
-          onPress={focus}
-          // onPress={!ReactEditor.isFocused(editor) ? focus : undefined}
+          // onPress={focus}
+          onPress={() => {
+            // blurTooltip();
+          }}
           // onPointerDownCapture={() => focus()}
-          preventDefault
+          // preventDefault
           onFocus={() => {
             onFocus?.();
+            focus();
           }}
           onBlur={() => {
             onBlur?.();
-            // blurTooltip();
+            blur();
+            blurTooltip();
           }}
         >
           {(pressableProps: PressableState & PressableActions) => (
@@ -409,25 +418,22 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                 spacingSize={0}
               >
                 <Layout.Row>
-                  {pressableProps.focused ? (
-                    <Layout.Row>
-                      <Layout.Box spacingSize={1}>
-                        <SlateToolbar
-                          name={name}
-                          editor={editor}
-                          isFocused={pressableProps.focused}
-                        />
-                      </Layout.Box>
+                  <Layout.Row opacity={pressableProps.focused ? 1 : 0}>
+                    <Layout.Box spacingSize={1}>
+                      <SlateToolbar
+                        name={name}
+                        editor={editor}
+                        disabled={!pressableProps.focused}
+                        // isFocused={pressableProps.focused}
+                      />
+                    </Layout.Box>
 
-                      <DividerWrapper>
-                        <Divider vertical height="100%" />
-                      </DividerWrapper>
+                    <DividerWrapper>
+                      <Divider vertical height="100%" />
+                    </DividerWrapper>
 
-                      <Space />
-                    </Layout.Row>
-                  ) : (
-                    gutter
-                  )}
+                    <Space />
+                  </Layout.Row>
 
                   <Layout.Box spacingSize={[0, 0.5]} greedy>
                     <Editable

@@ -1,11 +1,12 @@
-import { isNil } from "lodash";
+import { isNil, get } from "lodash";
 import * as React from "react";
 import ReactDOM from "react-dom";
 import { LayoutChangeEvent, LayoutRectangle, View } from "react-native";
 import styled from "styled-components";
 import { theme } from "../../styles";
+import { log } from "../../utils";
 
-import Portal from "../Portal";
+import Portal, { PortalProps } from "../Portal";
 import TooltipProvider, {
   useTooltipActions,
   useTooltipState,
@@ -17,15 +18,18 @@ export interface TooltipCallbackProps {
   onBlur: () => void;
   onPress: () => void;
   focused: boolean;
+  layoutRef: React.MutableRefObject<HTMLDivElement | null>;
 }
 
 export type TooltipCallback = (props: TooltipCallbackProps) => React.ReactNode;
 
 export interface TooltipProps {
   id?: string;
-  placement?: "top" | "bottom" | "right"; // | "left" ;
+  placement?: "top" | "bottom" | "right" | "left";
   content?: React.ReactNode | TooltipCallback;
   children: React.ReactNode | TooltipCallback;
+  verticalOffset?: PortalProps["verticalOffset"];
+  horizontalOffset?: PortalProps["horizontalOffset"];
 }
 
 function Tooltip({
@@ -33,7 +37,11 @@ function Tooltip({
   content,
   id,
   placement: placement = "bottom",
+  verticalOffset: verticalOffsetProp = 0,
+  horizontalOffset: horizontalOffsetProp = 0,
 }: TooltipProps) {
+  const layoutRef = React.useRef<HTMLDivElement>(null);
+
   const [layout, setLayout] = React.useState<LayoutRectangle>();
 
   const focusTooltip = useTooltipActions((actions) => actions.focusTooltip);
@@ -46,7 +54,7 @@ function Tooltip({
     (actions) => actions.isTooltipFocused
   );
 
-  const isFocused = id ? isTooltipFocused(id) : false;
+  const isFocused = id ? isTooltipFocused(id) : true;
 
   const onLayout = React.useCallback(
     (event: LayoutChangeEvent) => setLayout(event.nativeEvent.layout),
@@ -62,32 +70,44 @@ function Tooltip({
     [toggleTooltip, id]
   );
 
-  // if (layout) {
-  //   console.log("Tooltip: ", { layout });
-  // }
+  const horizontalOffset = (() => {
+    let left = layoutRef.current?.offsetLeft || get(layout, "left") || 0;
+    left += horizontalOffsetProp;
 
-  const horizontalOffset = React.useMemo(() => {
-    return 0;
-  }, []);
-
-  const verticalOffset = React.useMemo(() => {
     switch (placement) {
       case "right":
-        return;
-
-      case "top":
-        return -theme.spacing * 7;
-
-      default:
-        return 0;
+        left += layoutRef.current?.offsetWidth || get(layout, "width") || 0;
+        break;
     }
-  }, []);
+
+    return left;
+  })();
+
+  const verticalOffset = (() => {
+    let top = layoutRef.current?.offsetTop || get(layout, "top") || 0;
+    top += verticalOffsetProp;
+
+    switch (placement) {
+      case "bottom":
+        top += layoutRef.current?.offsetHeight || get(layout, "height") || 0;
+        break;
+    }
+
+    return top;
+  })();
 
   const renderTooltipCallback = (
     children?: React.ReactNode | TooltipCallback
   ) =>
     typeof children === "function"
-      ? children({ onLayout, onFocus, onBlur, onPress, focused: isFocused })
+      ? children({
+          onLayout,
+          onFocus,
+          onBlur,
+          onPress,
+          focused: isFocused,
+          layoutRef,
+        })
       : children;
 
   return (

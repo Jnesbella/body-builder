@@ -28,48 +28,33 @@ const DefaultPressable = styled.div<{ fullWidth?: boolean }>`
   }}
 `;
 
-export interface PressableProps {
-  onPress?: () => void;
-  onPressCapture?: () => void;
-  onPointerDownCapture?: () => void;
+export interface PressableProps extends PressableProviderProps {
   disabled?: boolean;
-  children?: PressableProviderProps["children"];
-  isFocused?: PressableProviderProps["isFocused"];
-  onBlur?: PressableProviderProps["onBlur"];
-  onFocus?: PressableProviderProps["onFocus"];
-  preventDefault?: boolean;
-  stopPropagation?: boolean;
   fullWidth?: boolean;
-  focusOnPress?: boolean;
-  focusOnPressCapture?: boolean;
-  // controlled = user-controlled
-  // uncontrolled = compopnent-controlled
-  focusMode?: "controlled" | "uncontrolled";
+  focusOn?: "press" | "none";
+  focusable?: boolean;
+  // preventDefault?: boolean;
+  // stopPropagation?: boolean;
 }
 
 const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
   (
     {
       children,
-      isFocused,
-      onPress,
+
       disabled,
-      onPressCapture,
-      onFocus,
-      onBlur,
-      stopPropagation,
-      preventDefault,
       fullWidth,
-      focusOnPress,
-      focusOnPressCapture,
-      focusMode: focusModeProp,
-      onPointerDownCapture,
+      focusOn = "press",
+      focusable: isFocusable = true,
+
+      isFocused,
+      isHovered,
+      isPressed,
+
+      ...pressableProviderProps
     },
     ref
   ) => {
-    const [pressed, setPressed] = React.useState(false);
-    const [hovered, setHovered] = React.useState(false);
-
     const innerRef = React.useRef<PressableProviderElement>(null);
 
     // return (
@@ -86,107 +71,89 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
     //   </React.Fragment>
     // );
 
-    const state = React.useMemo(
-      () => ({
-        hovered,
-        focused: isFocused,
-        pressed,
-      }),
-      [pressed, hovered, isFocused]
-    );
+    const state = {
+      hovered: isHovered,
+      focused: isFocused,
+      pressed: isPressed,
+    };
 
-    const hasPressHandler = [
-      onPress,
-      onPressCapture,
-      onPointerDownCapture,
-    ].some((handler) => !!handler);
+    // const hasPressHandler = [
+    //   pressableProviderProps.onPress,
+    //   pressableProviderProps.onPressCapture,
+    //   pressableProviderProps.onLongPress,
+    // ].some((handler) => !!handler);
 
-    const defaultFocusMode = hasPressHandler ? "uncontrolled" : "controlled";
-    const focusMode = focusModeProp || defaultFocusMode;
-
-    const isControlledFocus = focusMode === "controlled"; // no press handler; user will be controlling focus
-    const isUncontrolledFocus = focusMode === "uncontrolled"; // yes press handler; component will be controlling focus
-
-    const handleEvent = (callback?: () => void) =>
-      !disabled
-        ? (
-            event:
-              | React.FocusEvent<HTMLDivElement, Element>
-              | React.MouseEvent<HTMLDivElement, MouseEvent>
-          ) => {
-            if (preventDefault) {
-              event.preventDefault();
-            }
-
-            if (stopPropagation) {
-              event.stopPropagation();
-            }
-
-            callback?.();
-          }
-        : undefined;
+    const isFocusOnPress = focusOn === "press";
 
     return (
       <DefaultPressable
-        fullWidth={fullWidth}
         ref={ref}
-        tabIndex={!disabled && isUncontrolledFocus ? 0 : undefined}
+        fullWidth={fullWidth}
+        tabIndex={!disabled && isFocusable ? 0 : undefined}
+        // tabIndex={0}
+
+        // focused
         onFocus={
-          isUncontrolledFocus
-            ? handleEvent(() => {
+          !disabled && isFocusable
+            ? () => {
                 innerRef.current?.focus();
-              })
+              }
             : undefined
         }
-        // onFocusCapture={handleEvent(() => {
-        // })}
         onBlur={
-          isUncontrolledFocus
-            ? handleEvent(() => {
-                console.log("BLUR");
+          !disabled && isFocusable
+            ? () => {
                 innerRef.current?.blur();
-              })
+              }
             : undefined
-        }
-        onClickCapture={
-          onPressCapture &&
-          handleEvent(() => {
-            onPressCapture();
-
-            if (focusOnPressCapture) {
-              innerRef.current?.focus();
-            }
-          })
-        }
-        onClick={
-          onPress &&
-          handleEvent(() => {
-            onPress();
-
-            if (focusOnPress) {
-              innerRef.current?.focus();
-            }
-          })
-        }
-        onPointerDownCapture={
-          onPointerDownCapture &&
-          handleEvent(() => {
-            onPointerDownCapture();
-          })
         }
         // hovered
-        onPointerOver={() => setHovered(true)}
-        onPointerOut={() => setHovered(false)}
+        onPointerOver={
+          !disabled
+            ? () => {
+                innerRef.current?.hoverOver();
+              }
+            : undefined
+        }
+        onPointerOut={
+          !disabled
+            ? () => {
+                innerRef.current?.hoverOut();
+              }
+            : undefined
+        }
         // pressed
-        onPointerDown={() => setPressed(true)}
-        onPointerUp={() => setPressed(false)}
+        onPointerDown={
+          !disabled
+            ? () => {
+                innerRef.current?.pressIn();
+              }
+            : undefined
+        }
+        onPointerUp={
+          !disabled
+            ? () => {
+                innerRef.current?.pressOut();
+                pressableProviderProps.onPressCapture?.();
+              }
+            : undefined
+        }
       >
         <PressableProvider
-          defaultState={state}
-          isFocused={isFocused}
-          onBlur={onBlur}
-          onFocus={onFocus}
+          {...pressableProviderProps}
           ref={innerRef}
+          defaultState={state}
+          isFocused={state.focused}
+          isHovered={state.hovered}
+          isPressed={state.pressed}
+          onPress={() => {
+            const result = pressableProviderProps.onPress?.();
+            const preventFocus = result === false;
+
+            if (isFocusOnPress && !preventFocus) {
+              innerRef.current?.focus();
+            }
+          }}
         >
           {children}
         </PressableProvider>

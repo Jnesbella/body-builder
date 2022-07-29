@@ -27,6 +27,10 @@ export function usePortalState<Output>(
   return selector(state);
 }
 
+const PortalProviderContainer = styled.div`
+  position: relative;
+`;
+
 export interface PortalProviderProps
   extends React.DetailedHTMLProps<
     React.HTMLAttributes<HTMLDivElement>,
@@ -37,11 +41,11 @@ function PortalProvider({ children, ...rest }: PortalProviderProps) {
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
 
   return (
-    <div {...rest} ref={(node) => setContainer(node)}>
+    <PortalProviderContainer {...rest} ref={(node) => setContainer(node)}>
       <PortalState.Provider value={{ container }}>
         {children}
       </PortalState.Provider>
-    </div>
+    </PortalProviderContainer>
   );
 }
 
@@ -68,7 +72,14 @@ export function Portal({
   const left = get(layout, "left", 0);
   const top = get(layout, "top", 0) + get(layout, "height", 0);
 
-  // log("Portal: ", { container, layout });
+  log("Portal: ", {
+    container,
+    layout,
+    verticalOffset,
+    horizontalOffset,
+    left,
+    top,
+  });
 
   return (
     <React.Fragment>

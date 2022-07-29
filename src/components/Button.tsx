@@ -64,8 +64,9 @@ export type ButtonRenderer = (
 ) => React.ReactNode;
 
 export interface ButtonProps extends Omit<SpacingProps, "size">, Full {
-  onPress?: () => void;
-  onPressCapture?: () => void;
+  name?: PressableProps["name"];
+  onPress?: PressableProps["onPress"];
+  onPressCapture?: PressableProps["onPressCapture"];
   mode?: "contained" | "outlined" | "text";
   color?: ColorProp;
   title?: string;
@@ -80,17 +81,20 @@ export interface ButtonProps extends Omit<SpacingProps, "size">, Full {
   onFocus?: () => void;
   onBlur?: () => void;
   size?: SizeProp;
-  focusOnPress?: PressableProps["focusOnPress"];
-  focusOnPressCapture?: PressableProps["focusOnPressCapture"];
-  preventDefault?: PressableProps["preventDefault"];
-  stopPropagation?: PressableProps["stopPropagation"];
-  focusMode?: PressableProps["focusMode"];
-  onPointerDownCapture?: PressableProps["onPointerDownCapture"];
+  focusable?: PressableProps["focusable"];
+  isHovered?: PressableProps["isHovered"];
+  // focusOnPress?: PressableProps["focusOnPress"];
+  // focusOnPressCapture?: PressableProps["focusOnPressCapture"];
+  // preventDefault?: PressableProps["preventDefault"];
+  // stopPropagation?: PressableProps["stopPropagation"];
+  // focusMode?: PressableProps["focusMode"];
+  // onPointerDownCapture?: PressableProps["onPointerDownCapture"];
 }
 
 const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
   (
     {
+      name,
       title,
       onPress,
       mode = "text",
@@ -107,12 +111,14 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
       fullWidth,
       onBlur,
       onFocus,
-      focusOnPress,
-      stopPropagation,
-      preventDefault,
-      focusOnPressCapture,
-      focusMode,
-      onPointerDownCapture,
+      focusable,
+      isHovered,
+      // focusOnPress,
+      // stopPropagation,
+      // preventDefault,
+      // focusOnPressCapture,
+      // focusMode,
+      // onPointerDownCapture,
       ...rest
     },
     ref
@@ -229,6 +235,7 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
 
     return (
       <Pressable
+        name={name}
         fullWidth={fullWidth}
         ref={ref}
         onPress={onPress}
@@ -236,12 +243,14 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
         onPressCapture={onPressCapture}
         onBlur={onBlur}
         onFocus={onFocus}
-        focusOnPress={focusOnPress}
-        focusOnPressCapture={focusOnPressCapture}
-        stopPropagation={stopPropagation}
-        preventDefault={preventDefault}
-        focusMode={focusMode}
-        onPointerDownCapture={onPointerDownCapture}
+        focusable={focusable}
+        isHovered={isHovered}
+        // focusOnPress={focusOnPress}
+        // focusOnPressCapture={focusOnPressCapture}
+        // stopPropagation={stopPropagation}
+        // preventDefault={preventDefault}
+        // focusMode={focusMode}
+        // onPointerDownCapture={onPointerDownCapture}
       >
         {renderChildren}
       </Pressable>
