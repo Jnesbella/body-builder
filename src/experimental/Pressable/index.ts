@@ -1,3 +1,4 @@
-export { default as Pressable } from "./Pressable";
+export { default } from "./Pressable";
 
+export * from "./Pressable";
 export * from "./PressableProvider";

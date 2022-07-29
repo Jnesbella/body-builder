@@ -130,6 +130,8 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
         onFocus={handleEvent(() => {
           innerRef.current?.focus();
         })}
+        // onFocusCapture={handleEvent(() => {
+        // })}
         onBlur={handleEvent(() => {
           console.log("BLUR");
           innerRef.current?.blur();

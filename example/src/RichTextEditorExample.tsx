@@ -18,6 +18,8 @@ import {
   IconButton,
   Portal,
   Tooltip,
+  Pressable,
+  log,
 } from "@jnesbella/body-builder";
 import { v4 as uuidv4 } from "uuid";
 import * as Icons from "react-bootstrap-icons";
@@ -49,6 +51,8 @@ const createPage = (payload?: Partial<Page>) => ({
 const PageWrapper = styled(Layout.Column)`
   // ${shadow};
   ${bordered};
+  max-width: ${theme.spacing * 100}px;
+  width: 100%;
 `;
 
 function Page({
@@ -67,6 +71,8 @@ function Page({
   pageNum?: number;
 }) {
   // const [title, setTitle] = React.useState(page.title);
+  const [isTitleFocused, setIsTitleFocused] = React.useState(false);
+  const [isContentFocused, setIsContentFocused] = React.useState(false);
 
   const toolbar = isFocused && <RichTextInput.Toolbar />;
 
@@ -80,8 +86,10 @@ function Page({
   // );
 
   return (
-    <Layout.Column>
-      {/* <Layout.Box spacingSize={[0.5, 0]}>
+    <Pressable isFocused={isTitleFocused || isContentFocused}>
+      {(pressableProps) => (
+        <Layout.Column>
+          {/* <Layout.Box spacingSize={[0.5, 0]}>
         <TextInput
           placeholder="Title"
           value={title}
@@ -90,54 +98,87 @@ function Page({
         />
       </Layout.Box> */}
 
-      {/* <Space spacingSize={0.5} /> */}
+          {/* <Space spacingSize={0.5} /> */}
 
-      <Surface spacingSize={1}>
-        <TextInput
-          value={page.title}
-          // onChangeText={setTitle}
-          onChangeText={(text) => onChange?.({ ...page, title: text })}
-          fullWidth
-          placeholder="Title your page"
-        />
+          <Surface spacingSize={1}>
+            <Layout.Row alignItems="center">
+              <Layout.Box greedy>
+                <TextInput
+                  value={page.title}
+                  // onChangeText={setTitle}
+                  onChangeText={(text) => onChange?.({ ...page, title: text })}
+                  fullWidth
+                  placeholder={
+                    pressableProps.hovered || pressableProps.focused
+                      ? "Title your page"
+                      : ""
+                  }
+                  onFocus={() => {
+                    setIsTitleFocused(true);
+                  }}
+                  onBlur={() => {
+                    setIsTitleFocused(false);
+                  }}
+                />
+              </Layout.Box>
 
-        {/* <Layout.Box spacingSize={[0, 1]}>
+              <Space />
+
+              <Layout.Box opacity={pressableProps.hovered ? 1 : 0}>
+                <IconButton icon={Icons.ThreeDotsVertical} />
+              </Layout.Box>
+            </Layout.Row>
+
+            {/* <Layout.Box spacingSize={[0, 1]}>
           <Divider />
         </Layout.Box> */}
 
-        <Space spacingSize={1} />
+            <Space spacingSize={1} />
 
-        <RichTextInput
-          name={`page-${page.id}`}
-          defaultValue={page.content}
-          placeholder="Write your content"
-          isFocused={isFocused}
-          onFocus={onFocus}
-          // toolbar={toolbar}
-          onChangeText={(text) => onChange?.({ ...page, content: text })}
-          footer={
-            <>
-              <Space spacingSize={1} />
+            <RichTextInput
+              name={`page-${page.id}`}
+              defaultValue={page.content}
+              placeholder={
+                pressableProps.hovered || pressableProps.focused
+                  ? "Write your content"
+                  : ""
+              }
+              isFocused={isFocused}
+              onFocus={() => {
+                setIsContentFocused(true);
+              }}
+              onBlur={() => {
+                setIsContentFocused(false);
+              }}
+              // toolbar={toolbar}
+              onChangeText={(text) => onChange?.({ ...page, content: text })}
+              footer={
+                <>
+                  <Space spacingSize={1} />
 
-              {/* {toolbar}
+                  {/* {toolbar}
 
               <Space spacingSize={0.5} /> */}
 
-              <RichTextInput.Footer>
-                {isNumber(pageCount) && isNumber(pageNum) && (
-                  <RichTextInput.Footer.PageNumberItem
-                    pageNum={pageNum}
-                    pageCount={pageCount}
-                  />
-                )}
+                  <RichTextInput.Footer>
+                    {isNumber(pageCount) && isNumber(pageNum) && (
+                      <RichTextInput.Footer.PageNumberItem
+                        pageNum={pageNum}
+                        pageCount={pageCount}
+                      />
+                    )}
 
-                <RichTextInput.Footer.WordCountItem />
-              </RichTextInput.Footer>
-            </>
-          }
-        />
-      </Surface>
-    </Layout.Column>
+                    {(pressableProps.hovered || pressableProps.focused) && (
+                      <RichTextInput.Footer.WordCountItem />
+                    )}
+                  </RichTextInput.Footer>
+                </>
+              }
+            />
+          </Surface>
+        </Layout.Column>
+      )}
+    </Pressable>
   );
 }
 
@@ -241,9 +282,11 @@ function RichTextEdtiorExample() {
     // <ScrollView contentContainerStyle={{ flex: 1 }}>
     <Container>
       <Tooltip.Provider>
-        <Layout.Box spacingSize={[1, 0]}>
-          {/* <Text.Title>Train of Thought</Text.Title> */}
-        </Layout.Box>
+        {/* <Layout.Box spacingSize={[1, 0]}>
+           <Text.Title>Train of Thought</Text.Title> 
+        </Layout.Box> */}
+
+        <Space spacingSize={0.5} />
 
         <Layout.Row justifyContent="center">
           <AddPageButton pageIndex={0} />
@@ -251,7 +294,7 @@ function RichTextEdtiorExample() {
 
         {pages.map((page, index) => (
           <React.Fragment key={page.id}>
-            <Layout.Box spacingSize={[4, 1]}>
+            <Layout.Box spacingSize={[0, 0.5]} alignItems="center">
               <PageWrapper>
                 <Page
                   page={page}
@@ -276,7 +319,7 @@ function RichTextEdtiorExample() {
           </React.Fragment>
         ))}
 
-        <Space />
+        <Space spacingSize={0.5} />
       </Tooltip.Provider>
     </Container>
     // </ScrollView>

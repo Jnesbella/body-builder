@@ -29,7 +29,6 @@ import { Node, Transforms } from "slate";
 import { isNumber, last } from "lodash";
 import { theme } from "../../../styles";
 import SlateFormatInput from "./SlateFormatInput";
-import { Pressable, PressableState } from "../../Pressable";
 import SlateToolbar from "./SlateToolbar";
 import Menu from "../../../components/Menu";
 

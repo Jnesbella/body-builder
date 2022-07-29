@@ -1,7 +1,7 @@
 import * as React from "react";
 import { TextInput as DefaultTextInput } from "react-native";
 import styled, { css } from "styled-components/native";
-import { Pressable, PressableActions } from "../../experimental/Pressable";
+import Pressable, { PressableActions } from "../../experimental/Pressable";
 
 import { darkenColor, theme } from "../../styles";
 import { log } from "../../utils";
@@ -27,8 +27,10 @@ import {
 
 export type TextInputProps = Omit<
   React.ComponentProps<typeof DefaultTextInput> & Greedy & Full,
-  "children"
+  "children" | "onFocus" | "onBlur"
 > & {
+  onFocus?: () => void;
+  onBlur?: () => void;
   children?:
     | React.ReactNode
     | ((props: React.PropsWithChildren<PressableState>) => JSX.Element);
@@ -110,7 +112,7 @@ function TextInput({
   // );
 
   return (
-    <InputPressable>
+    <InputPressable onFocus={onFocus} onBlur={onBlur}>
       {
         (pressableProps: PressableState & PressableActions) => {
           // console.log("pressableProps: ", { pressableProps });
@@ -119,12 +121,10 @@ function TextInput({
             <InputOutline {...pressableProps}>
               <StyledTextInput
                 {...(textInputProps as unknown as any)}
-                onFocus={(e) => {
-                  onFocus?.(e);
+                onFocus={() => {
                   pressableProps.focus();
                 }}
-                onBlur={(e) => {
-                  onBlur?.(e);
+                onBlur={() => {
                   pressableProps.blur();
                 }}
               />

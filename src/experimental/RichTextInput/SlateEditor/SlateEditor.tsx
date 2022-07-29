@@ -21,7 +21,7 @@ import { HOTKEYS, DEFAULT_VALUE } from "./slateConstants";
 import { Editor, Element } from "./slate";
 import { theme } from "../../../styles";
 import { InputOutline } from "../../../components/TextInput";
-import { Pressable, PressableActions, PressableState } from "../../Pressable";
+import Pressable, { PressableActions, PressableState } from "../../Pressable";
 import { isNumber, last, pick, range } from "lodash";
 import { log } from "../../../utils";
 import {
@@ -88,8 +88,8 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       // toolbar,
       // characterCount,
       readonly,
-      // onFocus,
-      // onBlur,
+      onFocus,
+      onBlur,
       // children: Container = React.Fragment,
       // renderEditable: Wrapper = React.Fragment,
       footer,
@@ -391,10 +391,15 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
         <InputPressable
           // isFocused={isFocused}
           // onFocus={onFocus}
-          onPress={!ReactEditor.isFocused(editor) ? focus : undefined}
+          onPress={focus}
+          // onPress={!ReactEditor.isFocused(editor) ? focus : undefined}
           // onPointerDownCapture={() => focus()}
           preventDefault
+          onFocus={() => {
+            onFocus?.();
+          }}
           onBlur={() => {
+            onBlur?.();
             // blurTooltip();
           }}
         >
@@ -414,11 +419,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                 spacingSize={0}
               >
                 <Layout.Row>
-                  <Layout.Row
-                    opacity={
-                      pressableProps.focused || pressableProps.hovered ? 1 : 0
-                    }
-                  >
+                  <Layout.Row opacity={pressableProps.focused ? 1 : 0}>
                     <Layout.Box spacingSize={1}>
                       <SlateToolbar
                         name={name}
@@ -446,7 +447,9 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                       onDOMBeforeInput={(event) => {
                         onDOMBeforeInput(event as DragEvent & InputEvent);
                       }}
-                      onFocus={() => pressableProps.focus()}
+                      onFocus={() => {
+                        pressableProps.focus();
+                      }}
                       onBlur={() => {
                         pressableProps.blur();
                       }}

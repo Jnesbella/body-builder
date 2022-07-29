@@ -20,6 +20,7 @@ export interface RichTextInputProps {
   placeholder?: SlateEditorProps["placeholder"];
   isFocused?: SlateEditorProps["isFocused"];
   onFocus?: SlateEditorProps["onFocus"];
+  onBlur?: SlateEditorProps["onBlur"];
   footer?: SlateEditorProps["footer"];
   toolbar?: SlateEditorProps["toolbar"];
   name?: SlateEditorProps["name"];
@@ -39,6 +40,7 @@ const RichTextInput = React.forwardRef<
       footer,
       toolbar,
       name,
+      onBlur,
     },
     ref
   ) => {
@@ -65,6 +67,7 @@ const RichTextInput = React.forwardRef<
         onChange={(nextValue) => onChangeText?.(Editor.toJSON(nextValue))}
         disabled={disabled}
         onFocus={onFocus}
+        onBlur={onBlur}
         footer={footer}
         name={name}
       />

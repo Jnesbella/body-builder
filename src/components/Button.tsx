@@ -2,8 +2,7 @@ import * as React from "react";
 import { LayoutChangeEvent, View } from "react-native";
 import styled from "styled-components/native";
 
-import { Pressable } from "../experimental/Pressable";
-import { PressableProps } from "../experimental/Pressable/Pressable";
+import Pressable, { PressableProps } from "../experimental/Pressable";
 import {
   theme,
   ColorProp,

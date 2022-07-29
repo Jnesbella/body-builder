@@ -138,6 +138,15 @@ function SlateToolbar({
   const [_isExpanded, setIsExpanded] = React.useState(false);
   const isExpanded = _isExpanded && isFocused;
 
+  React.useEffect(
+    function handleFocusChange() {
+      if (!isFocused) {
+        setIsExpanded(false);
+      }
+    },
+    [isFocused]
+  );
+
   const marks: {
     mark: MarkButtonProps["mark"];
     icon: MarkButtonProps["icon"];
