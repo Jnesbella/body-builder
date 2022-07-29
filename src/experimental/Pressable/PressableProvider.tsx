@@ -112,8 +112,6 @@ const PressableProvider = React.forwardRef<
       [debounceTimeout]
     );
 
-    console.log({ blur });
-
     const focus = React.useCallback(() => {
       setIsFocused(true);
       blur.cancel();

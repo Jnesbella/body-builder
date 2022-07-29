@@ -42,6 +42,8 @@ export interface PressableProps {
   fullWidth?: boolean;
   focusOnPress?: boolean;
   focusOnPressCapture?: boolean;
+  // controlled = user-controlled
+  // uncontrolled = compopnent-controlled
   focusMode?: "controlled" | "uncontrolled";
 }
 
@@ -93,18 +95,20 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
       [pressed, hovered, isFocused]
     );
 
-    const focusMode =
-      focusModeProp ||
-      ([onPress, onPressCapture, onPointerDownCapture].some(
-        (handler) => !!handler
-      )
-        ? "uncontrolled"
-        : "controlled");
+    const hasPressHandler = [
+      onPress,
+      onPressCapture,
+      onPointerDownCapture,
+    ].some((handler) => !!handler);
 
-    const isFocusable = focusMode === "uncontrolled";
+    const defaultFocusMode = hasPressHandler ? "uncontrolled" : "controlled";
+    const focusMode = focusModeProp || defaultFocusMode;
+
+    const isControlledFocus = focusMode === "controlled"; // no press handler; user will be controlling focus
+    const isUncontrolledFocus = focusMode === "uncontrolled"; // yes press handler; component will be controlling focus
 
     const handleEvent = (callback?: () => void) =>
-      !disabled && isFocusable
+      !disabled
         ? (
             event:
               | React.FocusEvent<HTMLDivElement, Element>
@@ -126,16 +130,24 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
       <DefaultPressable
         fullWidth={fullWidth}
         ref={ref}
-        tabIndex={!disabled && isFocusable ? 0 : undefined}
-        onFocus={handleEvent(() => {
-          innerRef.current?.focus();
-        })}
+        tabIndex={!disabled && isUncontrolledFocus ? 0 : undefined}
+        onFocus={
+          isUncontrolledFocus
+            ? handleEvent(() => {
+                innerRef.current?.focus();
+              })
+            : undefined
+        }
         // onFocusCapture={handleEvent(() => {
         // })}
-        onBlur={handleEvent(() => {
-          console.log("BLUR");
-          innerRef.current?.blur();
-        })}
+        onBlur={
+          isUncontrolledFocus
+            ? handleEvent(() => {
+                console.log("BLUR");
+                innerRef.current?.blur();
+              })
+            : undefined
+        }
         onClickCapture={
           onPressCapture &&
           handleEvent(() => {
@@ -156,14 +168,17 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
             }
           })
         }
-        onPointerDownCapture={() => {
-          onPointerDownCapture?.();
-        }}
+        onPointerDownCapture={
+          onPointerDownCapture &&
+          handleEvent(() => {
+            onPointerDownCapture();
+          })
+        }
         // hovered
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
         // pressed
-        onPointerDown={() => setPressed(false)}
+        onPointerDown={() => setPressed(true)}
         onPointerUp={() => setPressed(false)}
       >
         <PressableProvider

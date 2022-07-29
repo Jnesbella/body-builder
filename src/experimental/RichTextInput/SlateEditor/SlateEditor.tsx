@@ -173,13 +173,13 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
       processHotkeys(event);
 
-      log({ event });
+      // log({ event });
 
       const isEnter = event.key === "Enter";
       const isArrowDown = event.key === "ArrowDown";
       const isArrowUp = event.key === "ArrowUp";
 
-      log({ isEnter, isArrowDown, isArrowUp });
+      // log({ isEnter, isArrowDown, isArrowUp });
     };
 
     const handleInsertFromPaste = (event: DragEvent & InputEvent) => {
@@ -251,15 +251,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
           const isFirstElement = path.every((index) => index === 0);
 
-          console.log({
-            isListItem,
-            isSelectionFocusStart,
-            isSelectionCollapsed,
-            path,
-            parentPath,
-            isFirstElement,
-          });
-
           if (
             isListItem &&
             isSelectionFocusStart &&
@@ -272,7 +263,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
             event.preventDefault();
 
             const { listType } = parent as ListItemElement;
-            log("BANANA: ", { listType });
             if (listType) {
               Editor.toggleListElement(editor, listType);
             }
@@ -419,21 +409,25 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                 spacingSize={0}
               >
                 <Layout.Row>
-                  <Layout.Row opacity={pressableProps.focused ? 1 : 0}>
-                    <Layout.Box spacingSize={1}>
-                      <SlateToolbar
-                        name={name}
-                        editor={editor}
-                        isFocused={pressableProps.focused}
-                      />
-                    </Layout.Box>
+                  {pressableProps.focused ? (
+                    <Layout.Row>
+                      <Layout.Box spacingSize={1}>
+                        <SlateToolbar
+                          name={name}
+                          editor={editor}
+                          isFocused={pressableProps.focused}
+                        />
+                      </Layout.Box>
 
-                    <DividerWrapper>
-                      <Divider vertical height="100%" />
-                    </DividerWrapper>
+                      <DividerWrapper>
+                        <Divider vertical height="100%" />
+                      </DividerWrapper>
 
-                    <Space />
-                  </Layout.Row>
+                      <Space />
+                    </Layout.Row>
+                  ) : (
+                    gutter
+                  )}
 
                   <Layout.Box spacingSize={[0, 0.5]} greedy>
                     <Editable

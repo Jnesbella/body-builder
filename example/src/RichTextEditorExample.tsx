@@ -35,6 +35,10 @@ const Container = styled(ScrollView).attrs({
   ${greedy};
 `;
 
+const PageContainer = styled(Layout.Box)`
+  overflow: hidden;
+`;
+
 interface Page {
   id: string;
   title: string;
@@ -86,10 +90,11 @@ function Page({
   // );
 
   return (
-    <Pressable isFocused={isTitleFocused || isContentFocused}>
-      {(pressableProps) => (
-        <Layout.Column>
-          {/* <Layout.Box spacingSize={[0.5, 0]}>
+    <PageContainer>
+      <Pressable isFocused={isTitleFocused || isContentFocused}>
+        {(pressableProps) => (
+          <Layout.Column>
+            {/* <Layout.Box spacingSize={[0.5, 0]}>
         <TextInput
           placeholder="Title"
           value={title}
@@ -98,87 +103,90 @@ function Page({
         />
       </Layout.Box> */}
 
-          {/* <Space spacingSize={0.5} /> */}
+            {/* <Space spacingSize={0.5} /> */}
 
-          <Surface spacingSize={1}>
-            <Layout.Row alignItems="center">
-              <Layout.Box greedy>
-                <TextInput
-                  value={page.title}
-                  // onChangeText={setTitle}
-                  onChangeText={(text) => onChange?.({ ...page, title: text })}
-                  fullWidth
-                  placeholder={
-                    pressableProps.hovered || pressableProps.focused
-                      ? "Title your page"
-                      : ""
-                  }
-                  onFocus={() => {
-                    setIsTitleFocused(true);
-                  }}
-                  onBlur={() => {
-                    setIsTitleFocused(false);
-                  }}
-                />
-              </Layout.Box>
+            <Surface spacingSize={1}>
+              <Layout.Row alignItems="center">
+                <Layout.Box greedy>
+                  <TextInput
+                    value={page.title}
+                    // onChangeText={setTitle}
+                    onChangeText={(text) =>
+                      onChange?.({ ...page, title: text })
+                    }
+                    fullWidth
+                    placeholder={
+                      pressableProps.hovered || pressableProps.focused
+                        ? "Title your page"
+                        : ""
+                    }
+                    onFocus={() => {
+                      setIsTitleFocused(true);
+                    }}
+                    onBlur={() => {
+                      setIsTitleFocused(false);
+                    }}
+                  />
+                </Layout.Box>
 
-              <Space />
+                <Space />
 
-              <Layout.Box opacity={pressableProps.hovered ? 1 : 0}>
-                <IconButton icon={Icons.ThreeDotsVertical} />
-              </Layout.Box>
-            </Layout.Row>
+                <Layout.Box opacity={pressableProps.hovered ? 1 : 0}>
+                  <IconButton icon={Icons.ThreeDotsVertical} />
+                </Layout.Box>
+              </Layout.Row>
 
-            {/* <Layout.Box spacingSize={[0, 1]}>
+              {/* <Layout.Box spacingSize={[0, 1]}>
           <Divider />
         </Layout.Box> */}
 
-            <Space spacingSize={1} />
+              <Space spacingSize={1} />
 
-            <RichTextInput
-              name={`page-${page.id}`}
-              defaultValue={page.content}
-              placeholder={
-                pressableProps.hovered || pressableProps.focused
-                  ? "Write your content"
-                  : ""
-              }
-              isFocused={isFocused}
-              onFocus={() => {
-                setIsContentFocused(true);
-              }}
-              onBlur={() => {
-                setIsContentFocused(false);
-              }}
-              // toolbar={toolbar}
-              onChangeText={(text) => onChange?.({ ...page, content: text })}
-              footer={
-                <>
-                  <Space spacingSize={1} />
+              <RichTextInput
+                name={`page-${page.id}`}
+                defaultValue={page.content}
+                placeholder={
+                  pressableProps.hovered || pressableProps.focused
+                    ? "Write your content"
+                    : ""
+                }
+                isFocused={isFocused}
+                onFocus={() => {
+                  setIsContentFocused(true);
+                }}
+                onBlur={() => {
+                  setIsContentFocused(false);
+                }}
+                // toolbar={toolbar}
+                onChangeText={(text) => onChange?.({ ...page, content: text })}
+                footer={
+                  <>
+                    <Space spacingSize={1} />
 
-                  {/* {toolbar}
+                    {/* {toolbar}
 
               <Space spacingSize={0.5} /> */}
 
-                  <RichTextInput.Footer>
-                    {isNumber(pageCount) && isNumber(pageNum) && (
-                      <RichTextInput.Footer.PageNumberItem
-                        pageNum={pageNum}
-                        pageCount={pageCount}
-                      />
-                    )}
+                    <RichTextInput.Footer>
+                      {isNumber(pageCount) && isNumber(pageNum) && (
+                        <RichTextInput.Footer.PageNumberItem
+                          pageNum={pageNum}
+                          pageCount={pageCount}
+                        />
+                      )}
 
-                    {(pressableProps.hovered || pressableProps.focused) && (
-                      <RichTextInput.Footer.WordCountItem />
-                    )}
-                  </RichTextInput.Footer>
-                </>
-              }
-            />
-          </Surface>
-        </Layout.Column>
-      )}
-    </Pressable>
+                      {(pressableProps.hovered || pressableProps.focused) && (
+                        <RichTextInput.Footer.WordCountItem />
+                      )}
+                    </RichTextInput.Footer>
+                  </>
+                }
+              />
+            </Surface>
+          </Layout.Column>
+        )}
+      </Pressable>
+    </PageContainer>
   );
 }
 
