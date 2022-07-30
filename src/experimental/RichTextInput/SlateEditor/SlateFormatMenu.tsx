@@ -38,7 +38,7 @@ function SlateFormatMenu({
   onFocus,
 }: SlateFormatMenuProps) {
   return (
-    <Menu>
+    <Menu elevation={1}>
       {FORMAT_TYPES.map((type) => {
         const isSelected = isEqual(type, value);
 

@@ -18,6 +18,7 @@ export { default as Divider } from "./Divider";
 export { default as SelectInput } from "./SelectInput";
 export { default as Portal } from "./Portal";
 export { default as Tooltip } from "./Tooltip";
+export { default as Menu } from "./Menu";
 
 export * from "./styled-components";
 export * from "./Flubber";
@@ -35,3 +36,4 @@ export * from "./IconButton";
 export * from "./SelectInput";
 export * from "./Portal";
 export * from "./Tooltip";
+export * from "./Menu";

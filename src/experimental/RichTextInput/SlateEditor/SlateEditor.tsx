@@ -399,7 +399,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
           onBlur={() => {
             onBlur?.();
             blur();
-            blurTooltip();
+            // blurTooltip();
           }}
         >
           {(pressableProps: PressableState & PressableActions) => (
@@ -446,6 +446,9 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                       onKeyDown={handleKeyDown}
                       onDOMBeforeInput={(event) => {
                         onDOMBeforeInput(event as DragEvent & InputEvent);
+                      }}
+                      onClick={() => {
+                        blurTooltip();
                       }}
                       onFocus={() => {
                         pressableProps.focus();

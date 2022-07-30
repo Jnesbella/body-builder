@@ -248,9 +248,24 @@ export const flexible = css<Flexible>`
   justify-content: ${(props) => props.justifyContent};
 `;
 
-export const shadow = css`
-  box-shadow: 0px ${theme.spacing / 2}px ${theme.spacing}px
-    ${theme.colors.backgroundDisabled};
+export interface ElevationProps {
+  elevation?: number;
+}
+
+export const elevation = css<ElevationProps>`
+  ${({ elevation }) => {
+    if (isNumber(elevation) && elevation >= 0) {
+      const elevationSize = theme.spacing * elevation;
+
+      return css`
+        elevation: ${elevation};
+        box-shadow: 0px ${elevationSize / 2}px ${elevationSize}px
+          ${theme.colors.backgroundDisabled};
+      `;
+    }
+
+    return "";
+  }}
 `;
 
 export const zIndex = (zIndex: keyof typeof _zIndex) => css`

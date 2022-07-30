@@ -174,7 +174,7 @@ const PressableProvider = React.forwardRef<
 
     React.useEffect(
       function handlePressChange() {
-        if (isPressedChanged && pressed) {
+        if (isPressedChanged && !pressed) {
           log(`${name} onPress`);
           onPress?.();
         }

@@ -5,24 +5,23 @@ import Button, { ButtonProps } from "../Button";
 
 import Layout from "../Layout";
 import {
+  ElevationProps,
   FontWeight,
   fontWeight,
   full,
   rounded,
-  shadow,
   zIndex,
 } from "../styled-components";
+import Surface from "../Surface";
 import Text from "../Text";
 
-const MenuContainer = styled(Layout.Column)`
+const MenuContainer = styled(Surface)`
   ${rounded};
   ${full};
-  ${shadow};
 
   background: ${theme.colors.background};
   max-width: ${theme.spacing * 30}px;
   max-height: ${theme.spacing * 40}px;
-  elevation: 1;
 `;
 
 const MenuText = styled(Text).attrs<{ isSelected?: boolean }>(
@@ -50,12 +49,12 @@ function MenuItem({
   );
 }
 
-export interface MenuProps {
+export interface MenuProps extends ElevationProps {
   children: React.ReactNode;
 }
 
-function Menu({ children }: MenuProps) {
-  return <MenuContainer>{children}</MenuContainer>;
+function Menu({ children, ...rest }: MenuProps) {
+  return <MenuContainer {...rest}>{children}</MenuContainer>;
 }
 
 Menu.Item = MenuItem;

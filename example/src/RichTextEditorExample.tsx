@@ -13,13 +13,13 @@ import {
   background,
   greedy,
   Info,
-  shadow,
   bordered,
   IconButton,
   Portal,
   Tooltip,
   Pressable,
   log,
+  Menu,
 } from "@jnesbella/body-builder";
 import { v4 as uuidv4 } from "uuid";
 import * as Icons from "react-bootstrap-icons";
@@ -53,7 +53,6 @@ const createPage = (payload?: Partial<Page>) => ({
 });
 
 const PageWrapper = styled(Layout.Column)`
-  // ${shadow};
   ${bordered};
   max-width: ${theme.spacing * 100}px;
   width: 100%;
@@ -132,9 +131,38 @@ function Page({
 
                 <Space />
 
-                <Layout.Box opacity={pressableProps.hovered ? 1 : 0}>
-                  <IconButton icon={Icons.ThreeDotsVertical} />
-                </Layout.Box>
+                <Tooltip
+                  id={`Page_Tooltip_${pageNum}`}
+                  placement="bottom-end"
+                  content={(tooltipProps) => (
+                    <div ref={tooltipProps.contentRef}>
+                      <Menu elevation={1}>
+                        <Menu.Item>
+                          <Menu.Text>Delete page</Menu.Text>
+                        </Menu.Item>
+                      </Menu>
+                    </div>
+                  )}
+                >
+                  {(tooltipProps) => (
+                    <div ref={tooltipProps.layoutRef}>
+                      <Layout.Box
+                        opacity={
+                          pressableProps.hovered || pressableProps.focused
+                            ? 1
+                            : 0
+                        }
+                      >
+                        <IconButton
+                          icon={Icons.ThreeDotsVertical}
+                          onPress={() => {
+                            tooltipProps.onPress();
+                          }}
+                        />
+                      </Layout.Box>
+                    </div>
+                  )}
+                </Tooltip>
               </Layout.Row>
 
               {/* <Layout.Box spacingSize={[0, 1]}>
@@ -244,6 +272,9 @@ const initialValue = JSON.stringify([
 ]);
 
 function RichTextEdtiorExample() {
+  const [isTableOfContentsVisible, setIsTableOfContentsVisible] =
+    React.useState(false);
+
   const [pages, setPages] = React.useState<Page[]>([
     createPage({ content: initialValue }),
   ]);
@@ -290,7 +321,45 @@ function RichTextEdtiorExample() {
 
   return (
     // <ScrollView contentContainerStyle={{ flex: 1 }}>
-    <Container>
+    <Container stickyHeaderIndices={[0]}>
+      <Pressable>
+        {(pressableProps) => (
+          <Surface elevation={1}>
+            <Layout.Row alignItems="center" spacingSize={1}>
+              <IconButton
+                icon={
+                  isTableOfContentsVisible
+                    ? Icons.ArrowBarLeft
+                    : Icons.ArrowBarRight
+                }
+                onPress={() =>
+                  setIsTableOfContentsVisible(!isTableOfContentsVisible)
+                }
+              />
+
+              <Space />
+
+              <Layout.Box greedy>
+                <TextInput
+                  fullWidth
+                  placeholder={
+                    pressableProps.focused || pressableProps.hovered
+                      ? "Title your document"
+                      : ""
+                  }
+                  onFocus={pressableProps.focus}
+                  onBlur={pressableProps.blur}
+                />
+              </Layout.Box>
+
+              <Space />
+
+              <IconButton icon={Icons.ThreeDotsVertical} />
+            </Layout.Row>
+          </Surface>
+        )}
+      </Pressable>
+
       <Tooltip.Provider>
         {/* <Layout.Box spacingSize={[1, 0]}>
            <Text.Title>Train of Thought</Text.Title> 

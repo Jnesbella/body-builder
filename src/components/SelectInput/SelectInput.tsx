@@ -16,7 +16,6 @@ import {
   fontWeight,
   full,
   rounded,
-  shadow,
   zIndex,
 } from "../styled-components";
 import Tooltip from "../Tooltip";
@@ -36,7 +35,6 @@ const OptionText = styled(Text).attrs<{ isSelected?: boolean }>(
 // }>`
 //   ${rounded};
 //   ${full};
-//   ${shadow};
 
 //   background: ${theme.colors.background};
 //   max-width: ${theme.spacing * 30}px;

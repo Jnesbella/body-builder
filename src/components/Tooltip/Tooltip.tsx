@@ -19,13 +19,14 @@ export interface TooltipCallbackProps {
   onPress: () => void;
   focused: boolean;
   layoutRef: React.MutableRefObject<HTMLDivElement | null>;
+  contentRef: React.MutableRefObject<HTMLDivElement | null>;
 }
 
 export type TooltipCallback = (props: TooltipCallbackProps) => React.ReactNode;
 
 export interface TooltipProps {
   id?: string;
-  placement?: "top" | "bottom" | "right" | "left";
+  placement?: "top" | "bottom" | "right" | "left" | "bottom-end";
   content?: React.ReactNode | TooltipCallback;
   children: React.ReactNode | TooltipCallback;
   verticalOffset?: PortalProps["verticalOffset"];
@@ -41,6 +42,8 @@ function Tooltip({
   horizontalOffset: horizontalOffsetProp = 0,
 }: TooltipProps) {
   const layoutRef = React.useRef<HTMLDivElement>(null);
+
+  const contentRef = React.useRef<HTMLDivElement>(null);
 
   const [layout, setLayout] = React.useState<LayoutRectangle>();
 
@@ -70,31 +73,53 @@ function Tooltip({
     [toggleTooltip, id]
   );
 
-  const horizontalOffset = (() => {
-    let left = layoutRef.current?.offsetLeft || get(layout, "left") || 0;
+  const positionCache = React.useRef<
+    { left: number; top: number } | undefined
+  >();
+
+  const getHorizontalOffset = (
+    layoutElement: HTMLDivElement,
+    contentElement: HTMLDivElement | null
+  ) => {
+    let left = layoutElement.offsetLeft;
     left += horizontalOffsetProp;
 
-    switch (placement) {
-      case "right":
-        left += layoutRef.current?.offsetWidth || get(layout, "width") || 0;
-        break;
+    if (placement.includes("right")) {
+      left += layoutElement.offsetWidth;
+    }
+
+    if (placement.includes("end") && contentElement) {
+      left += -(contentElement.offsetWidth - layoutElement.offsetWidth);
     }
 
     return left;
-  })();
+  };
 
-  const verticalOffset = (() => {
-    let top = layoutRef.current?.offsetTop || get(layout, "top") || 0;
+  const getVerticalOffset = (
+    layoutElement: HTMLDivElement,
+    _contentElement: HTMLDivElement | null
+  ) => {
+    let top = layoutElement.offsetTop;
     top += verticalOffsetProp;
 
-    switch (placement) {
-      case "bottom":
-        top += layoutRef.current?.offsetHeight || get(layout, "height") || 0;
-        break;
+    if (placement.includes("bottom")) {
+      top += layoutElement.offsetHeight;
     }
 
     return top;
-  })();
+  };
+
+  React.useEffect(function calculateTooltipPosition() {
+    const { current: layoutElement } = layoutRef;
+    const { current: contentElement } = contentRef;
+
+    if (layoutElement) {
+      positionCache.current = {
+        left: getHorizontalOffset(layoutElement, contentElement),
+        top: getVerticalOffset(layoutElement, contentElement),
+      };
+    }
+  });
 
   const renderTooltipCallback = (
     children?: React.ReactNode | TooltipCallback
@@ -107,6 +132,7 @@ function Tooltip({
           onPress,
           focused: isFocused,
           layoutRef,
+          contentRef,
         })
       : children;
 
@@ -116,8 +142,8 @@ function Tooltip({
 
       <Portal
         layout={layout}
-        horizontalOffset={horizontalOffset}
-        verticalOffset={verticalOffset}
+        horizontalOffset={positionCache.current?.left}
+        verticalOffset={positionCache.current?.top}
       >
         {isFocused && renderTooltipCallback(content)}
       </Portal>
