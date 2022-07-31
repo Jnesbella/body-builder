@@ -98,8 +98,14 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
           left += layoutElement.offsetWidth;
         }
 
-        if (placement.includes("end") && contentElement) {
-          left += -(contentElement.offsetWidth - layoutElement.offsetWidth);
+        if (contentElement) {
+          if (placement.includes("left")) {
+            left += -contentElement.offsetWidth;
+          }
+
+          if (placement.includes("end")) {
+            left += -(contentElement.offsetWidth - layoutElement.offsetWidth);
+          }
         }
 
         return left;

@@ -27,6 +27,9 @@ import Layout from "./Layout";
 // export type IconProps = React.ComponentProps<typeof FontAwesomeNative> &
 //   Background
 
+export const ICON_SIZE = theme.spacing * 2.5;
+export const ICON_SIZE_SMALL = theme.spacing * 2;
+
 export interface IconProps
   extends Background,
     Omit<DefaultIconProps, "spacing">,
@@ -47,5 +50,10 @@ function Icon({
     // </StyledIconNative>
   );
 }
+
+Icon.size = {
+  small: ICON_SIZE_SMALL,
+  default: ICON_SIZE,
+};
 
 export default Icon;

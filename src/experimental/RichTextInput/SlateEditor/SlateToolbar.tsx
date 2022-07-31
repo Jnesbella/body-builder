@@ -80,6 +80,7 @@ function SlateToolbarItem({
       active={active}
       focusable={focusable}
       isHovered={isHovered}
+      focusOn="none"
       onPress={() => {
         onPress?.();
       }}
@@ -103,6 +104,7 @@ function SlateToolbarItem({
       active={active}
       focusable={focusable}
       isHovered={isHovered}
+      focusOn="none"
       onPress={() => {
         onPress?.();
       }}

@@ -95,6 +95,7 @@ function Page({
   return (
     <PageContainer>
       <Pressable
+        // focusOn="none"
         isFocused={isTitleFocused || isContentFocused}
         name={`Page_${pageNum}`}
         onBlur={() => {
@@ -103,23 +104,11 @@ function Page({
       >
         {(pressableProps) => (
           <Layout.Column>
-            {/* <Layout.Box spacingSize={[0.5, 0]}>
-        <TextInput
-          placeholder="Title"
-          value={title}
-          onChangeText={setTitle}
-          fullWidth
-        />
-      </Layout.Box> */}
-
-            {/* <Space spacingSize={0.5} /> */}
-
             <Surface spacingSize={1}>
               <Layout.Row alignItems="center">
                 <Layout.Box greedy>
                   <TextInput
                     value={page.title}
-                    // onChangeText={setTitle}
                     onChangeText={(text) =>
                       onChange?.({ ...page, title: text })
                     }
@@ -129,7 +118,6 @@ function Page({
                         ? "Title your page"
                         : ""
                     }
-                    // placeholder="Title your page"
                     onFocus={() => {
                       setIsTitleFocused(true);
                       tooltipRef.current?.hide();
@@ -145,11 +133,27 @@ function Page({
                 <Tooltip
                   ref={tooltipRef}
                   id={`Page_Tooltip_${pageNum}`}
-                  placement="bottom-end"
+                  placement="left"
                   content={
                     <Menu elevation={1}>
                       <Menu.Item>
-                        <Menu.Text>Delete page</Menu.Text>
+                        <Layout.Row alignItems="center">
+                          <Icon icon={Icons.Printer} size={Icon.size.small} />
+
+                          <Space />
+
+                          <Menu.Text>Print</Menu.Text>
+                        </Layout.Row>
+                      </Menu.Item>
+
+                      <Menu.Item>
+                        <Layout.Row alignItems="center">
+                          <Icon icon={Icons.Trash} size={Icon.size.small} />
+
+                          <Space />
+
+                          <Menu.Text>Delete</Menu.Text>
+                        </Layout.Row>
                       </Menu.Item>
                     </Menu>
                   }
@@ -161,6 +165,7 @@ function Page({
                       }
                     >
                       <IconButton
+                        size="small"
                         icon={Icons.ThreeDotsVertical}
                         onPress={() => {
                           tooltipProps.onPress();
@@ -170,10 +175,6 @@ function Page({
                   )}
                 </Tooltip>
               </Layout.Row>
-
-              {/* <Layout.Box spacingSize={[0, 1]}>
-          <Divider />
-        </Layout.Box> */}
 
               <Space spacingSize={1} />
 
@@ -185,7 +186,6 @@ function Page({
                     ? "Write your content"
                     : ""
                 }
-                // placeholder="Write your content"
                 isFocused={isFocused}
                 onFocus={() => {
                   setIsContentFocused(true);
@@ -194,15 +194,10 @@ function Page({
                 onBlur={() => {
                   setIsContentFocused(false);
                 }}
-                // toolbar={toolbar}
                 onChangeText={(text) => onChange?.({ ...page, content: text })}
                 footer={
                   <>
                     <Space spacingSize={1} />
-
-                    {/* {toolbar}
-
-              <Space spacingSize={0.5} /> */}
 
                     <RichTextInput.Footer>
                       {isNumber(pageCount) && isNumber(pageNum) && (
@@ -327,7 +322,6 @@ function RichTextEdtiorExample() {
   );
 
   return (
-    // <ScrollView contentContainerStyle={{ flex: 1 }}>
     <Container stickyHeaderIndices={[0]}>
       <Pressable>
         {(pressableProps) => (
@@ -408,7 +402,6 @@ function RichTextEdtiorExample() {
         <Space spacingSize={0.5} />
       </Tooltip.Provider>
     </Container>
-    // </ScrollView>
   );
 }
 

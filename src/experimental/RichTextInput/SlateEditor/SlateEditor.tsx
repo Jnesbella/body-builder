@@ -376,6 +376,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       >
         <InputPressable
           name="SlateEditor"
+          // focusOn="none"
           onFocus={() => {
             onFocus?.();
             focus();

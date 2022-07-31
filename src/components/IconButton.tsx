@@ -36,7 +36,7 @@ function IconButton({ icon, size, ...rest }: IconButtonProps) {
           <Icon
             icon={icon}
             color={buttonProps.color}
-            size={size === "small" ? theme.spacing * 2 : undefined}
+            size={size === "small" ? Icon.size.small : undefined}
           />
         </IconButtonContainer>
       )}
