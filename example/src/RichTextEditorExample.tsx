@@ -20,6 +20,7 @@ import {
   Pressable,
   log,
   Menu,
+  TooltipElement,
 } from "@jnesbella/body-builder";
 import { v4 as uuidv4 } from "uuid";
 import * as Icons from "react-bootstrap-icons";
@@ -75,7 +76,10 @@ function Page({
 }) {
   // const [title, setTitle] = React.useState(page.title);
   const [isTitleFocused, setIsTitleFocused] = React.useState(false);
+
   const [isContentFocused, setIsContentFocused] = React.useState(false);
+
+  const tooltipRef = React.useRef<TooltipElement>(null);
 
   const toolbar = isFocused && <RichTextInput.Toolbar />;
 
@@ -90,7 +94,13 @@ function Page({
 
   return (
     <PageContainer>
-      <Pressable isFocused={isTitleFocused || isContentFocused} name="Page">
+      <Pressable
+        isFocused={isTitleFocused || isContentFocused}
+        name={`Page_${pageNum}`}
+        onBlur={() => {
+          tooltipRef.current?.hide();
+        }}
+      >
         {(pressableProps) => (
           <Layout.Column>
             {/* <Layout.Box spacingSize={[0.5, 0]}>
@@ -122,6 +132,7 @@ function Page({
                     // placeholder="Title your page"
                     onFocus={() => {
                       setIsTitleFocused(true);
+                      tooltipRef.current?.hide();
                     }}
                     onBlur={() => {
                       setIsTitleFocused(false);
@@ -132,35 +143,30 @@ function Page({
                 <Space />
 
                 <Tooltip
+                  ref={tooltipRef}
                   id={`Page_Tooltip_${pageNum}`}
                   placement="bottom-end"
-                  content={(tooltipProps) => (
-                    <div ref={tooltipProps.contentRef}>
-                      <Menu elevation={1}>
-                        <Menu.Item>
-                          <Menu.Text>Delete page</Menu.Text>
-                        </Menu.Item>
-                      </Menu>
-                    </div>
-                  )}
+                  content={
+                    <Menu elevation={1}>
+                      <Menu.Item>
+                        <Menu.Text>Delete page</Menu.Text>
+                      </Menu.Item>
+                    </Menu>
+                  }
                 >
                   {(tooltipProps) => (
-                    <div ref={tooltipProps.layoutRef}>
-                      <Layout.Box
-                        opacity={
-                          pressableProps.hovered || pressableProps.focused
-                            ? 1
-                            : 0
-                        }
-                      >
-                        <IconButton
-                          icon={Icons.ThreeDotsVertical}
-                          onPress={() => {
-                            tooltipProps.onPress();
-                          }}
-                        />
-                      </Layout.Box>
-                    </div>
+                    <Layout.Box
+                      opacity={
+                        pressableProps.hovered || pressableProps.focused ? 1 : 0
+                      }
+                    >
+                      <IconButton
+                        icon={Icons.ThreeDotsVertical}
+                        onPress={() => {
+                          tooltipProps.onPress();
+                        }}
+                      />
+                    </Layout.Box>
                   )}
                 </Tooltip>
               </Layout.Row>
@@ -183,6 +189,7 @@ function Page({
                 isFocused={isFocused}
                 onFocus={() => {
                   setIsContentFocused(true);
+                  tooltipRef.current?.hide();
                 }}
                 onBlur={() => {
                   setIsContentFocused(false);

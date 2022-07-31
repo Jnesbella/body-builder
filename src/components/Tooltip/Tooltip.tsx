@@ -7,19 +7,32 @@ import { theme } from "../../styles";
 import { log } from "../../utils";
 
 import Portal, { PortalProps } from "../Portal";
+import { full } from "../styled-components";
 import TooltipProvider, {
   useTooltipActions,
   useTooltipState,
 } from "./TooltipProvider";
 
-export interface TooltipCallbackProps {
-  onLayout: ((event: LayoutChangeEvent) => void) | undefined;
+interface TooltipState {
+  focused: boolean;
+}
+
+const TooltipChildren = styled.div``;
+
+const TooltipContent = styled.div``;
+
+interface TooltipActions {
+  toggleVisibility: () => void;
+  show: () => void;
+  hide: () => void;
+}
+
+export interface TooltipElement extends TooltipActions, TooltipState {}
+
+export interface TooltipCallbackProps extends TooltipElement {
   onFocus: () => void;
   onBlur: () => void;
   onPress: () => void;
-  focused: boolean;
-  layoutRef: React.MutableRefObject<HTMLDivElement | null>;
-  contentRef: React.MutableRefObject<HTMLDivElement | null>;
 }
 
 export type TooltipCallback = (props: TooltipCallbackProps) => React.ReactNode;
@@ -29,128 +42,149 @@ export interface TooltipProps {
   placement?: "top" | "bottom" | "right" | "left" | "bottom-end";
   content?: React.ReactNode | TooltipCallback;
   children: React.ReactNode | TooltipCallback;
-  verticalOffset?: PortalProps["verticalOffset"];
-  horizontalOffset?: PortalProps["horizontalOffset"];
+  topOffset?: PortalProps["top"];
+  leftOffset?: PortalProps["left"];
 }
 
-function Tooltip({
-  children,
-  content,
-  id,
-  placement: placement = "bottom",
-  verticalOffset: verticalOffsetProp = 0,
-  horizontalOffset: horizontalOffsetProp = 0,
-}: TooltipProps) {
-  const layoutRef = React.useRef<HTMLDivElement>(null);
-
-  const contentRef = React.useRef<HTMLDivElement>(null);
-
-  const [layout, setLayout] = React.useState<LayoutRectangle>();
-
-  const focusTooltip = useTooltipActions((actions) => actions.focusTooltip);
-
-  const toggleTooltip = useTooltipActions((actions) => actions.toggleTooltip);
-
-  const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
-
-  const isTooltipFocused = useTooltipActions(
-    (actions) => actions.isTooltipFocused
-  );
-
-  const isFocused = id ? isTooltipFocused(id) : true;
-
-  const onLayout = React.useCallback(
-    (event: LayoutChangeEvent) => setLayout(event.nativeEvent.layout),
-    []
-  );
-
-  const onFocus = React.useCallback(() => focusTooltip(id), [focusTooltip, id]);
-
-  const onBlur = React.useCallback(() => blurTooltip(), [blurTooltip]);
-
-  const onPress = React.useCallback(
-    () => toggleTooltip(id),
-    [toggleTooltip, id]
-  );
-
-  const positionCache = React.useRef<
-    { left: number; top: number } | undefined
-  >();
-
-  const getHorizontalOffset = (
-    layoutElement: HTMLDivElement,
-    contentElement: HTMLDivElement | null
+const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
+  (
+    {
+      children,
+      content,
+      id,
+      placement: placement = "bottom",
+      topOffset = 0,
+      leftOffset = 0,
+    },
+    ref
   ) => {
-    let left = layoutElement.offsetLeft;
-    left += horizontalOffsetProp;
+    const [layoutElement, setLayoutElement] =
+      React.useState<HTMLDivElement | null>(null);
 
-    if (placement.includes("right")) {
-      left += layoutElement.offsetWidth;
-    }
+    const [contentElement, setContentElement] =
+      React.useState<HTMLDivElement | null>(null);
 
-    if (placement.includes("end") && contentElement) {
-      left += -(contentElement.offsetWidth - layoutElement.offsetWidth);
-    }
+    const focusTooltip = useTooltipActions((actions) => actions.focusTooltip);
 
-    return left;
-  };
+    const toggleTooltip = useTooltipActions((actions) => actions.toggleTooltip);
 
-  const getVerticalOffset = (
-    layoutElement: HTMLDivElement,
-    _contentElement: HTMLDivElement | null
-  ) => {
-    let top = layoutElement.offsetTop;
-    top += verticalOffsetProp;
+    const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
 
-    if (placement.includes("bottom")) {
-      top += layoutElement.offsetHeight;
-    }
+    const isTooltipFocused = useTooltipActions(
+      (actions) => actions.isTooltipFocused
+    );
 
-    return top;
-  };
+    const isFocused = id ? isTooltipFocused(id) : true;
 
-  React.useEffect(function calculateTooltipPosition() {
-    const { current: layoutElement } = layoutRef;
-    const { current: contentElement } = contentRef;
+    const toggleVisibility = React.useCallback(
+      () => toggleTooltip(id),
+      [toggleTooltip, id]
+    );
 
-    if (layoutElement) {
+    const show = React.useCallback(() => focusTooltip(id), [focusTooltip, id]);
+
+    const hide = React.useCallback(() => blurTooltip(id), [blurTooltip, id]);
+
+    const positionCache = React.useRef<
+      { left?: number; top?: number } | undefined
+    >();
+
+    const getHorizontalOffset = () => {
+      if (layoutElement) {
+        let left = layoutElement.offsetLeft;
+        left += leftOffset;
+
+        if (placement.includes("right")) {
+          left += layoutElement.offsetWidth;
+        }
+
+        if (placement.includes("end") && contentElement) {
+          left += -(contentElement.offsetWidth - layoutElement.offsetWidth);
+        }
+
+        return left;
+      }
+    };
+
+    const getVerticalOffset = () => {
+      if (layoutElement) {
+        let top = layoutElement.offsetTop;
+        top += topOffset;
+
+        if (placement.includes("bottom")) {
+          top += layoutElement.offsetHeight;
+        }
+
+        return top;
+      }
+    };
+
+    const top = getVerticalOffset();
+    const left = getHorizontalOffset();
+
+    React.useEffect(function calculateTooltipPosition() {
       positionCache.current = {
-        left: getHorizontalOffset(layoutElement, contentElement),
-        top: getVerticalOffset(layoutElement, contentElement),
+        left,
+        top,
       };
-    }
-  });
+    });
 
-  const renderTooltipCallback = (
-    children?: React.ReactNode | TooltipCallback
-  ) =>
-    typeof children === "function"
-      ? children({
-          onLayout,
-          onFocus,
-          onBlur,
-          onPress,
-          focused: isFocused,
-          layoutRef,
-          contentRef,
-        })
-      : children;
+    const element: TooltipElement = {
+      focused: isFocused,
+      toggleVisibility,
+      show,
+      hide,
+    };
 
-  return (
-    <React.Fragment>
-      {renderTooltipCallback(children)}
+    React.useEffect(function handleRef() {
+      if (typeof ref === "function") {
+        ref(element);
+      } else if (ref) {
+        ref.current = element;
+      }
+    });
 
-      <Portal
-        layout={layout}
-        horizontalOffset={positionCache.current?.left}
-        verticalOffset={positionCache.current?.top}
-      >
-        {isFocused && renderTooltipCallback(content)}
-      </Portal>
-    </React.Fragment>
-  );
-}
+    const renderTooltipCallback = (
+      children?: React.ReactNode | TooltipCallback
+    ) =>
+      typeof children === "function"
+        ? children({
+            ...element,
+            onFocus: show,
+            onBlur: hide,
+            onPress: toggleVisibility,
+          })
+        : children;
 
-Tooltip.Provider = TooltipProvider;
+    return (
+      <React.Fragment>
+        <TooltipChildren ref={setLayoutElement}>
+          {renderTooltipCallback(children)}
+        </TooltipChildren>
 
-export default Tooltip;
+        <Portal
+          left={left || positionCache.current?.left}
+          top={top || positionCache.current?.top}
+        >
+          {isFocused && (
+            <TooltipContent ref={setContentElement}>
+              {renderTooltipCallback(content)}
+            </TooltipContent>
+          )}
+        </Portal>
+      </React.Fragment>
+    );
+  }
+);
+
+type Tooltip = typeof Tooltip & {
+  Provider: typeof TooltipProvider;
+  Children: typeof TooltipChildren;
+  Content: typeof TooltipContent;
+};
+
+(Tooltip as Tooltip).Provider = TooltipProvider;
+(Tooltip as Tooltip).Children = TooltipChildren;
+(Tooltip as Tooltip).Content = TooltipContent;
+
+export default Tooltip as Tooltip;

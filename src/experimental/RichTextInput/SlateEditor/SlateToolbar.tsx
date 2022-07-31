@@ -19,6 +19,7 @@ import {
   Space,
   Text,
   Tooltip,
+  TooltipElement,
 } from "../../../components";
 import { theme } from "../../../styles";
 import { Normal, Heading, Subheading, Caption, Label } from "./SlateElement";
@@ -161,14 +162,20 @@ function SlateToolbar({
   const defaultEditor = useSlate();
   const editor = editorProp || defaultEditor;
 
+  const tooltipRef = React.useRef<TooltipElement>(null);
+
   const [isExpanded, setIsExpanded] = React.useState(false);
   const expanded = isExpanded; // && isFocused;
 
-  React.useEffect(() => {
-    if (disabled) {
-      setIsExpanded(false);
-    }
-  }, [disabled]);
+  React.useEffect(
+    function handleDisabled() {
+      if (disabled) {
+        setIsExpanded(false);
+        tooltipRef.current?.hide();
+      }
+    },
+    [disabled]
+  );
 
   // React.useEffect(
   //   function handleFocusChange() {
@@ -262,9 +269,10 @@ function SlateToolbar({
       <Space />
 
       <Tooltip
-        id={`${name}FormatTooltip`}
+        ref={tooltipRef}
+        id={`SlateToolbar_Format_${name}`}
         placement="right"
-        horizontalOffset={theme.spacing + theme.borderThickness}
+        leftOffset={theme.spacing + theme.borderThickness}
         content={(tooltipProps) => (
           <SlateFormatMenu
             disabled={disabled}
@@ -281,18 +289,14 @@ function SlateToolbar({
         )}
       >
         {(tooltipProps) => (
-          // <Layout.Box onLayout={tooltipProps.onLayout}>
-          <TooltipChildrenWrapper ref={tooltipProps.layoutRef}>
-            <SlateToolbarItem
-              disabled={disabled}
-              isExpanded={expanded}
-              isHovered={tooltipProps.focused}
-              icon={Icons.Fonts}
-              label={activeFormat ? startCase(activeFormat) : "Format"}
-              onPress={tooltipProps.onPress}
-            />
-          </TooltipChildrenWrapper>
-          // </Layout.Box>
+          <SlateToolbarItem
+            disabled={disabled}
+            isExpanded={expanded}
+            isHovered={tooltipProps.focused}
+            icon={Icons.Fonts}
+            label={activeFormat ? startCase(activeFormat) : "Format"}
+            onPress={tooltipProps.onPress}
+          />
         )}
       </Tooltip>
 

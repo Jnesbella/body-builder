@@ -11,7 +11,7 @@ export interface TooltipState {
 
 export interface TooltipActions {
   focusTooltip: (id: TooltipProps["id"]) => void;
-  blurTooltip: () => void;
+  blurTooltip: (id: TooltipProps["id"]) => void;
   toggleTooltip: (id: TooltipProps["id"]) => void;
   isTooltipFocused: (id: TooltipProps["id"]) => boolean;
 }
@@ -54,13 +54,15 @@ function TooltipProvider({ children, ...rest }: TooltipProviderProps) {
   // log("TooltipProvider: ", state);
 
   const focusTooltip = React.useCallback((id: TooltipProps["id"]) => {
-    log("focusTooltip: ", id);
+    log("focusTooltip", { id });
     setFocusedTooltipId(id);
   }, []);
 
-  const blurTooltip = React.useCallback(() => {
-    log("blurTooltip");
-    setFocusedTooltipId(undefined);
+  const blurTooltip = React.useCallback((id: TooltipProps["id"]) => {
+    log("blurTooltip", { id });
+    setFocusedTooltipId((prevFocusedTooltipId) =>
+      prevFocusedTooltipId === id ? undefined : prevFocusedTooltipId
+    );
   }, []);
 
   const isTooltipFocused = React.useCallback(

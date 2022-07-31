@@ -123,12 +123,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
     const { selection } = editor;
 
-    // const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
-
-    // React.useEffect(() => {
-    //   blurTooltip();
-    // }, [blurTooltip, selection]);
-
     const focus = () => {
       ReactEditor.focus(editor);
     };
@@ -380,18 +374,8 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
           setValue(nextValue);
         }}
       >
-        {/* {toolbar} */}
-
         <InputPressable
           name="SlateEditor"
-          // isFocused={ReactEditor.isFocused(editor)}
-          // onFocus={onFocus}
-          // onPress={focus}
-          onPress={() => {
-            // blurTooltip();
-          }}
-          // onPointerDownCapture={() => focus()}
-          // preventDefault
           onFocus={() => {
             onFocus?.();
             focus();
@@ -399,73 +383,61 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
           onBlur={() => {
             onBlur?.();
             blur();
-            // blurTooltip();
           }}
         >
           {(pressableProps: PressableState & PressableActions) => (
-            <React.Fragment>
-              {/* {!readonly && !disabled && (
-                <ToolbarWrapper
-                  isVisible
-                  // isVisible={pressableProps.focused || pressableProps.hovered}
-                >
-                  {toolbar}
-                </ToolbarWrapper>
-              )} */}
-
-              <InputOutline
-                {...pick(pressableProps, ["focused", "pressed", "hovered"])}
-                spacingSize={0}
-              >
-                <Layout.Row>
-                  <Layout.Row opacity={pressableProps.focused ? 1 : 0}>
-                    <Layout.Box spacingSize={1}>
-                      <SlateToolbar
-                        name={name}
-                        editor={editor}
-                        disabled={!pressableProps.focused}
-                        // isFocused={pressableProps.focused}
-                      />
-                    </Layout.Box>
-
-                    <DividerWrapper>
-                      <Divider vertical height="100%" />
-                    </DividerWrapper>
-
-                    <Space />
-                  </Layout.Row>
-
-                  <Layout.Box spacingSize={[0, 0.5]} greedy>
-                    <Editable
-                      placeholder={placeholder}
-                      className="editable"
-                      readOnly={readonly || disabled}
-                      renderElement={renderElement}
-                      renderLeaf={renderLeaf}
-                      spellCheck
-                      onKeyDown={handleKeyDown}
-                      onDOMBeforeInput={(event) => {
-                        onDOMBeforeInput(event as DragEvent & InputEvent);
-                      }}
-                      onClick={() => {
-                        blurTooltip();
-                      }}
-                      onFocus={() => {
-                        pressableProps.focus();
-                      }}
-                      onBlur={() => {
-                        pressableProps.blur();
-                      }}
-                      style={{
-                        flex: 1,
-                      }}
+            <InputOutline
+              {...pick(pressableProps, ["focused", "pressed", "hovered"])}
+              spacingSize={0}
+            >
+              <Layout.Row>
+                <Layout.Row opacity={pressableProps.focused ? 1 : 0}>
+                  <Layout.Box spacingSize={1}>
+                    <SlateToolbar
+                      name={name}
+                      editor={editor}
+                      disabled={!pressableProps.focused}
+                      // isFocused={pressableProps.focused}
                     />
                   </Layout.Box>
 
-                  {gutter}
+                  <DividerWrapper>
+                    <Divider vertical height="100%" />
+                  </DividerWrapper>
+
+                  <Space />
                 </Layout.Row>
-              </InputOutline>
-            </React.Fragment>
+
+                <Layout.Box spacingSize={[0, 0.5]} greedy>
+                  <Editable
+                    placeholder={placeholder}
+                    className="editable"
+                    readOnly={readonly || disabled}
+                    renderElement={renderElement}
+                    renderLeaf={renderLeaf}
+                    spellCheck
+                    onKeyDown={handleKeyDown}
+                    onDOMBeforeInput={(event) => {
+                      onDOMBeforeInput(event as DragEvent & InputEvent);
+                    }}
+                    onClick={() => {
+                      blurTooltip(`SlateToolbar_Format_${name}`);
+                    }}
+                    onFocus={() => {
+                      pressableProps.focus();
+                    }}
+                    onBlur={() => {
+                      pressableProps.blur();
+                    }}
+                    style={{
+                      flex: 1,
+                    }}
+                  />
+                </Layout.Box>
+
+                {gutter}
+              </Layout.Row>
+            </InputOutline>
           )}
         </InputPressable>
 

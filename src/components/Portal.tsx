@@ -57,26 +57,15 @@ const PortalContainer = styled.div<{ top: number; left: number }>`
 
 export interface PortalProps {
   children: React.ReactNode;
-  layout?: LayoutRectangle;
-  verticalOffset?: number;
-  horizontalOffset?: number;
+  top?: number;
+  left?: number;
 }
 
-export function Portal({
-  children,
-  layout,
-  verticalOffset = 0,
-  horizontalOffset = 0,
-}: PortalProps) {
+export function Portal({ children, top = 0, left = 0 }: PortalProps) {
   const container = usePortalState((state) => state.container);
-  const left = get(layout, "left", 0);
-  const top = get(layout, "top", 0) + get(layout, "height", 0);
 
   log("Portal: ", {
     container,
-    layout,
-    verticalOffset,
-    horizontalOffset,
     left,
     top,
   });
@@ -85,10 +74,7 @@ export function Portal({
     <React.Fragment>
       {container &&
         ReactDOM.createPortal(
-          <PortalContainer
-            top={top + verticalOffset}
-            left={left + horizontalOffset}
-          >
+          <PortalContainer top={top} left={left}>
             {children}
           </PortalContainer>,
           container
