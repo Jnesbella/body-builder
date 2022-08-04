@@ -84,7 +84,8 @@ export interface ButtonProps extends Omit<SpacingProps, "size">, Full {
   focusable?: PressableProps["focusable"];
   isHovered?: PressableProps["isHovered"];
   focusOn?: PressableProps["focusOn"];
-  // focusOnPress?: PressableProps["focusOnPress"];
+  focusOnPress?: PressableProps["focusOnPress"];
+  isFocused?: PressableProps["isFocused"];
   // focusOnPressCapture?: PressableProps["focusOnPressCapture"];
   // preventDefault?: PressableProps["preventDefault"];
   // stopPropagation?: PressableProps["stopPropagation"];
@@ -115,7 +116,8 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
       focusable,
       isHovered,
       focusOn,
-      // focusOnPress,
+      focusOnPress,
+      isFocused,
       // stopPropagation,
       // preventDefault,
       // focusOnPressCapture,
@@ -247,8 +249,9 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
         onFocus={onFocus}
         focusable={focusable}
         isHovered={isHovered}
+        isFocused={isFocused}
         focusOn={focusOn}
-        // focusOnPress={focusOnPress}
+        focusOnPress={focusOnPress}
         // focusOnPressCapture={focusOnPressCapture}
         // stopPropagation={stopPropagation}
         // preventDefault={preventDefault}

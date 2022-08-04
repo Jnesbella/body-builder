@@ -21,12 +21,17 @@ import {
   log,
   Menu,
   TooltipElement,
+  zIndex,
 } from "@jnesbella/body-builder";
 import { v4 as uuidv4 } from "uuid";
 import * as Icons from "react-bootstrap-icons";
 import { ScrollView } from "react-native";
 import styled from "styled-components/native";
 import { isNumber } from "lodash";
+
+const TitleBar = styled(Surface).attrs({ elevation: 1 })`
+  ${zIndex("aboveAll")};
+`;
 
 const Container = styled(ScrollView).attrs({
   background: theme.colors.backgroundInfo,
@@ -321,50 +326,52 @@ function RichTextEdtiorExample() {
     </Button>
   );
 
-  return (
-    <Container stickyHeaderIndices={[0]}>
+  const titleBar = (
+    <TitleBar>
       <Pressable>
         {(pressableProps) => (
-          <Surface elevation={1}>
-            <Layout.Row alignItems="center" spacingSize={1}>
-              <IconButton
-                icon={
-                  isTableOfContentsVisible
-                    ? Icons.ArrowBarLeft
-                    : Icons.ArrowBarRight
+          <Layout.Row alignItems="center" spacingSize={1}>
+            <IconButton
+              icon={
+                isTableOfContentsVisible
+                  ? Icons.ArrowBarLeft
+                  : Icons.ArrowBarRight
+              }
+              onPress={() =>
+                setIsTableOfContentsVisible(!isTableOfContentsVisible)
+              }
+            />
+
+            <Space />
+
+            <Layout.Box greedy>
+              <TextInput
+                fullWidth
+                placeholder={
+                  pressableProps.focused || pressableProps.hovered
+                    ? "Title your document"
+                    : ""
                 }
-                onPress={() =>
-                  setIsTableOfContentsVisible(!isTableOfContentsVisible)
-                }
+                onFocus={pressableProps.focus}
+                onBlur={pressableProps.blur}
               />
+            </Layout.Box>
 
-              <Space />
+            <Space />
 
-              <Layout.Box greedy>
-                <TextInput
-                  fullWidth
-                  placeholder={
-                    pressableProps.focused || pressableProps.hovered
-                      ? "Title your document"
-                      : ""
-                  }
-                  onFocus={pressableProps.focus}
-                  onBlur={pressableProps.blur}
-                />
-              </Layout.Box>
-
-              <Space />
-
-              <IconButton icon={Icons.ThreeDotsVertical} />
-            </Layout.Row>
-          </Surface>
+            <IconButton icon={Icons.ThreeDotsVertical} />
+          </Layout.Row>
         )}
       </Pressable>
+    </TitleBar>
+  );
 
+  const pagesContent = (
+    <Container>
       <Tooltip.Provider>
         {/* <Layout.Box spacingSize={[1, 0]}>
-           <Text.Title>Train of Thought</Text.Title> 
-        </Layout.Box> */}
+         <Text.Title>Train of Thought</Text.Title> 
+      </Layout.Box> */}
 
         <Space spacingSize={0.5} />
 
@@ -402,6 +409,42 @@ function RichTextEdtiorExample() {
         <Space spacingSize={0.5} />
       </Tooltip.Provider>
     </Container>
+  );
+
+  const tableOfContents = (
+    <Layout.Row>
+      <Layout.Column spacingSize={1}>
+        <Text.SubHeader>Table of Contents</Text.SubHeader>
+
+        {pages.map((page, index) => (
+          <React.Fragment key={`TableOfContents_Page_${page.id}`}>
+            {index > 0 && <Space spacingSize={0.5} />}
+
+            <Button focusOnPress={false} focusable={false}>
+              <Layout.Row alignItems="center">
+                <Text.Label>
+                  {index + 1}. {page.title || "Untitled"}
+                </Text.Label>
+              </Layout.Row>
+            </Button>
+          </React.Fragment>
+        ))}
+      </Layout.Column>
+
+      <Divider vertical />
+    </Layout.Row>
+  );
+
+  return (
+    <Layout.Column greedy>
+      {titleBar}
+
+      <Layout.Row greedy>
+        {isTableOfContentsVisible && tableOfContents}
+
+        {pagesContent}
+      </Layout.Row>
+    </Layout.Column>
   );
 }
 

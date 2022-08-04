@@ -20,9 +20,9 @@ const MenuContainer = styled(Surface)`
   ${full};
 
   background: ${theme.colors.background};
-  max-width: ${theme.spacing * 30}px;
-  max-height: ${theme.spacing * 40}px;
 `;
+// max-width: ${theme.spacing * 30}px;
+// max-height: ${theme.spacing * 40}px;
 
 const MenuText = styled(Text).attrs<{ isSelected?: boolean }>(
   ({ isSelected }) => ({

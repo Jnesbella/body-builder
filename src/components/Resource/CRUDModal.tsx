@@ -125,7 +125,10 @@ function CRUDModal<T extends ResourceDocument>({
         primaryAction={
           <Button
             title={isNew ? buttonTitle : "Save"}
-            onPress={handleSubmit(doSubmit)}
+            onPress={() => {
+              const handler = handleSubmit(doSubmit);
+              handler();
+            }}
             mode="contained"
             disabled={isDisabled}
           />

@@ -107,20 +107,18 @@ function SelectInput<Option>({
         )
       }
     >
-      {({ onLayout, onFocus, onBlur }) => (
-        <Layout.Box onLayout={onLayout}>
-          <TextInput
-            {...textInputProps}
-            editable={false}
-            onFocus={onFocus}
-            onBlur={onBlur}
-            value={
-              (value && getInputValue?.(value)) ||
-              (typeof value === "string" && value) ||
-              ""
-            }
-          />
-        </Layout.Box>
+      {({ onFocus, onBlur }) => (
+        <TextInput
+          {...textInputProps}
+          editable={false}
+          onFocus={onFocus}
+          onBlur={onBlur}
+          value={
+            (value && getInputValue?.(value)) ||
+            (typeof value === "string" && value) ||
+            ""
+          }
+        />
       )}
     </Tooltip>
   );

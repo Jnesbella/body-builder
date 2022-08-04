@@ -6,7 +6,7 @@ import styled from "styled-components";
 import { theme } from "../../styles";
 import { log } from "../../utils";
 
-import Portal, { PortalProps } from "../Portal";
+import Portal, { PortalProps } from "../Portal/Portal";
 import { full } from "../styled-components";
 import TooltipProvider, {
   useTooltipActions,
@@ -19,7 +19,15 @@ interface TooltipState {
 
 const TooltipChildren = styled.div``;
 
+const TooltipChildrenFullWidth = styled.div.attrs({ fullWidth: true })`
+  ${full};
+`;
+
 const TooltipContent = styled.div``;
+
+const TooltipContentFullWidth = styled.div.attrs({ fullWidth: true })`
+  ${full};
+`;
 
 interface TooltipActions {
   toggleVisibility: () => void;
@@ -44,6 +52,8 @@ export interface TooltipProps {
   children: React.ReactNode | TooltipCallback;
   topOffset?: PortalProps["top"];
   leftOffset?: PortalProps["left"];
+  renderChildren?: (props: React.HTMLProps<HTMLDivElement>) => JSX.Element;
+  renderContent?: (props: React.HTMLProps<HTMLDivElement>) => JSX.Element;
 }
 
 const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
@@ -55,6 +65,8 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       placement: placement = "bottom",
       topOffset = 0,
       leftOffset = 0,
+      renderChildren: Children = TooltipChildren,
+      renderContent: Content = TooltipContent,
     },
     ref
   ) => {
@@ -69,6 +81,10 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
     const toggleTooltip = useTooltipActions((actions) => actions.toggleTooltip);
 
     const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
+
+    const getTopOffset = useTooltipActions((actions) => actions.getTopOffset);
+
+    const getLeftOffset = useTooltipActions((actions) => actions.getLeftOffset);
 
     const isTooltipFocused = useTooltipActions(
       (actions) => actions.isTooltipFocused
@@ -91,8 +107,9 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
 
     const getHorizontalOffset = () => {
       if (layoutElement) {
-        let left = layoutElement.offsetLeft;
+        let left = 0; // layoutElement.offsetLeft;
         left += leftOffset;
+        left += getLeftOffset(layoutElement);
 
         if (placement.includes("right")) {
           left += layoutElement.offsetWidth;
@@ -114,8 +131,9 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
 
     const getVerticalOffset = () => {
       if (layoutElement) {
-        let top = layoutElement.offsetTop;
+        let top = 0; // layoutElement.offsetTop;
         top += topOffset;
+        top += getTopOffset(layoutElement);
 
         if (placement.includes("bottom")) {
           top += layoutElement.offsetHeight;
@@ -164,18 +182,18 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
 
     return (
       <React.Fragment>
-        <TooltipChildren ref={setLayoutElement}>
+        <Children ref={setLayoutElement}>
           {renderTooltipCallback(children)}
-        </TooltipChildren>
+        </Children>
 
         <Portal
           left={left || positionCache.current?.left}
           top={top || positionCache.current?.top}
         >
           {isFocused && (
-            <TooltipContent ref={setContentElement}>
+            <Content ref={setContentElement}>
               {renderTooltipCallback(content)}
-            </TooltipContent>
+            </Content>
           )}
         </Portal>
       </React.Fragment>
@@ -186,11 +204,15 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
 type Tooltip = typeof Tooltip & {
   Provider: typeof TooltipProvider;
   Children: typeof TooltipChildren;
+  ChildrenFullWidth: typeof TooltipChildrenFullWidth;
   Content: typeof TooltipContent;
+  ContentFullWidth: typeof TooltipContent;
 };
 
 (Tooltip as Tooltip).Provider = TooltipProvider;
 (Tooltip as Tooltip).Children = TooltipChildren;
+(Tooltip as Tooltip).ChildrenFullWidth = TooltipChildrenFullWidth;
 (Tooltip as Tooltip).Content = TooltipContent;
+(Tooltip as Tooltip).ContentFullWidth = TooltipContentFullWidth;
 
 export default Tooltip as Tooltip;

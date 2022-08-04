@@ -271,3 +271,24 @@ export const elevation = css<ElevationProps>`
 export const zIndex = (zIndex: keyof typeof _zIndex) => css`
   z-index: ${_zIndex[zIndex]};
 `;
+
+export interface MaxProps {
+  maxWidth?: number;
+  maxHeight?: number;
+}
+
+export const max = css<MaxProps>`
+  ${({ maxHeight, maxWidth }) => {
+    if (isNumber(maxWidth)) {
+      return css`
+        max-width: ${maxWidth}px;
+      `;
+    }
+
+    if (isNumber(maxHeight)) {
+      return css`
+        max-height: ${maxHeight}px;
+      `;
+    }
+  }}
+`;

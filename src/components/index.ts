@@ -34,6 +34,6 @@ export * from "./Resource";
 export * from "./Text";
 export * from "./IconButton";
 export * from "./SelectInput";
-export * from "./Portal";
+export * from "./Portal/Portal";
 export * from "./Tooltip";
 export * from "./Menu";

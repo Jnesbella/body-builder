@@ -11,6 +11,7 @@ import {
   spacing,
   opacity,
   Opacity,
+  max,
 } from "./styled-components";
 
 export const LayoutBox = styled.View<
@@ -21,6 +22,7 @@ export const LayoutBox = styled.View<
   ${flexible};
   ${spacing};
   ${opacity};
+  ${max};
 
   position: static;
 `;

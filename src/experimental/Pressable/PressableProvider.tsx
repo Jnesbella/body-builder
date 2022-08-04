@@ -123,7 +123,7 @@ const PressableProvider = React.forwardRef<
     );
 
     React.useEffect(
-      function handleFocusChange() {
+      function handleFocusedChange() {
         if (isFocusChanged) {
           if (focused) {
             // log(`${name} onFocus`);
@@ -173,7 +173,7 @@ const PressableProvider = React.forwardRef<
     );
 
     React.useEffect(
-      function handlePressChange() {
+      function handlePressedChange() {
         if (isPressedChanged && !pressed) {
           log(`${name} onPress`);
           onPress?.();
@@ -197,6 +197,28 @@ const PressableProvider = React.forwardRef<
       defaultState.hovered || false
     );
     const hovered = isHovered || isHoveredProp || false;
+
+    const isHoveredRef = React.useRef(pressed);
+
+    const isHoveredChanged = hovered !== isHoveredRef.current;
+
+    React.useEffect(
+      function cacheIsHovered() {
+        isHoveredRef.current = hovered;
+      },
+      [hovered]
+    );
+
+    React.useEffect(
+      function handleHoveredChange() {
+        if (isHoveredChanged && !hovered) {
+          setIsPressed(false);
+          // log(`${name} onPress`);
+          // onPress?.();
+        }
+      },
+      [isHoveredChanged]
+    );
 
     const hoverOver = React.useCallback(() => {
       // log(`${name} hoverOver`);

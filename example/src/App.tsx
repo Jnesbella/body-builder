@@ -20,6 +20,7 @@ import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 
 import FlubberExample from "./FlubberExample";
 import RichTextEdtiorExample from "./RichTextEditorExample";
+import Paperless from "./Paperless";
 
 type PressableState = Readonly<{
   pressed: boolean;
@@ -126,7 +127,9 @@ const App = () => {
 
             <Space /> */}
 
-            <RichTextEdtiorExample />
+            <Paperless.Document />
+
+            {/* <RichTextEdtiorExample /> */}
           </Layout.Column>
         </AsyncStorageProvider>
       </ErrorBoundary>

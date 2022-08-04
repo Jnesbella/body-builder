@@ -275,6 +275,7 @@ function SlateToolbar({
         id={`SlateToolbar_Format_${name}`}
         placement="right"
         leftOffset={theme.spacing + theme.borderThickness}
+        renderChildren={Tooltip.ContentFullWidth}
         content={(tooltipProps) => (
           <SlateFormatMenu
             disabled={disabled}

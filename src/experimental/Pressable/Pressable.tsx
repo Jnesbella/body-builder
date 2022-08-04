@@ -33,6 +33,7 @@ export interface PressableProps extends PressableProviderProps {
   fullWidth?: boolean;
   focusOn?: "press" | "none";
   focusable?: boolean;
+  focusOnPress?: boolean;
   // preventDefault?: boolean;
   // stopPropagation?: boolean;
 }
@@ -44,7 +45,8 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
 
       disabled,
       fullWidth,
-      focusOn = "press",
+      focusOnPress = true,
+      focusOn = focusOnPress ? "press" : "none",
       focusable: isFocusable = true,
 
       isFocused,

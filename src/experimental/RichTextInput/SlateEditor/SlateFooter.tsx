@@ -61,7 +61,7 @@ function PageNumberItem({ pageNum, pageCount }: PageNumberItemProps) {
     <Layout.Row>
       <FooterItem>
         <FooterText>
-          Page {pageNum} of {pageCount}
+          {pageNum} of {pageCount}
         </FooterText>
       </FooterItem>
     </Layout.Row>
