@@ -88,7 +88,7 @@ const PaperlessPage = React.forwardRef<
           }}
           // focusOnPress
           // focusable={false}
-          focusOn="none"
+          // focusOn="none"
         >
           {(pressableProps) => (
             <Layout.Column>
@@ -103,7 +103,7 @@ const PaperlessPage = React.forwardRef<
                       fullWidth
                       placeholder={
                         pressableProps.hovered || pressableProps.focused
-                          ? "Title your page"
+                          ? "Untitled"
                           : ""
                       }
                       onFocus={() => {

@@ -79,6 +79,8 @@ export interface PressableProviderProps {
 
   // hovered
   isHovered?: boolean;
+  onHoverOver?: () => void;
+  onHoverOut?: () => void;
 }
 
 const PressableProvider = React.forwardRef<
@@ -98,6 +100,9 @@ const PressableProvider = React.forwardRef<
       onPress,
       // onPressCapture,
       // onLongPress,
+
+      onHoverOver,
+      onHoverOut,
 
       isFocused: isFocusedProp,
       isPressed: isPressedProp,
@@ -211,13 +216,16 @@ const PressableProvider = React.forwardRef<
 
     React.useEffect(
       function handleHoveredChange() {
-        if (isHoveredChanged && !hovered) {
-          setIsPressed(false);
-          // log(`${name} onPress`);
-          // onPress?.();
+        if (isHoveredChanged) {
+          if (hovered) {
+            onHoverOver?.();
+          } else {
+            setIsPressed(false);
+            onHoverOut?.();
+          }
         }
       },
-      [isHoveredChanged]
+      [isHoveredChanged, onHoverOut, onHoverOver, onHoverOut]
     );
 
     const hoverOver = React.useCallback(() => {

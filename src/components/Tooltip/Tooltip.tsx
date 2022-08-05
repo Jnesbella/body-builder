@@ -1,17 +1,12 @@
-import { isNil, get } from "lodash";
 import * as React from "react";
-import ReactDOM from "react-dom";
-import { LayoutChangeEvent, LayoutRectangle, View } from "react-native";
 import styled from "styled-components";
-import { theme } from "../../styles";
-import { log } from "../../utils";
+import Layout from "../Layout";
 
 import Portal, { PortalProps } from "../Portal/Portal";
 import { full } from "../styled-components";
-import TooltipProvider, {
-  useTooltipActions,
-  useTooltipState,
-} from "./TooltipProvider";
+import Surface from "../Surface";
+import Text from "../Text";
+import TooltipProvider, { useTooltipActions } from "./TooltipProvider";
 
 interface TooltipState {
   focused: boolean;
@@ -39,15 +34,26 @@ export interface TooltipElement extends TooltipActions, TooltipState {}
 
 export interface TooltipCallbackProps extends TooltipElement {
   onFocus: () => void;
+
   onBlur: () => void;
   onPress: () => void;
+
+  onHoverOver: () => void;
+  onHoverOut: () => void;
 }
 
 export type TooltipCallback = (props: TooltipCallbackProps) => React.ReactNode;
 
 export interface TooltipProps {
   id?: string;
-  placement?: "top" | "bottom" | "right" | "left" | "bottom-end";
+  placement?:
+    | "top"
+    | "bottom"
+    | "right"
+    | "left"
+    | "bottom-end"
+    | "bottom-center"
+    | "right-center";
   content?: React.ReactNode | TooltipCallback;
   children: React.ReactNode | TooltipCallback;
   topOffset?: PortalProps["top"];
@@ -123,6 +129,17 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
           if (placement.includes("end")) {
             left += -(contentElement.offsetWidth - layoutElement.offsetWidth);
           }
+
+          if (["bottom-center"].includes(placement)) {
+            left += -(
+              (Math.max(contentElement.offsetWidth, layoutElement.offsetWidth) -
+                Math.min(
+                  contentElement.offsetWidth,
+                  layoutElement.offsetWidth
+                )) /
+              2
+            );
+          }
         }
 
         return left;
@@ -137,6 +154,21 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
 
         if (placement.includes("bottom")) {
           top += layoutElement.offsetHeight;
+        }
+
+        if (contentElement) {
+          if (["right-center"].includes(placement)) {
+            top +=
+              (Math.max(
+                contentElement.offsetHeight,
+                layoutElement.offsetHeight
+              ) -
+                Math.min(
+                  contentElement.offsetHeight,
+                  layoutElement.offsetHeight
+                )) /
+              2;
+          }
         }
 
         return top;
@@ -177,6 +209,8 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
             onFocus: show,
             onBlur: hide,
             onPress: toggleVisibility,
+            onHoverOver: show,
+            onHoverOut: hide,
           })
         : children;
 
@@ -201,12 +235,27 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
   }
 );
 
+interface TooltipTextProps {
+  children: React.ReactNode;
+}
+
+function TooltipText({ children }: TooltipTextProps) {
+  return (
+    <Surface elevation={1}>
+      <Layout.Box spacingSize={[1, 0.5]}>
+        <Text.Label>{children}</Text.Label>
+      </Layout.Box>
+    </Surface>
+  );
+}
+
 type Tooltip = typeof Tooltip & {
   Provider: typeof TooltipProvider;
   Children: typeof TooltipChildren;
   ChildrenFullWidth: typeof TooltipChildrenFullWidth;
   Content: typeof TooltipContent;
   ContentFullWidth: typeof TooltipContent;
+  Text: typeof TooltipText;
 };
 
 (Tooltip as Tooltip).Provider = TooltipProvider;
@@ -214,5 +263,6 @@ type Tooltip = typeof Tooltip & {
 (Tooltip as Tooltip).ChildrenFullWidth = TooltipChildrenFullWidth;
 (Tooltip as Tooltip).Content = TooltipContent;
 (Tooltip as Tooltip).ContentFullWidth = TooltipContentFullWidth;
+(Tooltip as Tooltip).Text = TooltipText;
 
 export default Tooltip as Tooltip;

@@ -19,6 +19,7 @@ import {
   Icon,
   TooltipElement,
   log,
+  TooltipProviderElement,
 } from "@jnesbella/body-builder";
 import * as Icons from "react-bootstrap-icons";
 import { ScrollView } from "react-native";
@@ -51,7 +52,7 @@ const PageWrapper = styled(Layout.Column)`
 
 function PaperlessDocument() {
   const [isTableOfContentsVisible, setIsTableOfContentsVisible] =
-    React.useState(false);
+    React.useState(true);
 
   const [pages, setPages] = React.useState<PaperlessPage[]>([
     createPage({ content: initialValue }),
@@ -63,23 +64,22 @@ function PaperlessDocument() {
 
   const tooltipRef = React.useRef<TooltipElement>(null);
 
+  const tooltipProviderRef = React.useRef<TooltipProviderElement>(null);
+
   const addPage = () => setPages((prevPages) => [...prevPages, createPage()]);
 
   const pagesRef = React.useRef<Record<number, MeasureElement | null>>(
     pages.reduce((memo, _page, index) => ({ ...memo, [index]: null }), {})
   );
 
-  const [pagesOffsetTop, setPagesOffsetTop] = React.useState<number>(0);
-
   const scrollViewRef = React.useRef<ScrollView>(null);
 
   const scrollToPage = (pageIndex: number) => {
-    const y =
-      sum(
-        range(pageIndex).map(
-          (index) => pagesRef.current[index]?.layout?.height || 0
-        )
-      ) + pagesOffsetTop;
+    const y = sum(
+      range(pageIndex).map(
+        (index) => pagesRef.current[index]?.layout?.height || 0
+      )
+    );
 
     scrollViewRef.current?.scrollTo({ y, animated: true });
   };
@@ -94,12 +94,31 @@ function PaperlessDocument() {
     ]);
 
   const AddPageButton = ({ pageIndex }: { pageIndex: number }) => (
-    <IconButton icon={Icons.Plus} onPress={() => insertPage(pageIndex)} />
+    <Tooltip
+      id={`AddPageButton_Tooltip_${pageIndex}`}
+      placement="right-center"
+      content={<Tooltip.Text>Add page</Tooltip.Text>}
+    >
+      {(tooltipProps) => (
+        <IconButton
+          icon={Icons.Plus}
+          onPress={() => {
+            tooltipProviderRef.current?.blurTooltip();
+            insertPage(pageIndex);
+          }}
+          onHoverOver={tooltipProps.onHoverOver}
+          onHoverOut={tooltipProps.onHoverOut}
+        />
+      )}
+    </Tooltip>
   );
+
+  const [isTitleFocused, setIsTitleFocused] = React.useState(false);
 
   const titleBar = (
     <TitleBarContainer>
       <Pressable
+        isFocused={isTitleFocused}
         onBlur={() => {
           tooltipRef.current?.hide();
         }}
@@ -109,13 +128,21 @@ function PaperlessDocument() {
             <Layout.Box greedy>
               <TextInput
                 fullWidth
-                placeholder={
-                  pressableProps.focused || pressableProps.hovered
-                    ? "Title your document"
-                    : ""
-                }
-                onFocus={pressableProps.focus}
-                onBlur={pressableProps.blur}
+                placeholder="Untitled"
+                // placeholder={
+                //   pressableProps.focused || pressableProps.hovered
+                //     ? "Title your document"
+                //     : ""
+                // }
+                onFocus={() => {
+                  setIsTitleFocused(true);
+                  pressableProps.focus();
+                  tooltipRef.current?.hide();
+                }}
+                onBlur={() => {
+                  setIsTitleFocused(false);
+                  pressableProps.blur();
+                }}
               />
             </Layout.Box>
 
@@ -183,14 +210,7 @@ function PaperlessDocument() {
   );
 
   const pagesContent = (
-    <Layout.Column spacingSize={[0, 0.5]}>
-      <Layout.Row
-        justifyContent="center"
-        onLayout={(event) => setPagesOffsetTop(event.nativeEvent.layout.height)}
-      >
-        <AddPageButton pageIndex={0} />
-      </Layout.Row>
-
+    <Layout.Column spacingSize={[0, 0.5]} greedy>
       {pages.map((page, index) => (
         <Measure
           key={page.id}
@@ -199,6 +219,10 @@ function PaperlessDocument() {
             pagesRef.current[index] = node;
           }}
         >
+          <Layout.Row justifyContent="center">
+            <AddPageButton pageIndex={index} />
+          </Layout.Row>
+
           <Layout.Box spacingSize={[0, 0.5]} alignItems="center">
             <PageWrapper>
               <Page
@@ -217,12 +241,12 @@ function PaperlessDocument() {
               />
             </PageWrapper>
           </Layout.Box>
-
-          <Layout.Row justifyContent="center">
-            <AddPageButton pageIndex={index + 1} />
-          </Layout.Row>
         </Measure>
       ))}
+
+      <Layout.Row justifyContent="center">
+        <AddPageButton pageIndex={pages.length} />
+      </Layout.Row>
     </Layout.Column>
   );
 
@@ -269,7 +293,9 @@ function PaperlessDocument() {
 
         <Layout.Row greedy>
           <ScrollView ref={scrollViewRef} contentContainerStyle={{ flex: 1 }}>
-            {pagesContent}
+            <Tooltip.Provider ref={tooltipProviderRef}>
+              {pagesContent}
+            </Tooltip.Provider>
           </ScrollView>
 
           {isTableOfContentsVisible && tableOfContents}

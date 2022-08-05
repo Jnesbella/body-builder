@@ -1,6 +1,12 @@
 import * as React from "react";
 import isHotkey from "is-hotkey";
-import { Editable, withReact, Slate, ReactEditor } from "slate-react";
+import {
+  Editable,
+  withReact,
+  Slate,
+  ReactEditor,
+  DefaultPlaceholder,
+} from "slate-react";
 import {
   createEditor,
   Descendant,
@@ -106,15 +112,9 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
     const isConstrainedByMaxLength = isNumber(maxLength) && maxLength >= 0;
 
-    const renderElement = React.useCallback(
-      (props) => <SlateElement {...props} />,
-      []
-    );
+    const renderElement = SlateElement;
 
-    const renderLeaf = React.useCallback(
-      (props) => <SlateLeaf {...props} />,
-      []
-    );
+    const renderLeaf = SlateLeaf;
 
     const editor = React.useMemo(
       () => withHistory(withReact(createEditor())),
@@ -416,6 +416,21 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                     readOnly={readonly || disabled}
                     renderElement={renderElement}
                     renderLeaf={renderLeaf}
+                    renderPlaceholder={(placeholderProps) => {
+                      return (
+                        <DefaultPlaceholder
+                          {...placeholderProps}
+                          attributes={{
+                            ...placeholderProps.attributes,
+                            style: {
+                              ...placeholderProps.attributes.style,
+                              opacity: 1,
+                              color: theme.colors.textPlaceholder,
+                            },
+                          }}
+                        />
+                      );
+                    }}
                     spellCheck
                     onKeyDown={handleKeyDown}
                     onDOMBeforeInput={(event) => {

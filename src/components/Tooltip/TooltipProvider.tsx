@@ -1,3 +1,4 @@
+import { isUndefined } from "lodash";
 import * as React from "react";
 import { log, setRef } from "../../utils";
 
@@ -11,7 +12,7 @@ export interface TooltipState {
 
 export interface TooltipActions {
   focusTooltip: (id: TooltipProps["id"]) => void;
-  blurTooltip: (id: TooltipProps["id"]) => void;
+  blurTooltip: (id?: TooltipProps["id"]) => void;
   toggleTooltip: (id: TooltipProps["id"]) => void;
   isTooltipFocused: (id: TooltipProps["id"]) => boolean;
   getTopOffset: (node: HTMLDivElement) => number;
@@ -46,7 +47,9 @@ export function useTooltipActions<Output>(
   return selector(state);
 }
 
-export type TooltipProviderElement = HTMLDivElement;
+export type TooltipProviderElement = HTMLDivElement &
+  TooltipState &
+  TooltipActions;
 
 export interface TooltipProviderProps extends PortalProviderProps {}
 
@@ -58,15 +61,19 @@ const TooltipProvider = React.forwardRef<
 
   const state: TooltipState = { focusedTooltipId };
 
+  log("TooltipProvider - state: ", state);
+
   const focusTooltip = React.useCallback((id: TooltipProps["id"]) => {
     log("focusTooltip", { id });
     setFocusedTooltipId(id);
   }, []);
 
-  const blurTooltip = React.useCallback((id: TooltipProps["id"]) => {
+  const blurTooltip = React.useCallback((id?: TooltipProps["id"]) => {
     log("blurTooltip", { id });
     setFocusedTooltipId((prevFocusedTooltipId) =>
-      prevFocusedTooltipId === id ? undefined : prevFocusedTooltipId
+      prevFocusedTooltipId === id || isUndefined(id)
+        ? undefined
+        : prevFocusedTooltipId
     );
   }, []);
 
@@ -115,8 +122,22 @@ const TooltipProvider = React.forwardRef<
     <Portal.Provider
       {...rest}
       ref={(node) => {
-        setRef(ref, node);
         setRef(innerRef, node);
+
+        const element: TooltipProviderElement = (node ||
+          {}) as TooltipProviderElement;
+
+        // set element state
+        Object.keys(state).forEach((key) => {
+          element[key] = state[key];
+        });
+
+        // set element actions
+        Object.keys(actions).forEach((key) => {
+          element[key] = actions[key];
+        });
+
+        setRef(ref, element);
       }}
     >
       <TooltipActions.Provider value={actions}>

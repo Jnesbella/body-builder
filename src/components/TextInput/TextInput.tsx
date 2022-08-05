@@ -38,6 +38,7 @@ export type TextInputProps = Omit<
 
 const StyledTextInput = styled.TextInput.attrs({
   fontSize: FontSize.Normal,
+  placeholderTextColor: theme.colors.textPlaceholder,
 })<TextInputProps & PressableState>`
   outline-width: 0;
 

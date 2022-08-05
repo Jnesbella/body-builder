@@ -37,33 +37,35 @@ export const DefaultText = styled.Text.attrs<TextProps>((props) => ({
 
 // export type TextProps = React.ComponentProps<typeof Text>;
 
+const LINE_SPACING = 1.5;
+
 export const paragraph = css`
   font-size: ${FontSize.Normal}px;
-  line-height: ${FontSize.Normal * 1.5}px;
+  line-height: ${FontSize.Normal * LINE_SPACING}px;
   font-weight: ${FontWeight.Normal};
 `;
 
 export const heading = css`
   font-size: ${FontSize.Large}px;
-  line-height: ${FontSize.Large * 1.5}px;
+  line-height: ${FontSize.Large * LINE_SPACING}px;
   font-weight: ${FontWeight.Bold};
 `;
 
 export const subheading = css`
   font-size: ${FontSize.Medium}px;
-  line-height: ${FontSize.Medium * 1.5}px;
+  line-height: ${FontSize.Medium * LINE_SPACING}px;
   font-weight: ${FontWeight.SemiBold};
 `;
 
 export const caption = css`
   font-size: ${FontSize.Small}px;
-  line-height: ${FontSize.Small * 1.5}px;
+  line-height: ${FontSize.Small * LINE_SPACING}px;
   font-weight: ${FontWeight.Light};
 `;
 
 export const label = css`
   font-size: ${FontSize.Normal}px;
-  line-height: ${FontSize.Normal * 1.5}px;
+  line-height: ${FontSize.Normal * LINE_SPACING}px;
   font-weight: ${FontWeight.Medium};
 `;
 
