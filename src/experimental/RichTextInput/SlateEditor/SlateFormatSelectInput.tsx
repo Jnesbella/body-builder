@@ -42,8 +42,6 @@ function SlateToolbar({ disabled, editor: editorProp }: SlateToolbarProps) {
         }) || [];
       const [element] = match || [];
 
-      log("activeFormatType: ", { element });
-
       const { type } = (element as FormatElement) || {};
 
       return type ? type : undefined;

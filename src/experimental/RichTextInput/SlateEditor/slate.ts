@@ -399,4 +399,12 @@ export const Editor = {
 
     return match ? (match as NodeEntry<Output>) : undefined;
   },
+
+  canUndo: (editor: DefaultEditor) => {
+    return editor.history.undos.length > 0;
+  },
+
+  canRedo: (editor: DefaultEditor) => {
+    return editor.history.redos.length > 0;
+  },
 };

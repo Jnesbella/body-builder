@@ -108,8 +108,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
     const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
 
-    console.log("value: ", { value });
-
     const isConstrainedByMaxLength = isNumber(maxLength) && maxLength >= 0;
 
     const renderElement = SlateElement;
@@ -204,7 +202,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     const onDOMBeforeInput = (event: DragEvent & InputEvent) => {
       const { inputType } = event;
 
-      console.log("onDOMBeforeInput: ", { inputType, event });
+      // console.log("onDOMBeforeInput: ", { inputType, event });
 
       // handle paste events
       const isInsertFromPaste = event.inputType === "insertFromPaste";
@@ -375,8 +373,9 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
         }}
       >
         <InputPressable
-          name="SlateEditor"
+          // id="SlateEditor"
           // focusOn="none"
+          // focusOnPress
           onFocus={() => {
             onFocus?.();
             focus();
@@ -398,6 +397,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                       name={name}
                       editor={editor}
                       disabled={!pressableProps.focused}
+                      tooltipsDisabled={!pressableProps.focused}
                       // isFocused={pressableProps.focused}
                     />
                   </Layout.Box>

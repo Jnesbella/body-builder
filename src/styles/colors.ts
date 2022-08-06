@@ -31,7 +31,7 @@ const makeCommonColors = ({ primary, accent }: MakeCommonColorsOptions) => ({
   textPlaceholder: "#999999",
   textWarn: "#F1C40F",
   textError: "##CB4335",
-  textDisabled: appendDarkTransparency(black),
+  textDisabled: appendDarkTransparency("#999999"),
   textCode: "red",
 
   backgroundInfo: "#dddddd",

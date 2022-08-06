@@ -4,37 +4,24 @@ import styled, { css } from "styled-components";
 import * as Icons from "react-bootstrap-icons";
 
 import {
-  FontSize,
   Icon,
   IconButton,
   Layout,
   spacing,
-  Text,
   paragraph,
   heading,
   subheading,
   caption,
   label,
-  Space,
-  Tooltip,
 } from "../../../components";
-import {
-  CustomElement,
-  FormatElement,
-  ListItemElement,
-} from "../../../typings-slate";
+import { FormatElement, ListItemElement } from "../../../typings-slate";
 import { log } from "../../../utils";
 import { Editor, Element } from "./slate";
 import { Node, Transforms } from "slate";
 import { isNumber, last } from "lodash";
 import { theme } from "../../../styles";
-import SlateFormatInput from "./SlateFormatInput";
-import SlateToolbar from "./SlateToolbar";
-import Menu from "../../../components/Menu";
 
 export interface SlateElementProps extends RenderElementProps {}
-
-// const ElementContainer =
 
 const Paragraph = styled.p`
   ${paragraph};
@@ -150,11 +137,7 @@ const TaskList = React.forwardRef<any, TaskListProps>(
   ({ children, ...rest }, ref) => {
     return (
       <ListContainer {...rest} ref={ref}>
-        {/* <Layout.Column spacingSize={[0, 1]}> */}
-        {/* <Text.Label>Tasks</Text.Label> */}
-
         {children}
-        {/* </Layout.Column> */}
       </ListContainer>
     );
   }
@@ -181,14 +164,6 @@ const ListItem = React.forwardRef<any, ListItemProps>(
     const index = last(path);
     const [firstChild] = element.children || [];
     const { type: formatType } = firstChild || {};
-
-    // const formatType = React.useMemo<FormatElement["type"] | undefined>(() => {
-    //   return Element.isElement(firstChild) && Element.isFormatElement(element)
-    //     ? firstChild.type
-    //     : undefined;
-    // }, [firstChild?.type]);
-
-    console.log("ListElement: ", { formatType, element, firstChild });
 
     const toggleChecked = () => {
       Transforms.setNodes(
@@ -238,11 +213,6 @@ function SlateElement(props: SlateElementProps) {
   const editor = useSlate();
   const path = ReactEditor.findPath(editor, element);
 
-  // const activeFormatType: FormatElement["type"] | undefined =
-  //   Element.isFormatElement(element)
-  //     ? (element as FormatElement).type
-  //     : undefined;
-
   if (Element.isElement(element) && Element.isFormatElement(element)) {
     return (
       <FormatElementText {...attributes} type={(element as FormatElement).type}>
@@ -273,62 +243,6 @@ function SlateElement(props: SlateElementProps) {
   }
 
   return <React.Fragment />;
-
-  // const Controls = ({ hovered }: { hovered?: PressableState["hovered"] }) => (
-  //   <div contentEditable={false}>
-  //     <Layout.Column>
-  //       <Space spacingSize={spacingSize} />
-
-  //       <Layout.Row>
-  //         <SlateFormatInput
-  //           value={activeFormatType}
-  //           hovered={hovered}
-  //           name={`SlateElement.Tooltip.Format.${path.map(String).join("_")}`}
-  //           onChange={(value) => {
-  //             Editor.setFormatElement(editor, { type: value, at: path });
-  //           }}
-  //         />
-
-  //         <Space />
-
-  //         <Tooltip
-  //           content={
-  //             <Menu>
-  //               <SlateToolbar />
-  //             </Menu>
-  //           }
-  //           placement="top"
-  //           id={`SlateElement.Tooltip.Rest.${path.map(String).join("_")}`}
-  //         >
-  //           {({ onPress, focused, onLayout }) => (
-  //             <Layout.Box
-  //               opacity={hovered || focused ? 1 : 0}
-  //               onLayout={onLayout}
-  //             >
-  //               <IconButton
-  //                 icon={Icons.ThreeDotsVertical}
-  //                 size="small"
-  //                 onPress={onPress}
-  //               />
-  //             </Layout.Box>
-  //           )}
-  //         </Tooltip>
-
-  //         <Space />
-  //       </Layout.Row>
-  //     </Layout.Column>
-  //   </div>
-  // );
-
-  // return (
-  //   <Pressable>
-  //     {({ hovered }) => (
-  //       <Layout.Row>
-  //         <Controls hovered={hovered} /> {content}
-  //       </Layout.Row>
-  //     )}
-  //   </Pressable>
-  // );
 }
 
 export default SlateElement;

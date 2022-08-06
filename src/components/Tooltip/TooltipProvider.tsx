@@ -61,15 +61,11 @@ const TooltipProvider = React.forwardRef<
 
   const state: TooltipState = { focusedTooltipId };
 
-  log("TooltipProvider - state: ", state);
-
   const focusTooltip = React.useCallback((id: TooltipProps["id"]) => {
-    log("focusTooltip", { id });
     setFocusedTooltipId(id);
   }, []);
 
   const blurTooltip = React.useCallback((id?: TooltipProps["id"]) => {
-    log("blurTooltip", { id });
     setFocusedTooltipId((prevFocusedTooltipId) =>
       prevFocusedTooltipId === id || isUndefined(id)
         ? undefined
@@ -83,7 +79,6 @@ const TooltipProvider = React.forwardRef<
   );
 
   const toggleTooltip = React.useCallback((id: TooltipProps["id"]) => {
-    log("toggleTooltip: ", id);
     setFocusedTooltipId((prevFocusedTooltipId) =>
       prevFocusedTooltipId === id ? undefined : id
     );
@@ -140,9 +135,11 @@ const TooltipProvider = React.forwardRef<
         setRef(ref, element);
       }}
     >
-      <TooltipActions.Provider value={actions}>
-        <TooltipState.Provider value={state}>{children}</TooltipState.Provider>
-      </TooltipActions.Provider>
+      <TooltipState.Provider value={state}>
+        <TooltipActions.Provider value={actions}>
+          {children}
+        </TooltipActions.Provider>
+      </TooltipState.Provider>
     </Portal.Provider>
   );
 });

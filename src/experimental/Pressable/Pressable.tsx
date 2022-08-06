@@ -1,18 +1,14 @@
 import * as React from "react";
 import styled, { css } from "styled-components";
-import {
-  // PanResponder,
-  // Pressable as DefaultPressable,
-  View,
-} from "react-native";
+
+import { log, setRef } from "../../utils";
+import { useId } from "../../hooks";
 
 import PressableProvider, {
-  PressableState,
-  PressableActions,
   PressableProviderProps,
   PressableProviderElement,
 } from "./PressableProvider";
-import { log } from "../../utils";
+import FocusProvider from "./FocusProvider";
 
 const DefaultPressable = styled.div<{ fullWidth?: boolean }>`
   user-select: none;
@@ -28,17 +24,18 @@ const DefaultPressable = styled.div<{ fullWidth?: boolean }>`
   }}
 `;
 
-export interface PressableProps extends PressableProviderProps {
+export type PressableElement = HTMLDivElement;
+
+export interface PressableProps extends Omit<PressableProviderProps, "id"> {
   disabled?: boolean;
   fullWidth?: boolean;
   focusOn?: "press" | "none";
   focusable?: boolean;
   focusOnPress?: boolean;
-  // preventDefault?: boolean;
-  // stopPropagation?: boolean;
+  id?: PressableProviderProps["id"];
 }
 
-const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
+const Pressable = React.forwardRef<PressableElement, PressableProps>(
   (
     {
       children,
@@ -53,25 +50,15 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
       isHovered,
       isPressed,
 
+      id: idProp,
+
       ...pressableProviderProps
     },
     ref
   ) => {
-    const innerRef = React.useRef<PressableProviderElement>(null);
+    const pressableProviderRef = React.useRef<PressableProviderElement>(null);
 
-    // return (
-    //   <React.Fragment>
-    //     <PressableProvider
-    //       children={children}
-    //       state={{
-    //         hovered: false,
-    //         focused: false,
-    //         pressed: false,
-    //       }}
-    //       isFocused={isFocused}
-    //     />
-    //   </React.Fragment>
-    // );
+    const id = useId(idProp);
 
     const state = {
       hovered: isHovered,
@@ -79,33 +66,73 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
       pressed: isPressed,
     };
 
-    // const hasPressHandler = [
-    //   pressableProviderProps.onPress,
-    //   pressableProviderProps.onPressCapture,
-    //   pressableProviderProps.onLongPress,
-    // ].some((handler) => !!handler);
-
     const isFocusOnPress = focusOn === "press";
+
+    const focusRef = React.useRef<(options?: FocusOptions) => void>();
+
+    const blurRef = React.useRef<() => void>();
+
+    const disabledCache = React.useRef(disabled);
+
+    const isDisabledChanged = disabledCache.current !== disabled;
+
+    React.useEffect(
+      function cacheDisabled() {
+        disabledCache.current = disabled;
+      },
+      [disabled]
+    );
+
+    React.useEffect(
+      function handleChangeDisabled() {
+        if (isDisabledChanged && disabled) {
+          pressableProviderRef.current?.blur();
+          pressableProviderRef.current?.hoverOut();
+          pressableProviderRef.current?.pressOut();
+        }
+      },
+      [disabled, isDisabledChanged, id]
+    );
 
     return (
       <DefaultPressable
-        ref={ref}
+        ref={(node) => {
+          const element = (node || {}) as PressableElement;
+
+          if (!focusRef.current) {
+            focusRef.current = element.focus;
+          }
+
+          if (!blurRef.current) {
+            blurRef.current = element.blur;
+          }
+
+          element["blur"] = () => {
+            // blurRef.current?.();
+            pressableProviderRef.current?.blur();
+          };
+
+          element["focus"] = () => {
+            // focusRef.current?.();
+            pressableProviderRef.current?.focus();
+          };
+
+          setRef(ref, element);
+        }}
         fullWidth={fullWidth}
         tabIndex={!disabled && isFocusable ? 0 : undefined}
-        // tabIndex={0}
-
         // focused
         onFocus={
           !disabled && isFocusable
             ? () => {
-                innerRef.current?.focus();
+                pressableProviderRef.current?.focus();
               }
             : undefined
         }
         onBlur={
           !disabled && isFocusable
             ? () => {
-                innerRef.current?.blur();
+                pressableProviderRef.current?.blur();
               }
             : undefined
         }
@@ -113,14 +140,14 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
         onPointerOver={
           !disabled
             ? () => {
-                innerRef.current?.hoverOver();
+                pressableProviderRef.current?.hoverOver();
               }
             : undefined
         }
         onPointerOut={
           !disabled
             ? () => {
-                innerRef.current?.hoverOut();
+                pressableProviderRef.current?.hoverOut();
               }
             : undefined
         }
@@ -128,14 +155,14 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
         onPointerDown={
           !disabled
             ? () => {
-                innerRef.current?.pressIn();
+                pressableProviderRef.current?.pressIn();
               }
             : undefined
         }
         onPointerUp={
           !disabled
             ? () => {
-                innerRef.current?.pressOut();
+                pressableProviderRef.current?.pressOut();
                 pressableProviderProps.onPressCapture?.();
               }
             : undefined
@@ -143,7 +170,8 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
       >
         <PressableProvider
           {...pressableProviderProps}
-          ref={innerRef}
+          id={id}
+          ref={pressableProviderRef}
           defaultState={state}
           isFocused={state.focused}
           isHovered={state.hovered}
@@ -153,7 +181,7 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
             const preventFocus = result === false;
 
             if (isFocusOnPress && !preventFocus) {
-              innerRef.current?.focus();
+              pressableProviderRef.current?.focus();
             }
           }}
         >
@@ -164,4 +192,10 @@ const Pressable = React.forwardRef<HTMLDivElement, PressableProps>(
   }
 );
 
-export default Pressable;
+type Pressable = typeof Pressable & {
+  Provider: typeof FocusProvider;
+};
+
+(Pressable as Pressable).Provider = FocusProvider;
+
+export default Pressable as Pressable;

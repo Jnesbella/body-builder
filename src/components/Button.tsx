@@ -2,7 +2,10 @@ import * as React from "react";
 import { LayoutChangeEvent, View } from "react-native";
 import styled from "styled-components/native";
 
-import Pressable, { PressableProps } from "../experimental/Pressable";
+import Pressable, {
+  PressableElement,
+  PressableProps,
+} from "../experimental/Pressable";
 import {
   theme,
   ColorProp,
@@ -63,8 +66,10 @@ export type ButtonRenderer = (
   props: Background & Color & PressableState
 ) => React.ReactNode;
 
+export type ButtonElement = PressableElement;
+
 export interface ButtonProps extends Omit<SpacingProps, "size">, Full {
-  name?: PressableProps["name"];
+  id?: PressableProps["id"];
   onPress?: PressableProps["onPress"];
   onPressCapture?: PressableProps["onPressCapture"];
   mode?: "contained" | "outlined" | "text";
@@ -95,10 +100,10 @@ export interface ButtonProps extends Omit<SpacingProps, "size">, Full {
   // onPointerDownCapture?: PressableProps["onPointerDownCapture"];
 }
 
-const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
+const Button = React.forwardRef<ButtonElement, ButtonProps>(
   (
     {
-      name,
+      id,
       title,
       onPress,
       mode = "text",
@@ -142,8 +147,12 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
         return theme.colors.accent;
       }
 
-      return theme.colors.primary;
-    }, [isAccent]);
+      if (isPrimary) {
+        return theme.colors.primary;
+      }
+
+      // return undefined;
+    }, [isAccent, isPrimary]);
 
     const backgroundColor = React.useMemo(() => {
       if (backgroundProp) {
@@ -154,11 +163,15 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
         return theme.colors.accentLight;
       }
 
-      if (isDisabled) {
+      if (isDisabled && isContained) {
         return theme.colors.backgroundDisabled;
       }
 
-      return isContained ? themeColor : theme.colors.transparent; // theme.colors.background
+      if (isContained) {
+        return themeColor;
+      }
+
+      // return isContained ? themeColor : theme.colors.transparent; // theme.colors.background
     }, [
       isContained,
       isDisabled,
@@ -168,7 +181,8 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
       isActive,
     ]);
 
-    const isBackgroundTransparent = isColorTransparent(backgroundColor);
+    const isBackgroundTransparent =
+      !backgroundColor || isColorTransparent(backgroundColor);
 
     const textColor = React.useMemo(() => {
       if (isDisabled) {
@@ -190,12 +204,24 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
 
     const renderChildren = (pressableState: PressableState) => {
       const backgroundPressed = isBackgroundTransparent
-        ? appendLightTransparency(themeColor)
-        : darkenColor(backgroundColor, 15);
+        ? themeColor
+          ? appendLightTransparency(themeColor)
+          : undefined
+        : backgroundColor
+        ? darkenColor(backgroundColor, 15)
+        : undefined;
+
+      const borderColorHoveredDefault = appendDarkTransparency(
+        themeColor || theme.colors.primary
+      );
+
+      const borderColorHoveredContrast = backgroundColor
+        ? darkenColor(backgroundColor, 15)
+        : undefined;
 
       const borderColorHovered = isBackgroundTransparent
-        ? appendDarkTransparency(themeColor)
-        : darkenColor(backgroundColor, 15);
+        ? borderColorHoveredDefault
+        : borderColorHoveredContrast;
 
       const background = pressableState.pressed
         ? backgroundPressed
@@ -218,7 +244,7 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
         background,
         opacity: pressableState.pressed ? 0.4 : 1,
         outlineColor: isPrimary ? theme.colors.accent : theme.colors.primary,
-        color: getContrastColor(background),
+        color: textColor, // getContrastColor(background),
       };
 
       const isCustomRender = typeof children === "function";
@@ -243,7 +269,7 @@ const Button = React.forwardRef<HTMLDivElement, ButtonProps>(
 
     return (
       <Pressable
-        name={name}
+        id={id}
         fullWidth={fullWidth}
         ref={ref}
         onPress={onPress}

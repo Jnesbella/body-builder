@@ -1,11 +1,13 @@
 import * as React from "react";
 import styled from "styled-components/native";
 
-import { theme } from "../styles";
+import { getContrastColor, theme } from "../styles";
 
 import Icon, { IconProps } from "./Icon";
-import Button, { ButtonProps } from "./Button";
+import Button, { ButtonElement, ButtonProps } from "./Button";
 import { SizeProp } from "../types";
+import { log } from "../utils";
+import { getColor } from "./styled-components";
 
 export const ICON_BUTTON_SIZE = theme.spacing * 4.5;
 export const ICON_BUTTON_SIZE_SMALL = theme.spacing * 3;
@@ -28,21 +30,25 @@ export interface IconButtonProps extends ButtonProps {
   background?: string;
 }
 
-function IconButton({ icon, size, ...rest }: IconButtonProps) {
-  return (
-    <Button {...rest}>
-      {(buttonProps) => (
-        <IconButtonContainer {...buttonProps} size={size}>
-          <Icon
-            icon={icon}
-            color={buttonProps.color}
-            size={size === "small" ? Icon.size.small : undefined}
-          />
-        </IconButtonContainer>
-      )}
-    </Button>
-  );
-}
+const IconButton = React.forwardRef<ButtonElement, IconButtonProps>(
+  ({ icon, size, ...rest }, ref) => {
+    return (
+      <Button {...rest} ref={ref}>
+        {(buttonProps) => {
+          return (
+            <IconButtonContainer {...buttonProps} size={size}>
+              <Icon
+                icon={icon}
+                fill={getColor(buttonProps)}
+                size={size === "small" ? Icon.size.small : undefined}
+              />
+            </IconButtonContainer>
+          );
+        }}
+      </Button>
+    );
+  }
+);
 
 type IconButton = typeof IconButton & {
   Container: typeof IconButtonContainer;

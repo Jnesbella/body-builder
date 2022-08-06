@@ -3,6 +3,7 @@ import styled from "styled-components";
 import * as Icons from "react-bootstrap-icons";
 import { ReactEditor, useSlate, useSlateStatic } from "slate-react";
 import { Transforms, Editor as DefaultEditor } from "slate";
+import { HistoryEditor } from "slate-history";
 import { startCase } from "lodash";
 
 import {
@@ -55,6 +56,8 @@ interface SlateToolbarItemProps {
   focusable?: IconButtonProps["focusable"];
   isHovered?: IconButtonProps["isHovered"];
   disabled?: IconButtonProps["disabled"];
+  tooltipDisabled?: boolean;
+  id?: IconButtonProps["id"];
 }
 
 function SlateToolbarItem({
@@ -68,37 +71,50 @@ function SlateToolbarItem({
   focusable,
   isHovered,
   disabled,
+  tooltipDisabled,
+  id,
 }: SlateToolbarItemProps) {
   const editor = useSlate();
 
   const iconButton = (
-    <IconButton
-      disabled={disabled}
-      name={label}
-      icon={icon}
-      size="small"
-      active={active}
-      focusable={focusable}
-      isHovered={isHovered}
-      focusOn="none"
-      onPress={() => {
-        onPress?.();
-      }}
-      onFocus={() => {
-        onFocus?.();
+    <Tooltip
+      placement="right-center"
+      content={<Tooltip.Text>{startCase(label)}</Tooltip.Text>}
+      leftOffset={theme.spacing + theme.borderThickness}
+      visiblity={tooltipDisabled ? "hidden" : "visible"}
+    >
+      {(tooltipProps) => (
+        <IconButton
+          id={id}
+          disabled={disabled}
+          icon={icon}
+          size="small"
+          active={active}
+          focusable={focusable}
+          isHovered={isHovered}
+          focusOn="none"
+          onPress={() => {
+            onPress?.();
+          }}
+          onFocus={() => {
+            onFocus?.();
 
-        ReactEditor.focus(editor);
-      }}
-      onBlur={() => {
-        onBlur?.();
-      }}
-    />
+            ReactEditor.focus(editor);
+          }}
+          onBlur={() => {
+            onBlur?.();
+          }}
+          onHoverOver={tooltipProps.onHoverOver}
+          onHoverOut={tooltipProps.onHoverOut}
+        />
+      )}
+    </Tooltip>
   );
 
   const button = (
     <Button
+      id={id}
       disabled={disabled}
-      name={label}
       fullWidth
       spacingSize={[0.25, 0]}
       active={active}
@@ -120,8 +136,7 @@ function SlateToolbarItem({
         <Button.Container {...buttonProps}>
           <Layout.Row alignItems="center">
             <Icon
-              color={buttonProps.color}
-              background={buttonProps.background}
+              fill={buttonProps.color}
               icon={icon}
               size={theme.spacing * 2}
             />
@@ -131,7 +146,6 @@ function SlateToolbarItem({
             <Text.Label
               fontSize={FontSize.ExtraSmall}
               color={buttonProps.color}
-              background={buttonProps.background}
             >
               {label}
             </Text.Label>
@@ -153,6 +167,7 @@ export interface SlateToolbarProps {
   editor?: DefaultEditor;
   name?: string;
   // isFocused?: boolean;
+  tooltipsDisabled?: boolean;
 }
 
 function SlateToolbar({
@@ -160,6 +175,7 @@ function SlateToolbar({
   // isFocused,
   name,
   disabled,
+  tooltipsDisabled,
 }: SlateToolbarProps) {
   const defaultEditor = useSlate();
   const editor = editorProp || defaultEditor;
@@ -215,6 +231,7 @@ function SlateToolbar({
           {index > 0 && <Divider background={theme.colors.transparent} />}
 
           <SlateToolbarItem
+            tooltipDisabled={tooltipsDisabled}
             isExpanded={expanded}
             active={Editor.hasMark(editor, mark)}
             onPress={() => {
@@ -235,6 +252,7 @@ function SlateToolbar({
           {index > 0 && <Divider background={theme.colors.transparent} />}
 
           <SlateToolbarItem
+            tooltipDisabled={tooltipsDisabled}
             isExpanded={expanded}
             label={startCase(listType)}
             active={Editor.isListBlock(editor, listType)}
@@ -250,11 +268,16 @@ function SlateToolbar({
 
   const activeFormat = useActiveFormat({ editor });
 
+  const undo = () => HistoryEditor.undo(editor);
+
+  const redo = () => HistoryEditor.redo(editor);
+
   const setFormatElement = useSetFormatElement({ editor });
 
   return (
     <Layout.Column alignItems="flex-start">
       <SlateToolbarItem
+        tooltipDisabled={tooltipsDisabled}
         disabled={disabled}
         icon={expanded ? Icons.ArrowLeft : Icons.ArrowRight}
         isExpanded={expanded}
@@ -262,6 +285,28 @@ function SlateToolbar({
           setIsExpanded(!expanded);
         }}
         label={expanded ? "Collapse" : "Expand"}
+      />
+
+      <Space />
+
+      <SlateToolbarItem
+        disabled={disabled || !Editor.canUndo(editor)}
+        tooltipDisabled={tooltipsDisabled}
+        icon={Icons.ArrowCounterclockwise}
+        isExpanded={expanded}
+        onPress={undo}
+        label="Undo"
+        id="undo"
+      />
+
+      <SlateToolbarItem
+        id="redo"
+        disabled={disabled || !Editor.canRedo(editor)}
+        tooltipDisabled={tooltipsDisabled}
+        icon={Icons.ArrowClockwise}
+        isExpanded={expanded}
+        onPress={redo}
+        label="Redo"
       />
 
       <Space />
@@ -282,10 +327,9 @@ function SlateToolbar({
             value={activeFormat}
             onChange={(type) => {
               setFormatElement({ type });
-              tooltipProps.onBlur();
+              tooltipProps.hide();
             }}
             onFocus={() => {
-              log("format tooltip menu focus");
               ReactEditor.focus(editor);
             }}
           />
@@ -293,6 +337,7 @@ function SlateToolbar({
       >
         {(tooltipProps) => (
           <SlateToolbarItem
+            tooltipDisabled={tooltipsDisabled}
             disabled={disabled}
             isExpanded={expanded}
             isHovered={tooltipProps.focused}

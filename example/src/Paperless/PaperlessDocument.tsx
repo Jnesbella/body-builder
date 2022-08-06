@@ -20,6 +20,7 @@ import {
   TooltipElement,
   log,
   TooltipProviderElement,
+  ButtonElement,
 } from "@jnesbella/body-builder";
 import * as Icons from "react-bootstrap-icons";
 import { ScrollView } from "react-native";
@@ -64,6 +65,8 @@ function PaperlessDocument() {
 
   const tooltipRef = React.useRef<TooltipElement>(null);
 
+  const threeDotsMenuButtonRef = React.useRef<ButtonElement>(null);
+
   const tooltipProviderRef = React.useRef<TooltipProviderElement>(null);
 
   const addPage = () => setPages((prevPages) => [...prevPages, createPage()]);
@@ -84,8 +87,6 @@ function PaperlessDocument() {
     scrollViewRef.current?.scrollTo({ y, animated: true });
   };
 
-  log("PaperlessDocument: ", pagesRef);
-
   const insertPage = (index: number) =>
     setPages((prevPages) => [
       ...prevPages.slice(0, index),
@@ -95,7 +96,6 @@ function PaperlessDocument() {
 
   const AddPageButton = ({ pageIndex }: { pageIndex: number }) => (
     <Tooltip
-      id={`AddPageButton_Tooltip_${pageIndex}`}
       placement="right-center"
       content={<Tooltip.Text>Add page</Tooltip.Text>}
     >
@@ -105,6 +105,10 @@ function PaperlessDocument() {
           onPress={() => {
             tooltipProviderRef.current?.blurTooltip();
             insertPage(pageIndex);
+            // TODO
+            window.setTimeout(() => {
+              scrollToPage(pageIndex);
+            });
           }}
           onHoverOver={tooltipProps.onHoverOver}
           onHoverOut={tooltipProps.onHoverOut}
@@ -122,6 +126,7 @@ function PaperlessDocument() {
         onBlur={() => {
           tooltipRef.current?.hide();
         }}
+        id="debug"
       >
         {(pressableProps) => (
           <Layout.Row alignItems="center" spacingSize={1}>
@@ -163,12 +168,18 @@ function PaperlessDocument() {
 
             <Tooltip
               ref={tooltipRef}
-              id="Document_Tooltip"
               placement="bottom-end"
-              topOffset={theme.spacing}
-              content={
+              topOffset={theme.spacing + theme.borderThickness}
+              onHide={() => {
+                threeDotsMenuButtonRef.current?.blur();
+              }}
+              content={(tooltipProps) => (
                 <Menu elevation={1}>
-                  <Menu.Item>
+                  <Menu.Item
+                    onPress={() => {
+                      tooltipProps.hide();
+                    }}
+                  >
                     <Layout.Row alignItems="center">
                       <Icon icon={Icons.Download} size={Icon.size.small} />
 
@@ -178,7 +189,11 @@ function PaperlessDocument() {
                     </Layout.Row>
                   </Menu.Item>
 
-                  <Menu.Item>
+                  <Menu.Item
+                    onPress={() => {
+                      tooltipProps.hide();
+                    }}
+                  >
                     <Layout.Row alignItems="center">
                       <Icon icon={Icons.Trash} size={Icon.size.small} />
 
@@ -188,10 +203,11 @@ function PaperlessDocument() {
                     </Layout.Row>
                   </Menu.Item>
                 </Menu>
-              }
+              )}
             >
               {(tooltipProps) => (
                 <IconButton
+                  ref={threeDotsMenuButtonRef}
                   icon={Icons.ThreeDotsVertical}
                   onPress={() => {
                     tooltipProps.onPress();
@@ -215,7 +231,6 @@ function PaperlessDocument() {
         <Measure
           key={page.id}
           ref={(node) => {
-            console.log("measure ref: ", { index, node });
             pagesRef.current[index] = node;
           }}
         >
@@ -272,7 +287,7 @@ function PaperlessDocument() {
                     onPress={() => scrollToPage(index)}
                   >
                     <Layout.Row alignItems="center">
-                      <Text.Label>
+                      <Text.Label numberOfLines={1}>
                         {index + 1}. {page.title || "Untitled"}
                       </Text.Label>
                     </Layout.Row>

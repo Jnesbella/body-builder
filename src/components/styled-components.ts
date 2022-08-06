@@ -64,18 +64,20 @@ export interface Color {
   color?: string;
 }
 
+export function getColor(props: Background | Color) {
+  if ("color" in props && props.color) {
+    return props.color;
+  }
+
+  if ("background" in props && props.background) {
+    return getContrastColor(props.background);
+  }
+
+  return theme.colors.text;
+}
+
 export const color = css<Background | Color>`
-  color: ${(props) => {
-    if ("color" in props && props.color) {
-      return props.color;
-    }
-
-    if ("background" in props && props.background) {
-      return getContrastColor(props.background);
-    }
-
-    return theme.colors.text;
-  }};
+  color: ${getColor};
 `;
 
 export interface SpacingProps {

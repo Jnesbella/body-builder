@@ -1,12 +1,17 @@
 import * as React from "react";
 import styled from "styled-components";
+import { useId } from "../../hooks";
+import { log } from "../../utils";
 import Layout from "../Layout";
 
 import Portal, { PortalProps } from "../Portal/Portal";
 import { full } from "../styled-components";
 import Surface from "../Surface";
 import Text from "../Text";
-import TooltipProvider, { useTooltipActions } from "./TooltipProvider";
+import TooltipProvider, {
+  useTooltipActions,
+  useTooltipState,
+} from "./TooltipProvider";
 
 interface TooltipState {
   focused: boolean;
@@ -60,6 +65,9 @@ export interface TooltipProps {
   leftOffset?: PortalProps["left"];
   renderChildren?: (props: React.HTMLProps<HTMLDivElement>) => JSX.Element;
   renderContent?: (props: React.HTMLProps<HTMLDivElement>) => JSX.Element;
+  onShow?: () => void;
+  onHide?: () => void;
+  visiblity?: "hidden" | "visible";
 }
 
 const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
@@ -67,15 +75,20 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
     {
       children,
       content,
-      id,
+      id: idProp,
       placement: placement = "bottom",
       topOffset = 0,
       leftOffset = 0,
       renderChildren: Children = TooltipChildren,
       renderContent: Content = TooltipContent,
+      onShow,
+      onHide,
+      visiblity = "visible",
     },
     ref
   ) => {
+    const id = useId(idProp);
+
     const [layoutElement, setLayoutElement] =
       React.useState<HTMLDivElement | null>(null);
 
@@ -96,7 +109,35 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       (actions) => actions.isTooltipFocused
     );
 
+    const focusedTooltipId = useTooltipState((state) => state.focusedTooltipId);
+
     const isFocused = id ? isTooltipFocused(id) : true;
+
+    const isVisible = isFocused && visiblity === "visible";
+
+    const isVisibleCache = React.useRef(isVisible);
+
+    const isVisibleChanged = isVisible !== isVisibleCache.current;
+
+    React.useEffect(
+      function cacheIsVisible() {
+        isVisibleCache.current = isVisible;
+      },
+      [isVisible]
+    );
+
+    React.useEffect(
+      function handleChangeVisibility() {
+        if (isVisibleChanged) {
+          if (isVisible) {
+            onShow?.();
+          } else {
+            onHide?.();
+          }
+        }
+      },
+      [isVisible, isVisibleChanged, onHide, onShow]
+    );
 
     const toggleVisibility = React.useCallback(
       () => toggleTooltip(id),
@@ -132,11 +173,7 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
 
           if (["bottom-center"].includes(placement)) {
             left += -(
-              (Math.max(contentElement.offsetWidth, layoutElement.offsetWidth) -
-                Math.min(
-                  contentElement.offsetWidth,
-                  layoutElement.offsetWidth
-                )) /
+              (layoutElement.offsetWidth - contentElement.offsetWidth) /
               2
             );
           }
@@ -159,15 +196,7 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
         if (contentElement) {
           if (["right-center"].includes(placement)) {
             top +=
-              (Math.max(
-                contentElement.offsetHeight,
-                layoutElement.offsetHeight
-              ) -
-                Math.min(
-                  contentElement.offsetHeight,
-                  layoutElement.offsetHeight
-                )) /
-              2;
+              (layoutElement.offsetHeight - contentElement.offsetHeight) / 2;
           }
         }
 
@@ -224,7 +253,7 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
           left={left || positionCache.current?.left}
           top={top || positionCache.current?.top}
         >
-          {isFocused && (
+          {isVisible && (
             <Content ref={setContentElement}>
               {renderTooltipCallback(content)}
             </Content>

@@ -3,6 +3,7 @@ import { debounce, noop } from "lodash";
 
 import { PressableState as DefaultPressableState } from "../../components/componentsTypes";
 import { log } from "../../utils";
+import { useFocusActions, useFocusState } from "./FocusProvider";
 
 export interface PressableState extends DefaultPressableState {}
 
@@ -58,7 +59,7 @@ export interface PressableProviderElement
     PressableState {}
 
 export interface PressableProviderProps {
-  name?: string;
+  id: string;
 
   children?:
     | React.ReactNode
@@ -89,7 +90,7 @@ const PressableProvider = React.forwardRef<
 >(
   (
     {
-      name,
+      id,
       children,
       defaultState = DEFAULT_STATE,
 
@@ -114,7 +115,13 @@ const PressableProvider = React.forwardRef<
     const [isFocused, setIsFocused] = React.useState(
       defaultState.focused || false
     );
-    const focused = isFocused || isFocusedProp || false;
+
+    const _blur = useFocusActions((actions) => actions.blur);
+
+    const _focus = useFocusActions((actions) => actions.focus);
+
+    const _isFocused = useFocusActions((actions) => actions.isFocused);
+    const focused = _isFocused(id) || isFocusedProp || isFocused || false;
 
     const isFocusedRef = React.useRef(focused);
 
@@ -131,10 +138,8 @@ const PressableProvider = React.forwardRef<
       function handleFocusedChange() {
         if (isFocusChanged) {
           if (focused) {
-            // log(`${name} onFocus`);
             onFocus?.();
           } else {
-            // log(`${name} onBlur`);
             onBlur?.();
           }
         }
@@ -144,21 +149,16 @@ const PressableProvider = React.forwardRef<
 
     const blur = React.useMemo<BlurHandler>(() => {
       return debounce(() => {
-        // log(`${name} blur`);
+        _blur(id);
         setIsFocused(false);
       }, blurDebounceWait);
-    }, [blurDebounceWait]);
-
-    // const blur = React.useCallback(() => {
-    //   log(`${name} blur`);
-    //   setIsFocused(false);
-    // }, [name]);
+    }, [blurDebounceWait, _blur, id]);
 
     const focus = React.useCallback(() => {
-      // log(`${name} focus`);
       blur.cancel();
+      _focus(id);
       setIsFocused(true);
-    }, [name, blur]);
+    }, [_focus, id, blur]);
 
     // pressed
     const [isPressed, setIsPressed] = React.useState(
@@ -180,7 +180,6 @@ const PressableProvider = React.forwardRef<
     React.useEffect(
       function handlePressedChange() {
         if (isPressedChanged && !pressed) {
-          log(`${name} onPress`);
           onPress?.();
         }
       },
@@ -188,14 +187,12 @@ const PressableProvider = React.forwardRef<
     );
 
     const pressIn = React.useCallback(() => {
-      // log(`${name} pressIn`);
       setIsPressed(true);
-    }, [name]);
+    }, []);
 
     const pressOut = React.useCallback(() => {
-      // log(`${name} pressOut`);
       setIsPressed(false);
-    }, [name]);
+    }, []);
 
     // hovered
     const [isHovered, setIsHovered] = React.useState(
@@ -229,24 +226,18 @@ const PressableProvider = React.forwardRef<
     );
 
     const hoverOver = React.useCallback(() => {
-      // log(`${name} hoverOver`);
       setIsHovered(true);
-    }, [name]);
+    }, []);
 
     const hoverOut = React.useCallback(() => {
-      // log(`${name} hoverOut`);
       setIsHovered(false);
-    }, [name]);
+    }, []);
 
     const state: PressableState = {
       focused,
       pressed,
       hovered,
     };
-
-    // if (name === "SlateEditor") {
-    //   log(`${name} state`, state);
-    // }
 
     const actions: PressableActions = {
       // focused

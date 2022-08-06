@@ -33,12 +33,6 @@ export const Portal = React.forwardRef<PortalElement, PortalProps>(
       }
     });
 
-    // log("Portal: ", {
-    //   container,
-    //   left,
-    //   top,
-    // });
-
     return (
       <React.Fragment>
         {container &&

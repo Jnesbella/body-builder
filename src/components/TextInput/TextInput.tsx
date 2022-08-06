@@ -3,8 +3,7 @@ import { TextInput as DefaultTextInput } from "react-native";
 import styled, { css } from "styled-components/native";
 import Pressable, { PressableActions } from "../../experimental/Pressable";
 
-import { darkenColor, theme } from "../../styles";
-import { log } from "../../utils";
+import { theme } from "../../styles";
 import { PressableState } from "../componentsTypes";
 import Layout from "../Layout";
 
@@ -14,13 +13,11 @@ import {
   FontSize,
   color,
   fontSize,
-  outlineColor,
   rounded,
   bordered,
   greedy,
   full,
   background,
-  Background,
   SpacingProps,
   spacing,
 } from "../styled-components";
@@ -89,55 +86,21 @@ function TextInput({
   onBlur,
   ...textInputProps
 }: TextInputProps) {
-  // const [isFocused, setIsFocused] = React.useState(false);
-
-  // // log("TextInput", { isFocused });
-
-  // const Input = React.useCallback(
-  //   (state: PressableState) => (
-  //     <InputOutline {...state} focused={isFocused}>
-  //       <StyledTextInput
-  //         {...(textInputProps as unknown as any)}
-  //         onFocus={(_e) => {
-  //           // onFocus?.(e);
-  //           // setIsFocused(true);
-  //         }}
-  //         onBlur={(_e) => {
-  //           // onBlur?.(e);
-  //           // setIsFocused(false);
-  //         }}
-  //       />
-  //     </InputOutline>
-  //   ),
-  //   []
-  // );
-
   return (
-    <InputPressable name="TextInput" onFocus={onFocus} onBlur={onBlur}>
-      {
-        (pressableProps: PressableState & PressableActions) => {
-          // console.log("pressableProps: ", { pressableProps });
-
-          return (
-            <InputOutline {...pressableProps}>
-              <StyledTextInput
-                {...(textInputProps as unknown as any)}
-                onFocus={() => {
-                  pressableProps.focus();
-                }}
-                onBlur={() => {
-                  pressableProps.blur();
-                }}
-              />
-            </InputOutline>
-          );
-        }
-        // typeof Children === "function" ? (
-        //   <Children {...state}>{Input}</Children>
-        // ) : (
-        //   <Input {...state} />
-        // )
-      }
+    <InputPressable onFocus={onFocus} onBlur={onBlur}>
+      {(pressableProps: PressableState & PressableActions) => (
+        <InputOutline {...pressableProps}>
+          <StyledTextInput
+            {...(textInputProps as unknown as any)}
+            onFocus={() => {
+              pressableProps.focus();
+            }}
+            onBlur={() => {
+              pressableProps.blur();
+            }}
+          />
+        </InputOutline>
+      )}
     </InputPressable>
   );
 }
