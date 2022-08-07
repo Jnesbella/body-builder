@@ -1,26 +1,11 @@
 import * as React from "react";
-import styled from "styled-components";
-import * as Icons from "react-bootstrap-icons";
-import { ReactEditor, useSlate, useSlateStatic } from "slate-react";
-import { Transforms, Editor as DefaultEditor } from "slate";
 import { startCase, isEqual } from "lodash";
 
-import { Divider, Layout, SelectInput, Space, Text } from "../../../components";
-import { theme } from "../../../styles";
-import { Normal, Heading, Subheading, Caption, Label } from "./SlateElement";
-import { log } from "../../../utils";
-import {
-  CustomEditor,
-  CustomElement,
-  FormatElement,
-  ListElement,
-} from "../../../typings-slate";
-
-import MarkButton, { MarkButtonProps } from "./MarkButton";
-import BlockButton, { BlockButtonProps } from "./BlockButton";
-import { FORMAT_TYPES } from "./slateConstants";
-import { Editor, Element } from "./slate";
+import { FormatElement } from "../../../typings-slate";
 import Menu, { MenuItemProps } from "../../../components/Menu";
+
+import { FORMAT_TYPES } from "./slateConstants";
+import { Normal, Heading, Subheading, Caption, Label } from "./SlateElement";
 
 export interface SlateFormatMenuProps {
   disabled?: boolean;
@@ -28,6 +13,7 @@ export interface SlateFormatMenuProps {
   onChange?: (type: FormatElement["type"]) => void;
   onChangeCapture?: (type: FormatElement["type"]) => void;
   onFocus?: MenuItemProps["onFocus"];
+  onBlur?: MenuItemProps["onBlur"];
 }
 
 function SlateFormatMenu({
@@ -36,6 +22,7 @@ function SlateFormatMenu({
   onChange,
   onChangeCapture,
   onFocus,
+  onBlur,
 }: SlateFormatMenuProps) {
   return (
     <Menu elevation={1}>
@@ -65,12 +52,13 @@ function SlateFormatMenu({
         return (
           <Menu.Item
             key={type}
-            name={type}
+            focusOn="none"
             disabled={disabled}
             selected={isSelected}
             onPress={() => onChange?.(type)}
             onPressCapture={() => onChangeCapture?.(type)}
             onFocus={onFocus}
+            onBlur={onBlur}
           >
             <Wrapper>{startCase(type)}</Wrapper>
           </Menu.Item>

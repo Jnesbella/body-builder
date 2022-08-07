@@ -1,8 +1,8 @@
 import * as React from "react";
 import styled from "styled-components";
 import * as Icons from "react-bootstrap-icons";
-import { ReactEditor, useSlate, useSlateStatic } from "slate-react";
-import { Transforms, Editor as DefaultEditor } from "slate";
+import { ReactEditor, useSlate } from "slate-react";
+import { Editor as DefaultEditor } from "slate";
 import { HistoryEditor } from "slate-history";
 import { startCase } from "lodash";
 
@@ -14,30 +14,18 @@ import {
   Icon,
   IconButton,
   IconButtonProps,
-  ICON_BUTTON_SIZE_SMALL,
   Layout,
-  SelectInput,
   Space,
   Text,
   Tooltip,
   TooltipElement,
 } from "../../../components";
 import { theme } from "../../../styles";
-import { Normal, Heading, Subheading, Caption, Label } from "./SlateElement";
-import { log } from "../../../utils";
-import {
-  CustomEditor,
-  CustomElement,
-  FormatElement,
-  ListElement,
-} from "../../../typings-slate";
+import { ListElement } from "../../../typings-slate";
 
-import MarkButton, { MarkButtonProps } from "./MarkButton";
-import BlockButton, { BlockButtonProps } from "./BlockButton";
-import { FORMAT_TYPES } from "./slateConstants";
-import { Editor, Element } from "./slate";
-import SlateFormatSelectInput from "./SlateFormatSelectInput";
-import SlateFormatInput from "./SlateFormatInput";
+import { MarkButtonProps } from "./MarkButton";
+import { BlockButtonProps } from "./BlockButton";
+import { Editor } from "./slate";
 import { useActiveFormat, useSetFormatElement } from "./slateHooks";
 import SlateFormatMenu from "./SlateFormatMenu";
 
@@ -95,11 +83,10 @@ function SlateToolbarItem({
           focusOn="none"
           onPress={() => {
             onPress?.();
+            ReactEditor.focus(editor);
           }}
           onFocus={() => {
             onFocus?.();
-
-            ReactEditor.focus(editor);
           }}
           onBlur={() => {
             onBlur?.();
@@ -123,9 +110,9 @@ function SlateToolbarItem({
       focusOn="none"
       onPress={() => {
         onPress?.();
+        ReactEditor.focus(editor);
       }}
       onFocus={() => {
-        ReactEditor.focus(editor);
         onFocus?.();
       }}
       onBlur={() => {
@@ -166,16 +153,16 @@ export interface SlateToolbarProps {
   disabled?: boolean;
   editor?: DefaultEditor;
   name?: string;
-  // isFocused?: boolean;
   tooltipsDisabled?: boolean;
+  onFocusItem?: () => void;
 }
 
 function SlateToolbar({
   editor: editorProp,
-  // isFocused,
   name,
   disabled,
   tooltipsDisabled,
+  onFocusItem,
 }: SlateToolbarProps) {
   const defaultEditor = useSlate();
   const editor = editorProp || defaultEditor;
@@ -184,6 +171,8 @@ function SlateToolbar({
 
   const [isExpanded, setIsExpanded] = React.useState(false);
   const expanded = isExpanded; // && isFocused;
+
+  const setFormatElement = useSetFormatElement({ editor });
 
   React.useEffect(
     function handleDisabled() {
@@ -194,15 +183,6 @@ function SlateToolbar({
     },
     [disabled]
   );
-
-  // React.useEffect(
-  //   function handleFocusChange() {
-  //     if (!isFocused) {
-  //       setIsExpanded(false);
-  //     }
-  //   },
-  //   [isFocused]
-  // );
 
   const marks: {
     mark: MarkButtonProps["mark"];
@@ -237,6 +217,7 @@ function SlateToolbar({
             onPress={() => {
               Editor.toggleMark(editor, mark);
             }}
+            onFocus={onFocusItem}
             icon={icon}
             label={startCase(mark)}
           />
@@ -260,6 +241,7 @@ function SlateToolbar({
               Editor.toggleListElement(editor, listType);
             }}
             icon={icon}
+            onFocus={onFocusItem}
           />
         </React.Fragment>
       ))}
@@ -272,8 +254,6 @@ function SlateToolbar({
 
   const redo = () => HistoryEditor.redo(editor);
 
-  const setFormatElement = useSetFormatElement({ editor });
-
   return (
     <Layout.Column alignItems="flex-start">
       <SlateToolbarItem
@@ -285,6 +265,7 @@ function SlateToolbar({
           setIsExpanded(!expanded);
         }}
         label={expanded ? "Collapse" : "Expand"}
+        onFocus={onFocusItem}
       />
 
       <Space />
@@ -297,6 +278,7 @@ function SlateToolbar({
         onPress={undo}
         label="Undo"
         id="undo"
+        onFocus={onFocusItem}
       />
 
       <SlateToolbarItem
@@ -307,6 +289,7 @@ function SlateToolbar({
         isExpanded={expanded}
         onPress={redo}
         label="Redo"
+        onFocus={onFocusItem}
       />
 
       <Space />
@@ -327,11 +310,10 @@ function SlateToolbar({
             value={activeFormat}
             onChange={(type) => {
               setFormatElement({ type });
+              ReactEditor.focus(editor);
               tooltipProps.hide();
             }}
-            onFocus={() => {
-              ReactEditor.focus(editor);
-            }}
+            onFocus={onFocusItem}
           />
         )}
       >
@@ -344,6 +326,7 @@ function SlateToolbar({
             icon={Icons.Fonts}
             label={activeFormat ? startCase(activeFormat) : "Format"}
             onPress={tooltipProps.onPress}
+            onFocus={onFocusItem}
           />
         )}
       </Tooltip>

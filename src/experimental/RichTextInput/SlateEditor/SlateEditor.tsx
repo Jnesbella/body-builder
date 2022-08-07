@@ -373,9 +373,8 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
         }}
       >
         <InputPressable
-          // id="SlateEditor"
-          // focusOn="none"
-          // focusOnPress
+          focusable={false}
+          focusOnPress
           onFocus={() => {
             onFocus?.();
             focus();
@@ -385,7 +384,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
             blur();
           }}
         >
-          {(pressableProps: PressableState & PressableActions) => (
+          {(pressableProps) => (
             <InputOutline
               {...pick(pressableProps, ["focused", "pressed", "hovered"])}
               spacingSize={0}
@@ -398,7 +397,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                       editor={editor}
                       disabled={!pressableProps.focused}
                       tooltipsDisabled={!pressableProps.focused}
-                      // isFocused={pressableProps.focused}
+                      onFocusItem={pressableProps.focus}
                     />
                   </Layout.Box>
 
@@ -440,7 +439,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                       blurTooltip(`SlateToolbar_Format_${name}`);
                     }}
                     onFocus={() => {
-                      pressableProps.focus();
+                      // pressableProps.focus();
                     }}
                     onBlur={() => {
                       pressableProps.blur();

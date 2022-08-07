@@ -98,6 +98,8 @@ function TextInput({
             onBlur={() => {
               pressableProps.blur();
             }}
+            autoComplete="off"
+            autoCompleteType="off"
           />
         </InputOutline>
       )}
