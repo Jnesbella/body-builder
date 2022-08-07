@@ -281,13 +281,13 @@ export interface MaxProps {
 
 export const max = css<MaxProps>`
   ${({ maxHeight, maxWidth }) => {
-    if (isNumber(maxWidth)) {
+    if (!isUndefined(maxWidth)) {
       return css`
         max-width: ${maxWidth}px;
       `;
     }
 
-    if (isNumber(maxHeight)) {
+    if (!isUndefined(maxHeight)) {
       return css`
         max-height: ${maxHeight}px;
       `;

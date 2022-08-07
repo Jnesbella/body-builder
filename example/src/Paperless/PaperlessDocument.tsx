@@ -37,15 +37,7 @@ const TitleBarContainer = styled(Surface).attrs({ elevation: 1 })`
   ${zIndex("aboveAll")};
 `;
 
-const DocumentContainer = styled(ScrollView).attrs({
-  background: theme.colors.backgroundInfo,
-  greedy: true,
-})`
-  ${background};
-  ${greedy};
-`;
-
-const PageWrapper = styled(Layout.Column)`
+const PageWrapper = styled(Layout.Box)`
   ${bordered};
   max-width: ${theme.spacing * 100}px;
   width: 100%;
@@ -126,10 +118,10 @@ function PaperlessDocument() {
         onBlur={() => {
           tooltipRef.current?.hide();
         }}
-        id="debug"
+        greedy
       >
         {(pressableProps) => (
-          <Layout.Row alignItems="center" spacingSize={1}>
+          <Layout.Row alignItems="center" spacingSize={1} greedy>
             <Layout.Box greedy>
               <TextInput
                 fullWidth
@@ -266,7 +258,7 @@ function PaperlessDocument() {
   );
 
   const tableOfContents = (
-    <Surface greedy maxWidth={theme.spacing * 200}>
+    <Surface greedy maxWidth={theme.spacing * 40}>
       <Layout.Row greedy>
         <Divider vertical />
 

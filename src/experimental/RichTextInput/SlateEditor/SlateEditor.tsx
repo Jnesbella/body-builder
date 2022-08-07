@@ -17,9 +17,7 @@ import {
   Editor as DefaultEditor,
 } from "slate";
 import { withHistory } from "slate-history";
-import styled, { css } from "styled-components/native";
-
-// import { getPlainText } from "slate-react/dist/utils/dom";
+import styled from "styled-components/native";
 
 import SlateElement from "./SlateElement";
 import SlateLeaf from "./SlateLeaf";
@@ -27,15 +25,9 @@ import { HOTKEYS, DEFAULT_VALUE } from "./slateConstants";
 import { Editor, Element } from "./slate";
 import { theme } from "../../../styles";
 import { InputOutline } from "../../../components/TextInput";
-import Pressable, { PressableActions, PressableState } from "../../Pressable";
-import { isNumber, last, pick, range } from "lodash";
-import { log } from "../../../utils";
-import {
-  CustomElement,
-  ListElement,
-  ListItemElement,
-  ParagraphElement,
-} from "../../../typings-slate";
+import Pressable from "../../Pressable";
+import { isNumber, pick } from "lodash";
+import { ListItemElement } from "../../../typings-slate";
 import { Divider, Layout, Space, useTooltipActions } from "../../../components";
 import SlateToolbar from "./SlateToolbar";
 
@@ -44,27 +36,16 @@ const InputPressable = styled(Pressable)`
   background: ${theme.colors.transparent};
 `;
 
-const ToolbarWrapper = styled.View<{ isVisible?: boolean }>`
-  opacity: ${({ isVisible }) => (isVisible ? 1 : 0)};
-`;
-
-const EditableWrapper = styled(Layout.Box).attrs({ greedy: true })`
-  .editable {
-    flex: 1;
-  }
-`;
-
 const DividerWrapper = styled(Layout.Box).attrs({ greedy: true })`
   max-width: 2px;
 `;
 
 export interface SlateEditorProps {
-  defaultValue?: Descendant[];
+  value?: Descendant[];
   placeholder?: string;
   onChange?: (value: Descendant[]) => void;
   disabled?: boolean;
   maxLength?: number;
-  // value?: Descendant[];
   toolbar?: React.ReactNode;
   characterCount?: React.DetailedReactHTMLElement<any, HTMLElement>;
   readonly?: boolean;
@@ -85,27 +66,19 @@ export interface SlateEditorElement {
 const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
   (
     {
-      defaultValue = DEFAULT_VALUE,
+      value = DEFAULT_VALUE,
       placeholder,
       onChange,
       disabled,
       maxLength = -1,
-      // value: valueProp,
-      // toolbar,
-      // characterCount,
       readonly,
       onFocus,
       onBlur,
-      // children: Container = React.Fragment,
-      // renderEditable: Wrapper = React.Fragment,
       footer,
-      // isFocused,
       name = "",
     },
     ref
   ) => {
-    const [value, setValue] = React.useState<Descendant[]>(defaultValue);
-
     const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
 
     const isConstrainedByMaxLength = isNumber(maxLength) && maxLength >= 0;
@@ -364,14 +337,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     const gutter = <Space spacingSize={6.25} />;
 
     return (
-      <Slate
-        editor={editor}
-        value={value}
-        onChange={(nextValue) => {
-          onChange?.(nextValue);
-          setValue(nextValue);
-        }}
-      >
+      <Slate editor={editor} value={value} onChange={onChange}>
         <InputPressable
           focusable={false}
           focusOnPress

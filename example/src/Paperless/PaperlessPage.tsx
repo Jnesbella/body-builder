@@ -130,7 +130,7 @@ const PaperlessPage = React.forwardRef<
                   placement="left"
                   content={(tooltipProps) => (
                     <Menu elevation={1}>
-                      <Menu.Item
+                      {/* <Menu.Item
                         onPress={() => {
                           tooltipProps.hide();
                         }}
@@ -142,7 +142,7 @@ const PaperlessPage = React.forwardRef<
 
                           <Menu.Text>Print</Menu.Text>
                         </Layout.Row>
-                      </Menu.Item>
+                      </Menu.Item> */}
 
                       <Menu.Item
                         onPress={() => {
@@ -189,7 +189,7 @@ const PaperlessPage = React.forwardRef<
 
               <RichTextInput
                 name={`page-${page.id}`}
-                defaultValue={page.content}
+                value={page.content}
                 placeholder={
                   pressableProps.hovered || pressableProps.focused
                     ? "Write here"
@@ -203,7 +203,7 @@ const PaperlessPage = React.forwardRef<
                 onBlur={() => {
                   setIsContentFocused(false);
                 }}
-                onChangeText={(text) => onChange?.({ ...page, content: text })}
+                onChange={(content) => onChange?.({ ...page, content })}
                 footer={
                   <>
                     <Space spacingSize={1} />

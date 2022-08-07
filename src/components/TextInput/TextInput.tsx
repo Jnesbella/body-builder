@@ -31,6 +31,7 @@ export type TextInputProps = Omit<
   children?:
     | React.ReactNode
     | ((props: React.PropsWithChildren<PressableState>) => JSX.Element);
+  onPress?: () => void;
 };
 
 const StyledTextInput = styled.TextInput.attrs({
@@ -38,6 +39,7 @@ const StyledTextInput = styled.TextInput.attrs({
   placeholderTextColor: theme.colors.textPlaceholder,
 })<TextInputProps & PressableState>`
   outline-width: 0;
+  min-height: ${theme.spacing * 4}px;
 
   ${color};
   ${fontSize};
@@ -84,14 +86,27 @@ function TextInput({
   children: Children,
   onFocus,
   onBlur,
+  greedy,
+  onPress,
+  fullWidth,
   ...textInputProps
 }: TextInputProps) {
   return (
-    <InputPressable onFocus={onFocus} onBlur={onBlur}>
+    <InputPressable
+      focusOnPress
+      focusable={false}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      greedy={greedy}
+      onPress={onPress}
+      fullWidth={fullWidth}
+    >
       {(pressableProps: PressableState & PressableActions) => (
-        <InputOutline {...pressableProps}>
+        <InputOutline {...pressableProps} greedy={greedy} fullWidth={fullWidth}>
           <StyledTextInput
             {...(textInputProps as unknown as any)}
+            greedy={greedy}
+            fullWidth={fullWidth}
             onFocus={() => {
               pressableProps.focus();
             }}

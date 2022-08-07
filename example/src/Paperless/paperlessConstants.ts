@@ -1,4 +1,4 @@
-export const initialValue = JSON.stringify([
+export const initialValue = [
   {
     type: "heading",
     children: [
@@ -47,4 +47,4 @@ export const initialValue = JSON.stringify([
       },
     ],
   },
-]);
+];

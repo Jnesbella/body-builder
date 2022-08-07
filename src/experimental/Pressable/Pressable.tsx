@@ -9,8 +9,11 @@ import PressableProvider, {
   PressableProviderElement,
 } from "./PressableProvider";
 import FocusProvider from "./FocusProvider";
+import { Greedy, greedy } from "../../components";
 
-const DefaultPressable = styled.div<{ fullWidth?: boolean }>`
+const DefaultPressable = styled.div<{ fullWidth?: boolean } & Greedy>`
+  ${greedy};
+
   user-select: none;
 
   ${({ fullWidth }) => {
@@ -22,11 +25,23 @@ const DefaultPressable = styled.div<{ fullWidth?: boolean }>`
 
     return "";
   }}
+
+  ${({ greedy }) => {
+    if (greedy) {
+      return css`
+        display: flex;
+      `;
+    }
+
+    return "";
+  }}
 `;
 
 export type PressableElement = HTMLDivElement;
 
-export interface PressableProps extends Omit<PressableProviderProps, "id"> {
+export interface PressableProps
+  extends Omit<PressableProviderProps, "id">,
+    Greedy {
   disabled?: boolean;
   fullWidth?: boolean;
   focusOn?: "press" | "none";
@@ -51,6 +66,7 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
       isPressed,
 
       id: idProp,
+      greedy,
 
       ...pressableProviderProps
     },
@@ -119,6 +135,7 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
 
           setRef(ref, element);
         }}
+        greedy={greedy}
         fullWidth={fullWidth}
         tabIndex={!disabled && isFocusable ? 0 : undefined}
         // focused

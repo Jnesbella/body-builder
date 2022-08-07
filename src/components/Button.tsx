@@ -34,6 +34,7 @@ import {
   Bordered,
   full,
   Full,
+  greedy,
 } from "./styled-components";
 import Text from "./Text";
 
@@ -48,6 +49,7 @@ const ButtonContainer = styled.View<
   ${spacing};
   ${opacity};
   ${full};
+  ${greedy};
 
   border-color: ${(props) => props.borderColor};
   border-width: ${theme.borderThickness}px;
@@ -127,6 +129,7 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
       isFocused,
       onHoverOut,
       onHoverOver,
+      greedy,
       // stopPropagation,
       // preventDefault,
       // focusOnPressCapture,
@@ -231,6 +234,7 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
         ...rest,
         ...pressableState,
         // borderColor,
+        greedy,
         fullWidth,
         spacingSize,
         // background: backgroundColor,
@@ -270,6 +274,7 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
     return (
       <Pressable
         id={id}
+        greedy={greedy}
         fullWidth={fullWidth}
         ref={ref}
         onPress={onPress}
