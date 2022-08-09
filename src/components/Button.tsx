@@ -14,8 +14,11 @@ import {
   isColorTransparent,
   appendDarkTransparency,
   getContrastColor,
+  isColorWhite,
+  appendTransparency,
 } from "../styles";
 import { SizeProp } from "../types";
+import { log } from "../utils";
 
 import { PressableState } from "./componentsTypes";
 import {
@@ -153,8 +156,6 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
       if (isPrimary) {
         return theme.colors.primary;
       }
-
-      // return undefined;
     }, [isAccent, isPrimary]);
 
     const backgroundColor = React.useMemo(() => {
@@ -163,15 +164,19 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
       }
 
       if (isSelected || isActive) {
-        return theme.colors.accentLight;
-      }
-
-      if (isDisabled && isContained) {
-        return theme.colors.backgroundDisabled;
+        return theme.colors.accent;
       }
 
       if (isContained) {
-        return themeColor;
+        if (isDisabled) {
+          return theme.colors.backgroundDisabled;
+        }
+
+        if (isPrimary || isAccent) {
+          return themeColor;
+        }
+
+        return theme.colors.background;
       }
 
       // return isContained ? themeColor : theme.colors.transparent; // theme.colors.background
@@ -179,6 +184,8 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
       isContained,
       isDisabled,
       themeColor,
+      isPrimary,
+      isAccent,
       isSelected,
       backgroundProp,
       isActive,
@@ -187,15 +194,23 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
     const isBackgroundTransparent =
       !backgroundColor || isColorTransparent(backgroundColor);
 
+    const isBackgroundWhite = !backgroundColor || isColorWhite(backgroundColor);
+
     const textColor = React.useMemo(() => {
+      if (isContained) {
+        return backgroundColor
+          ? getContrastColor(backgroundColor)
+          : theme.colors.text;
+      }
+
       if (isDisabled) {
         return theme.colors.textDisabled;
       }
 
-      if (!isContained) {
+      if (isText || isOutlined) {
         return themeColor;
       }
-    }, [isDisabled, isContained, themeColor]);
+    }, [isDisabled, isContained, themeColor, backgroundColor]);
 
     const borderColor = React.useMemo(() => {
       if (isOutlined) {
@@ -206,49 +221,31 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
     }, [isOutlined, themeColor]);
 
     const renderChildren = (pressableState: PressableState) => {
-      const backgroundPressed = isBackgroundTransparent
-        ? themeColor
-          ? appendLightTransparency(themeColor)
-          : undefined
-        : backgroundColor
-        ? darkenColor(backgroundColor, 15)
-        : undefined;
-
-      const borderColorHoveredDefault = appendDarkTransparency(
-        themeColor || theme.colors.primary
-      );
+      const borderColorHoveredDefault = themeColor || theme.colors.primary;
 
       const borderColorHoveredContrast = backgroundColor
-        ? darkenColor(backgroundColor, 15)
+        ? appendTransparency(getContrastColor(backgroundColor), 88)
         : undefined;
 
-      const borderColorHovered = isBackgroundTransparent
-        ? borderColorHoveredDefault
-        : borderColorHoveredContrast;
-
-      const background = pressableState.pressed
-        ? backgroundPressed
-        : backgroundColor;
+      const borderColorHovered =
+        isBackgroundTransparent || isBackgroundWhite
+          ? borderColorHoveredDefault
+          : borderColorHoveredContrast;
 
       const buttonProps = {
         ...rest,
         ...pressableState,
-        // borderColor,
         greedy,
         fullWidth,
         spacingSize,
-        // background: backgroundColor,
+        background: backgroundColor,
         borderColor:
           pressableState.hovered || pressableState.focused
             ? borderColorHovered
             : borderColor,
-        // background: pressableState.pressed
-        //   ? backgroundPressed
-        //   : backgroundColor,
-        background,
         opacity: pressableState.pressed ? 0.4 : 1,
         outlineColor: isPrimary ? theme.colors.accent : theme.colors.primary,
-        color: textColor, // getContrastColor(background),
+        color: textColor,
       };
 
       const isCustomRender = typeof children === "function";

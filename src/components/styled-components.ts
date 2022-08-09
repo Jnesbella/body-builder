@@ -149,12 +149,12 @@ export const rounded = css<Roundness>`
 `;
 
 export const greedy = css<Greedy>`
-  ${(props) => {
-    if (props.greedy) {
-      return { flex: 1 };
+  ${({ greedy }) => {
+    if (greedy) {
+      return css`
+        flex: 1;
+      `;
     }
-
-    return "";
   }}
 `;
 

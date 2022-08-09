@@ -1,3 +1,4 @@
+import { curry } from "lodash";
 import {
   TRANSPARENCY_DARK_AMT,
   TRANSPARENCY_LIGHT_AMT,
@@ -78,5 +79,10 @@ export const appendLightTransparency = (color: string) =>
 export const appendDarkTransparency = (color: string) =>
   appendTransparency(color, TRANSPARENCY_DARK_AMT);
 
+export const isColor = curry((color: string, other: string) => color === other);
+
 export const isColorTransparent = (color: string) =>
-  color === theme.colors.transparent;
+  isColor(theme.colors.transparent, color);
+
+export const isColorWhite = (color: string) =>
+  isColor(theme.colors.white, color);

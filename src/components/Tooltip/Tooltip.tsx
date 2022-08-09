@@ -5,7 +5,7 @@ import { log } from "../../utils";
 import Layout from "../Layout";
 
 import Portal, { PortalProps } from "../Portal/Portal";
-import { full } from "../styled-components";
+import { full, greedy } from "../styled-components";
 import Surface from "../Surface";
 import Text from "../Text";
 import TooltipProvider, {
@@ -23,10 +23,20 @@ const TooltipChildrenFullWidth = styled.div.attrs({ fullWidth: true })`
   ${full};
 `;
 
+const TooltipChildrenGreedy = styled.div.attrs({ greedy: true })`
+  ${greedy};
+  display: flex;
+`;
+
 const TooltipContent = styled.div``;
 
 const TooltipContentFullWidth = styled.div.attrs({ fullWidth: true })`
   ${full};
+`;
+
+const TooltipContentGreedy = styled.div.attrs({ greedy: true })`
+  ${greedy};
+  display: flex;
 `;
 
 interface TooltipActions {
@@ -194,6 +204,10 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
         }
 
         if (contentElement) {
+          if (placement.includes("top")) {
+            top -= contentElement.offsetHeight;
+          }
+
           if (["right-center"].includes(placement)) {
             top +=
               (layoutElement.offsetHeight - contentElement.offsetHeight) / 2;
@@ -285,6 +299,8 @@ type Tooltip = typeof Tooltip & {
   Content: typeof TooltipContent;
   ContentFullWidth: typeof TooltipContent;
   Text: typeof TooltipText;
+  ChildrenGreedy: typeof TooltipChildrenGreedy;
+  ContentGreedy: typeof TooltipContentGreedy;
 };
 
 (Tooltip as Tooltip).Provider = TooltipProvider;
@@ -293,5 +309,7 @@ type Tooltip = typeof Tooltip & {
 (Tooltip as Tooltip).Content = TooltipContent;
 (Tooltip as Tooltip).ContentFullWidth = TooltipContentFullWidth;
 (Tooltip as Tooltip).Text = TooltipText;
+(Tooltip as Tooltip).ChildrenGreedy = TooltipChildrenGreedy;
+(Tooltip as Tooltip).ContentGreedy = TooltipChildrenGreedy;
 
 export default Tooltip as Tooltip;

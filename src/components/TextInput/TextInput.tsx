@@ -1,7 +1,10 @@
 import * as React from "react";
 import { TextInput as DefaultTextInput } from "react-native";
 import styled, { css } from "styled-components/native";
-import Pressable, { PressableActions } from "../../experimental/Pressable";
+import Pressable, {
+  PressableActions,
+  PressableProps,
+} from "../../experimental/Pressable";
 
 import { theme } from "../../styles";
 import { PressableState } from "../componentsTypes";
@@ -22,17 +25,19 @@ import {
   spacing,
 } from "../styled-components";
 
-export type TextInputProps = Omit<
-  React.ComponentProps<typeof DefaultTextInput> & Greedy & Full,
+type DefaultTextInputProps = Omit<
+  React.ComponentProps<typeof DefaultTextInput>,
   "children" | "onFocus" | "onBlur"
-> & {
-  onFocus?: () => void;
-  onBlur?: () => void;
+>;
+
+export interface TextInputProps extends DefaultTextInputProps, Greedy, Full {
+  onPress?: PressableProps["onPress"];
+  onFocus?: PressableProps["onFocus"];
+  onBlur?: PressableProps["onBlur"];
   children?:
     | React.ReactNode
     | ((props: React.PropsWithChildren<PressableState>) => JSX.Element);
-  onPress?: () => void;
-};
+}
 
 const StyledTextInput = styled.TextInput.attrs({
   fontSize: FontSize.Normal,
@@ -91,12 +96,20 @@ function TextInput({
   fullWidth,
   ...textInputProps
 }: TextInputProps) {
+  const textInputRef = React.useRef<DefaultTextInput>(null);
+
   return (
     <InputPressable
-      focusOnPress
       focusable={false}
-      onFocus={onFocus}
-      onBlur={onBlur}
+      focusOnPress
+      onFocus={() => {
+        onFocus?.();
+        textInputRef.current?.focus();
+      }}
+      onBlur={() => {
+        onBlur?.();
+        textInputRef.current?.blur();
+      }}
       greedy={greedy}
       onPress={onPress}
       fullWidth={fullWidth}
@@ -105,6 +118,7 @@ function TextInput({
         <InputOutline {...pressableProps} greedy={greedy} fullWidth={fullWidth}>
           <StyledTextInput
             {...(textInputProps as unknown as any)}
+            ref={textInputRef}
             greedy={greedy}
             fullWidth={fullWidth}
             onFocus={() => {

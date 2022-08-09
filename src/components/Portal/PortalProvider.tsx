@@ -1,7 +1,7 @@
 import * as React from "react";
-import styled from "styled-components";
+import styled, { css } from "styled-components";
 
-import { greedy } from "../styled-components";
+import { Greedy, greedy } from "../styled-components";
 
 export interface PortalState {
   container: HTMLDivElement | null;
@@ -25,25 +25,33 @@ export function usePortalState<Output>(
   return selector(state);
 }
 
-const PortalProviderContainer = styled.div.attrs({ greedy: true })`
+const PortalProviderContainer = styled.div<Greedy>`
   ${greedy};
 
   position: relative;
-  display: flex;
+
+  ${({ greedy }) => {
+    if (greedy) {
+      return css`
+        display: flex;
+      `;
+    }
+  }}
 `;
 
 export type PortalProviderElement = HTMLDivElement;
 
 export interface PortalProviderProps
   extends React.DetailedHTMLProps<
-    React.HTMLAttributes<HTMLDivElement>,
-    HTMLDivElement
-  > {}
+      React.HTMLAttributes<HTMLDivElement>,
+      HTMLDivElement
+    >,
+    Greedy {}
 
 const PortalProvider = React.forwardRef<
   PortalProviderElement,
   PortalProviderProps
->(({ children, ...rest }, ref) => {
+>(({ children, greedy, ...rest }, ref) => {
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
 
   React.useEffect(function handleRef() {
@@ -55,7 +63,11 @@ const PortalProvider = React.forwardRef<
   });
 
   return (
-    <PortalProviderContainer {...rest} ref={(node) => setContainer(node)}>
+    <PortalProviderContainer
+      {...rest}
+      greedy={greedy}
+      ref={(node) => setContainer(node)}
+    >
       <PortalState.Provider value={{ container }}>
         {children}
       </PortalState.Provider>
