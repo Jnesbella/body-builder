@@ -21,6 +21,7 @@ import { SizeProp } from "../types";
 import { log } from "../utils";
 
 import { PressableState } from "./componentsTypes";
+import { LayoutBoxProps } from "./Layout";
 import {
   background,
   color,
@@ -38,11 +39,12 @@ import {
   full,
   Full,
   greedy,
+  Rounded,
 } from "./styled-components";
 import Text from "./Text";
 
 const ButtonContainer = styled.View<
-  Bordered & Greedy & Omit<SpacingProps, "size"> & Full
+  Omit<LayoutBoxProps, "size"> & Rounded & Bordered & Background
 >`
   ${background};
   ${color};

@@ -86,8 +86,6 @@ function Page({
 
   const tooltipRef = React.useRef<TooltipElement>(null);
 
-  const toolbar = isFocused && <RichTextInput.Toolbar />;
-
   // React.useEffect(
   //   function handlePageChange() {
   //     if (onChange) {
@@ -102,7 +100,6 @@ function Page({
       <Pressable
         // focusOn="none"
         isFocused={isTitleFocused || isContentFocused}
-        name={`Page_${pageNum}`}
         onBlur={() => {
           tooltipRef.current?.hide();
         }}
@@ -184,14 +181,11 @@ function Page({
               <Space spacingSize={1} />
 
               <RichTextInput
-                name={`page-${page.id}`}
-                defaultValue={page.content}
                 placeholder={
                   pressableProps.hovered || pressableProps.focused
                     ? "Write your content"
                     : ""
                 }
-                isFocused={isFocused}
                 onFocus={() => {
                   setIsContentFocused(true);
                   tooltipRef.current?.hide();
@@ -199,25 +193,9 @@ function Page({
                 onBlur={() => {
                   setIsContentFocused(false);
                 }}
-                onChangeText={(text) => onChange?.({ ...page, content: text })}
-                footer={
-                  <>
-                    <Space spacingSize={1} />
-
-                    <RichTextInput.Footer>
-                      {isNumber(pageCount) && isNumber(pageNum) && (
-                        <RichTextInput.Footer.PageNumberItem
-                          pageNum={pageNum}
-                          pageCount={pageCount}
-                        />
-                      )}
-
-                      {(pressableProps.hovered || pressableProps.focused) && (
-                        <RichTextInput.Footer.WordCountItem />
-                      )}
-                    </RichTextInput.Footer>
-                  </>
-                }
+                onChange={(content) => {
+                  onChange?.({ ...page, content });
+                }}
               />
             </Surface>
           </Layout.Column>

@@ -138,11 +138,11 @@ export const opacity = css<Opacity>`
   opacity: ${(props) => (isNumber(props.opacity) ? props.opacity : 1)};
 `;
 
-export interface Roundness {
+export interface Rounded {
   roundness?: number;
 }
 
-export const rounded = css<Roundness>`
+export const rounded = css<Rounded>`
   border-radius: ${(props) =>
     isUndefined(props.roundness) ? theme.roundness : props.roundness}px;
   overflow: hidden;
@@ -202,12 +202,16 @@ export const full = css<Full>`
 
 export interface Bordered {
   borderColor?: string;
+  borderWidth?: number;
 }
 
 export const bordered = css<Bordered>`
-  ${({ borderColor = theme.colors.backgroundDivider }) => {
+  ${({
+    borderColor = theme.colors.backgroundDivider,
+    borderWidth = theme.borderThickness,
+  }) => {
     return css`
-      border: ${theme.borderThickness}px solid ${borderColor};
+      border: ${borderWidth}px solid ${borderColor};
     `;
   }};
 `;

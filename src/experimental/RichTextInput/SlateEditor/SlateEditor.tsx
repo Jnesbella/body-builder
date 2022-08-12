@@ -28,16 +28,18 @@ import { InputOutline } from "../../../components/TextInput";
 import Pressable from "../../Pressable";
 import { isNumber, pick } from "lodash";
 import { ListItemElement } from "../../../typings-slate";
-import { Divider, Layout, Space, useTooltipActions } from "../../../components";
+import {
+  Divider,
+  Layout,
+  Space,
+  Surface,
+  useTooltipActions,
+} from "../../../components";
 import SlateToolbar from "./SlateToolbar";
 
 const InputPressable = styled(Pressable)`
   overflow: hidden;
   background: ${theme.colors.transparent};
-`;
-
-const DividerWrapper = styled(Layout.Box).attrs({ greedy: true })`
-  max-width: 2px;
 `;
 
 export interface SlateEditorProps {
@@ -357,19 +359,21 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
             >
               <Layout.Row>
                 <Layout.Row opacity={pressableProps.focused ? 1 : 0}>
-                  <Layout.Box spacingSize={1}>
-                    <SlateToolbar
-                      name={name}
-                      editor={editor}
-                      disabled={!pressableProps.focused}
-                      tooltipsDisabled={!pressableProps.focused}
-                      onFocusItem={pressableProps.focus}
-                    />
-                  </Layout.Box>
+                  <Surface elevation={0.5}>
+                    <Layout.Row fullHeight>
+                      <Layout.Box spacingSize={1}>
+                        <SlateToolbar
+                          name={name}
+                          editor={editor}
+                          disabled={!pressableProps.focused}
+                          tooltipsDisabled={!pressableProps.focused}
+                          onFocusItem={pressableProps.focus}
+                        />
+                      </Layout.Box>
 
-                  <DividerWrapper>
-                    <Divider vertical height="100%" />
-                  </DividerWrapper>
+                      <Divider vertical height="100%" thickness={1} />
+                    </Layout.Row>
+                  </Surface>
 
                   <Space />
                 </Layout.Row>

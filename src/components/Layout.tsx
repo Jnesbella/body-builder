@@ -12,11 +12,18 @@ import {
   opacity,
   Opacity,
   max,
+  MaxProps,
 } from "./styled-components";
 
-export const LayoutBox = styled.View<
-  Full & Greedy & Flexible & SpacingProps & Opacity
->`
+export interface LayoutBoxProps
+  extends Full,
+    Greedy,
+    Flexible,
+    SpacingProps,
+    Opacity,
+    MaxProps {}
+
+export const LayoutBox = styled.View<LayoutBoxProps>`
   ${full};
   ${greedy};
   ${flexible};

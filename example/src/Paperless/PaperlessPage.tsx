@@ -195,7 +195,6 @@ const PaperlessPage = React.forwardRef<
                     ? "Write here"
                     : ""
                 }
-                isFocused={isFocused}
                 onFocus={() => {
                   setIsContentFocused(true);
                   tooltipRef.current?.hide();
@@ -204,24 +203,6 @@ const PaperlessPage = React.forwardRef<
                   setIsContentFocused(false);
                 }}
                 onChange={(content) => onChange?.({ ...page, content })}
-                footer={
-                  <>
-                    <Space spacingSize={1} />
-
-                    <RichTextInput.Footer>
-                      {isNumber(pageCount) && isNumber(pageNum) && (
-                        <RichTextInput.Footer.PageNumberItem
-                          pageNum={pageNum}
-                          pageCount={pageCount}
-                        />
-                      )}
-
-                      {(pressableProps.hovered || pressableProps.focused) && (
-                        <RichTextInput.Footer.WordCountItem />
-                      )}
-                    </RichTextInput.Footer>
-                  </>
-                }
               />
             </Surface>
           </Layout.Column>

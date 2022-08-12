@@ -124,7 +124,7 @@ export const Editor = {
         });
 
         // iterate over the list elements
-        [...listElementMatches].forEach((match) => {
+        for (let match of listElementMatches) {
           const [_node, path] = match;
 
           // set each list type
@@ -154,7 +154,7 @@ export const Editor = {
               // mode: "lowest",
             }
           );
-        });
+        }
 
         Editor.mergeListNodes(editor, listType);
       }
@@ -171,7 +171,7 @@ export const Editor = {
       });
 
       // iterate over format elements
-      [...formatElementMatches].forEach((match) => {
+      for (let match of formatElementMatches) {
         const [node, path] = match;
 
         // wrap each format element in a list-item element
@@ -187,7 +187,7 @@ export const Editor = {
             // mode: "lowest",
           }
         );
-      });
+      }
 
       // wrap all the list-item elements in a list element
       Transforms.wrapNodes(
@@ -258,7 +258,7 @@ export const Editor = {
 
     log("mergeListNodes: ", { matches, listType });
 
-    [...matches].forEach((match) => {
+    for (let match of matches) {
       const [node, path] = match;
 
       log(".");
@@ -293,7 +293,7 @@ export const Editor = {
           Transforms.mergeNodes(editor, { at: path });
         }
       }
-    });
+    }
   },
 
   // toggleBlock: (editor: DefaultEditor, type: DefaultElement["type"]) => {

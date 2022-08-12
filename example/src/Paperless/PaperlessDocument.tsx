@@ -294,7 +294,7 @@ function PaperlessDocument() {
   );
 
   return (
-    <Tooltip.Provider>
+    <Tooltip.Provider greedy>
       <Surface background={theme.colors.backgroundInfo} greedy>
         {titleBar}
 

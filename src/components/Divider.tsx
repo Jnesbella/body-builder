@@ -8,13 +8,20 @@ export interface DividerProps extends Background {
   height?: number | string;
   width?: number | string;
   vertical?: boolean;
+  thickness?: number;
 }
 
 const Divider = styled.View.attrs<DividerProps>(
-  ({ background, height, width }) => ({
-    background: background || theme.colors.backgroundDivider,
-    height: height || "100%",
-    width: width || "100%",
+  ({
+    background = theme.colors.backgroundDivider,
+    height = "100%",
+    width = "100%",
+    thickness = theme.borderThickness,
+  }) => ({
+    background,
+    height,
+    width,
+    thickness,
   })
 )<DividerProps>`
   ${background};
@@ -23,12 +30,12 @@ const Divider = styled.View.attrs<DividerProps>(
     if (props.vertical) {
       return css`
         height: ${props.height};
-        width: ${theme.borderThickness}px;
+        width: ${props.thickness}px;
       `;
     }
 
     return css`
-      height: ${theme.borderThickness}px;
+      height: ${props.thickness}px;
       width: ${props.width};
     `;
   }};

@@ -9,13 +9,13 @@ import {
   Greedy,
   ElevationProps,
 } from "./styled-components";
-import Layout from "./Layout";
+import Layout, { LayoutBoxProps } from "./Layout";
 
 const Surface = styled(Layout.Box).attrs(
   ({ background = theme.colors.background }: Background) => ({
     background,
   })
-)<Greedy & ElevationProps>`
+)<Greedy & ElevationProps & LayoutBoxProps>`
   ${background};
   ${elevation};
 `;

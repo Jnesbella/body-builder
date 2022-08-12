@@ -1,4 +1,6 @@
-export const initialValue = [
+import { Descendant } from "slate";
+
+export const initialValue: Descendant[] = [
   {
     type: "heading",
     children: [

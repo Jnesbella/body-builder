@@ -10,18 +10,18 @@ class ResourceService<T extends ResourceDocument> extends Service {
     return this.post<T>("new", payload);
   };
 
-  fetch = <P extends ResourceDocument>({ id }: { id: P["id"] }) => {
+  fetch = <P extends ResourceDocument>({ id }: Pick<P, "id">) => {
     return this.get<T>(id);
   };
 
   update = <P extends ResourceDocument>({
     id,
     ...payload
-  }: Partial<P> & { id: P["id"] }) => {
+  }: Partial<P> & Pick<P, "id">) => {
     return this.post<T>(id, payload);
   };
 
-  deleteOne = <P extends ResourceDocument>({ id }: { id: P["id"] }) => {
+  deleteOne = <P extends ResourceDocument>({ id }: Pick<P, "id">) => {
     return this.delete<void>(id);
   };
 
