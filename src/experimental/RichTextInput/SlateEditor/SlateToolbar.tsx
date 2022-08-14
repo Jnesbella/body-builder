@@ -68,7 +68,7 @@ function SlateToolbarItem({
     <Tooltip
       placement="right-center"
       content={<Tooltip.Text>{startCase(label)}</Tooltip.Text>}
-      leftOffset={theme.spacing + theme.borderThickness}
+      leftOffset={theme.spacing + 1}
       visiblity={tooltipDisabled ? "hidden" : "visible"}
     >
       {(tooltipProps) => (
@@ -302,7 +302,7 @@ function SlateToolbar({
         ref={tooltipRef}
         id={`SlateToolbar_Format_${name}`}
         placement="right"
-        leftOffset={theme.spacing + theme.borderThickness}
+        leftOffset={theme.spacing + 1}
         renderChildren={Tooltip.ContentFullWidth}
         content={(tooltipProps) => (
           <SlateFormatMenu

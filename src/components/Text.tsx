@@ -20,7 +20,7 @@ export interface TextProps extends Color {
   textAlign?: TextAlign;
 }
 
-const text = css<TextProps>`
+export const text = css<TextProps>`
   ${color};
   ${fontWeight};
   ${fontSize};

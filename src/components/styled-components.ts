@@ -110,12 +110,12 @@ export const spacing = css<SpacingProps>`
 `;
 
 export const fontSize = css<{ fontSize?: FontSize }>`
-  font-size: ${(props) => props.fontSize}px;
+  font-size: ${(props) => props.fontSize || FontSize.Normal}px;
   line-height: 175%;
 `;
 
 export const fontWeight = css<{ fontWeight?: FontWeight }>`
-  font-weight: ${(props) => props.fontWeight};
+  font-weight: ${(props) => props.fontWeight || FontWeight.Normal};
 `;
 
 export interface TextAlignProps {

@@ -23,14 +23,25 @@ import {
   background,
   SpacingProps,
   spacing,
+  Rounded,
+  Background,
+  Bordered,
 } from "../styled-components";
+import { text, TextProps } from "../Text";
 
 type DefaultTextInputProps = Omit<
   React.ComponentProps<typeof DefaultTextInput>,
-  "children" | "onFocus" | "onBlur"
+  "children" | "onFocus" | "onBlur" | "textAlign"
 >;
 
-export interface TextInputProps extends DefaultTextInputProps, Greedy, Full {
+export interface TextInputProps
+  extends DefaultTextInputProps,
+    Greedy,
+    Full,
+    Rounded,
+    Background,
+    TextProps,
+    Bordered {
   onPress?: PressableProps["onPress"];
   onFocus?: PressableProps["onFocus"];
   onBlur?: PressableProps["onBlur"];
@@ -46,11 +57,10 @@ const StyledTextInput = styled.TextInput.attrs({
   outline-width: 0;
   min-height: ${theme.spacing * 4}px;
 
-  ${color};
-  ${fontSize};
   ${rounded};
   ${greedy};
   ${full};
+  ${text};
 
   ${({ multiline }) => {
     if (multiline) {
@@ -72,19 +82,17 @@ export const InputOutline = styled(Layout.Box).attrs(
     hovered,
     focused,
     spacingSize = [1, 0],
-  }: PressableState & SpacingProps) => ({
-    borderColor:
-      hovered || focused ? theme.colors.primary : theme.colors.transparent,
-
-    background: focused ? theme.colors.background : theme.colors.transparent,
-
+    background = theme.colors.transparent,
+    borderColor = theme.colors.primary,
+  }: PressableState & SpacingProps & Background & Rounded & Bordered) => ({
+    borderColor: hovered || focused ? borderColor : theme.colors.transparent,
+    background: focused ? theme.colors.background : background,
     spacingSize,
   })
-)<PressableState>`
+)<PressableState & Rounded & Background & Bordered>`
   ${background};
   ${rounded};
   ${bordered};
-  ${spacing};
 `;
 
 function TextInput({
@@ -94,6 +102,10 @@ function TextInput({
   greedy,
   onPress,
   fullWidth,
+  background,
+  roundness,
+  borderColor,
+  borderWidth,
   ...textInputProps
 }: TextInputProps) {
   const textInputRef = React.useRef<DefaultTextInput>(null);
@@ -115,7 +127,15 @@ function TextInput({
       fullWidth={fullWidth}
     >
       {(pressableProps: PressableState & PressableActions) => (
-        <InputOutline {...pressableProps} greedy={greedy} fullWidth={fullWidth}>
+        <InputOutline
+          {...pressableProps}
+          greedy={greedy}
+          fullWidth={fullWidth}
+          background={background}
+          roundness={roundness}
+          borderColor={borderColor}
+          borderWidth={borderWidth}
+        >
           <StyledTextInput
             {...(textInputProps as unknown as any)}
             ref={textInputRef}
