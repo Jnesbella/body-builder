@@ -1,15 +1,19 @@
 import * as React from "react";
 import { Descendant, Editor as DefaultEditor } from "slate";
 
+import { useSetRef } from "../../hooks";
+import { log } from "../../utils";
+
 import SlateEditor, {
   Editor,
   SlateEditorFooter,
   SlateEditorElement,
   SlateEditorProps,
 } from "./SlateEditor";
+import Toolbar from "./RichTextToolbar";
 
 export interface RichTextInputElement {
-  editor?: DefaultEditor;
+  getEditor: () => DefaultEditor | undefined;
 }
 
 export interface RichTextInputProps {
@@ -28,17 +32,20 @@ const RichTextInput = React.forwardRef<
 >(({ onChange, disabled, placeholder, onFocus, name, onBlur, value }, ref) => {
   const editorRef = React.useRef<SlateEditorElement>(null);
 
-  React.useEffect(() => {
-    const element: RichTextInputElement = {
-      editor: editorRef.current?.editor,
-    };
+  const element: RichTextInputElement = {
+    getEditor: () => editorRef.current?.editor,
+  };
 
-    if (typeof ref === "function") {
-      ref(element);
-    } else if (ref) {
-      ref.current = element;
-    }
-  });
+  useSetRef(ref, element);
+
+  // React.useEffect(() => {
+
+  //   if (typeof ref === "function") {
+  //     ref(element);
+  //   } else if (ref) {
+  //     ref.current = element;
+  //   }
+  // });
 
   return (
     <SlateEditor
@@ -56,8 +63,10 @@ const RichTextInput = React.forwardRef<
 
 type RichTextInput = typeof RichTextInput & {
   Footer: typeof SlateEditorFooter;
+  Toolbar: typeof Toolbar;
 };
 
 (RichTextInput as RichTextInput).Footer = SlateEditorFooter;
+(RichTextInput as RichTextInput).Toolbar = Toolbar;
 
 export default RichTextInput as RichTextInput;

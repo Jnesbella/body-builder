@@ -28,6 +28,7 @@ import * as Icons from "react-bootstrap-icons";
 import { ScrollView } from "react-native";
 import styled from "styled-components/native";
 import { isNumber } from "lodash";
+import { Descendant } from "slate";
 
 const TitleBar = styled(Surface).attrs({ elevation: 1 })`
   ${zIndex("aboveAll")};
@@ -48,7 +49,7 @@ const PageContainer = styled(Layout.Box)`
 interface Page {
   id: string;
   title: string;
-  content?: string;
+  content?: Descendant[];
   index?: number;
 }
 
@@ -205,7 +206,7 @@ function Page({
   );
 }
 
-const initialValue = JSON.stringify([
+const initialValue: Descendant[] = [
   {
     type: "heading",
     children: [
@@ -254,7 +255,7 @@ const initialValue = JSON.stringify([
       },
     ],
   },
-]);
+];
 
 function RichTextEdtiorExample() {
   const [isTableOfContentsVisible, setIsTableOfContentsVisible] =

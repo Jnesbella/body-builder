@@ -19,6 +19,7 @@ export { default as SelectInput } from "./SelectInput";
 export { default as Portal } from "./Portal";
 export { default as Tooltip } from "./Tooltip";
 export { default as Menu } from "./Menu";
+export { default as ScrollView } from "./ScrollView";
 
 export * from "./styled-components";
 export * from "./Flubber";
@@ -37,3 +38,4 @@ export * from "./SelectInput";
 export * from "./Portal/Portal";
 export * from "./Tooltip";
 export * from "./Menu";
+export * from "./ScrollView";

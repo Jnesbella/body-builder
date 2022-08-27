@@ -9,7 +9,7 @@ import {
 } from "../../../components";
 
 // import SlateEditor from "./SlateEditor";
-import { Editor } from "./slate";
+import { Editor } from "./customSlate";
 import SlateButton from "./SlateButton";
 
 // const IconButton = styled(DefaultIconButton)<{ isActive?: boolean }>``;

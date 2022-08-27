@@ -22,7 +22,7 @@ import styled from "styled-components/native";
 import SlateElement from "./SlateElement";
 import SlateLeaf from "./SlateLeaf";
 import { HOTKEYS, DEFAULT_VALUE } from "./slateConstants";
-import { Editor, Element } from "./slate";
+import { Editor, Element } from "./customSlate";
 import { theme } from "../../../styles";
 import { InputOutline } from "../../../components/TextInput";
 import Pressable from "../../Pressable";
@@ -35,7 +35,10 @@ import {
   Surface,
   useTooltipActions,
 } from "../../../components";
-import SlateToolbar from "./SlateToolbar";
+import SlateToolbar from "../RichTextToolbar/RichTextToolbar";
+import { useSetRef } from "../../../hooks";
+
+export const SLATE_EDITOR_MIN_HEIGHT = 300;
 
 const InputPressable = styled(Pressable)`
   overflow: hidden;
@@ -48,14 +51,12 @@ export interface SlateEditorProps {
   onChange?: (value: Descendant[]) => void;
   disabled?: boolean;
   maxLength?: number;
-  toolbar?: React.ReactNode;
   characterCount?: React.DetailedReactHTMLElement<any, HTMLElement>;
   readonly?: boolean;
   onFocus?: () => void;
   onBlur?: () => void;
   children?: (props: { children: React.ReactNode }) => JSX.Element;
   renderEditable?: (props: React.PropsWithChildren<{}>) => JSX.Element;
-  footer?: React.ReactNode;
   isFocused?: boolean;
   name?: string;
 }
@@ -76,7 +77,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       readonly,
       onFocus,
       onBlur,
-      footer,
       name = "",
     },
     ref
@@ -104,17 +104,20 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       ReactEditor.blur(editor);
     };
 
-    React.useEffect(function handleRef() {
-      const element: SlateEditorElement = {
-        focus,
-      };
+    const element: SlateEditorElement = {
+      focus,
+      editor,
+    };
 
-      if (typeof ref === "function") {
-        ref(element);
-      } else if (ref && "current" in ref) {
-        ref.current = element;
-      }
-    });
+    useSetRef(ref, element);
+
+    // React.useEffect(function handleRef() {
+    //   if (typeof ref === "function") {
+    //     ref(element);
+    //   } else if (ref && "current" in ref) {
+    //     ref.current = element;
+    //   }
+    // });
 
     // React.useEffect(() => {
     //   if (!valueProp) return;
@@ -336,8 +339,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       }
     };
 
-    const gutter = <Space spacingSize={6.25} />;
-
     return (
       <Slate editor={editor} value={value} onChange={onChange}>
         <InputPressable
@@ -357,76 +358,54 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
               {...pick(pressableProps, ["focused", "pressed", "hovered"])}
               spacingSize={0}
             >
-              <Layout.Row>
-                <Layout.Row opacity={pressableProps.focused ? 1 : 0}>
-                  <Surface elevation={0.5}>
-                    <Layout.Row fullHeight>
-                      <Layout.Box spacingSize={1}>
-                        <SlateToolbar
-                          name={name}
-                          editor={editor}
-                          disabled={!pressableProps.focused}
-                          tooltipsDisabled={!pressableProps.focused}
-                          onFocusItem={pressableProps.focus}
-                        />
-                      </Layout.Box>
-
-                      <Divider vertical height="100%" thickness={1} />
-                    </Layout.Row>
-                  </Surface>
-
-                  <Space />
-                </Layout.Row>
-
-                <Layout.Box spacingSize={[0, 0.5]} greedy>
-                  <Editable
-                    placeholder={placeholder}
-                    className="editable"
-                    readOnly={readonly || disabled}
-                    renderElement={renderElement}
-                    renderLeaf={renderLeaf}
-                    renderPlaceholder={(placeholderProps) => {
-                      return (
-                        <DefaultPlaceholder
-                          {...placeholderProps}
-                          attributes={{
-                            ...placeholderProps.attributes,
-                            style: {
-                              ...placeholderProps.attributes.style,
-                              opacity: 1,
-                              color: theme.colors.textPlaceholder,
-                            },
-                          }}
-                        />
-                      );
-                    }}
-                    spellCheck
-                    onKeyDown={handleKeyDown}
-                    onDOMBeforeInput={(event) => {
-                      onDOMBeforeInput(event as DragEvent & InputEvent);
-                    }}
-                    onClick={() => {
-                      blurTooltip(`SlateToolbar_Format_${name}`);
-                    }}
-                    onFocus={() => {
-                      // pressableProps.focus();
-                    }}
-                    onBlur={() => {
-                      pressableProps.blur();
-                    }}
-                    style={{
-                      flex: 1,
-                    }}
-                  />
-                </Layout.Box>
-
-                {gutter}
-              </Layout.Row>
+              <Layout.Box
+                spacingSize={[1, 0.5]}
+                greedy
+                style={{ minHeight: SLATE_EDITOR_MIN_HEIGHT }}
+              >
+                <Editable
+                  placeholder={placeholder}
+                  className="editable"
+                  readOnly={readonly || disabled}
+                  renderElement={renderElement}
+                  renderLeaf={renderLeaf}
+                  renderPlaceholder={(placeholderProps) => {
+                    return (
+                      <DefaultPlaceholder
+                        {...placeholderProps}
+                        attributes={{
+                          ...placeholderProps.attributes,
+                          style: {
+                            ...placeholderProps.attributes.style,
+                            opacity: 1,
+                            color: theme.colors.textPlaceholder,
+                          },
+                        }}
+                      />
+                    );
+                  }}
+                  spellCheck
+                  onKeyDown={handleKeyDown}
+                  onDOMBeforeInput={(event) => {
+                    onDOMBeforeInput(event as DragEvent & InputEvent);
+                  }}
+                  onClick={() => {
+                    blurTooltip(`SlateToolbar_Format_${name}`);
+                  }}
+                  onFocus={() => {
+                    // pressableProps.focus();
+                  }}
+                  onBlur={() => {
+                    pressableProps.blur();
+                  }}
+                  style={{
+                    flex: 1,
+                  }}
+                />
+              </Layout.Box>
             </InputOutline>
           )}
         </InputPressable>
-
-        {footer}
       </Slate>
     );
   }

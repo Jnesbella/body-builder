@@ -78,6 +78,7 @@ export interface TooltipProps {
   onShow?: () => void;
   onHide?: () => void;
   visiblity?: "hidden" | "visible";
+  visible?: boolean;
 }
 
 const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
@@ -94,6 +95,7 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       onShow,
       onHide,
       visiblity = "visible",
+      visible: isVisibleProp,
     },
     ref
   ) => {
@@ -121,9 +123,9 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
 
     const focusedTooltipId = useTooltipState((state) => state.focusedTooltipId);
 
-    const isFocused = id ? isTooltipFocused(id) : true;
+    const isFocused = id ? isTooltipFocused(id) : false;
 
-    const isVisible = isFocused && visiblity === "visible";
+    const isVisible = (isVisibleProp || isFocused) && visiblity === "visible";
 
     const isVisibleCache = React.useRef(isVisible);
 

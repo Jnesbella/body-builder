@@ -1,5 +1,3 @@
-import { get } from "lodash";
-import * as React from "react";
 import {
   Element as DefaultElement,
   Node,

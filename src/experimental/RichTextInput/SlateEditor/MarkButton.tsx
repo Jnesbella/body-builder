@@ -7,7 +7,7 @@ import {
   IconButtonProps as DefaultIconButtonProps,
 } from "../../../components";
 import { MarkType } from "../../../typings-slate";
-import { Editor } from "./slate";
+import { Editor } from "./customSlate";
 
 import SlateButton from "./SlateButton";
 

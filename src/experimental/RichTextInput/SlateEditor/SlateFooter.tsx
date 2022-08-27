@@ -4,7 +4,7 @@ import * as Icons from "react-bootstrap-icons";
 
 import { Divider, Layout, Text } from "../../../components";
 import { useSlate } from "slate-react";
-import { Editor } from "./slate";
+import { Editor } from "./customSlate";
 
 // const Container = styled.div`
 //   display: flex;

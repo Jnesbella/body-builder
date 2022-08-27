@@ -19,7 +19,7 @@ import {
 import MarkButton, { MarkButtonProps } from "./MarkButton";
 import BlockButton, { BlockButtonProps } from "./BlockButton";
 import { FORMAT_TYPES } from "./slateConstants";
-import { Editor, Element } from "./slate";
+import { Editor, Element } from "./customSlate";
 
 export interface SlateToolbarProps {
   disabled?: boolean;

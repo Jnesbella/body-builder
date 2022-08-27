@@ -47,11 +47,19 @@ export function useTooltipActions<Output>(
   return selector(state);
 }
 
+export interface TooltipProviderChildrenProps
+  extends TooltipState,
+    TooltipActions {}
+
 export type TooltipProviderElement = HTMLDivElement &
   TooltipState &
   TooltipActions;
 
-export interface TooltipProviderProps extends PortalProviderProps {}
+export interface TooltipProviderProps
+  extends Omit<PortalProviderProps, "children"> {
+  children: React.ReactNode;
+  // | ((props: TooltipProviderChildrenProps) => React.ReactNode);
+}
 
 const TooltipProvider = React.forwardRef<
   TooltipProviderElement,
@@ -112,6 +120,14 @@ const TooltipProvider = React.forwardRef<
     getTopOffset,
     getLeftOffset,
   };
+
+  // const childrenProps: TooltipProviderChildrenProps = {
+  //   ...actions,
+  //   ...state,
+  // };
+
+  // const renderChildren = () =>
+  //   typeof children === "function" ? children(childrenProps) : children;
 
   return (
     <Portal.Provider

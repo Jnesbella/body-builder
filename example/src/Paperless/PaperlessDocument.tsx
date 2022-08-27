@@ -21,9 +21,11 @@ import {
   log,
   TooltipProviderElement,
   ButtonElement,
+  RichTextInput,
+  ScrollView,
 } from "@jnesbella/body-builder";
 import * as Icons from "react-bootstrap-icons";
-import { ScrollView } from "react-native";
+// import { ScrollView } from "react-native";
 import styled from "styled-components/native";
 
 import { initialValue } from "./paperlessConstants";
@@ -32,6 +34,8 @@ import { PaperlessPage } from "./paperlessTypes";
 import Page, { PaperlessPageElement } from "./PaperlessPage";
 import Measure, { MeasureElement } from "./Measure";
 import { range, sum } from "lodash";
+import { ReactEditor } from "slate-react";
+import { CustomEditor } from "../../../dist/typings-slate";
 
 const TitleBarContainer = styled(Surface).attrs({ elevation: 1 })`
   ${zIndex("aboveAll")};
@@ -55,6 +59,8 @@ function PaperlessDocument() {
     number | undefined
   >();
 
+  const [editor, setEditor] = React.useState<CustomEditor>();
+
   const tooltipRef = React.useRef<TooltipElement>(null);
 
   const threeDotsMenuButtonRef = React.useRef<ButtonElement>(null);
@@ -63,16 +69,23 @@ function PaperlessDocument() {
 
   const addPage = () => setPages((prevPages) => [...prevPages, createPage()]);
 
-  const pagesRef = React.useRef<Record<number, MeasureElement | null>>(
-    pages.reduce((memo, _page, index) => ({ ...memo, [index]: null }), {})
+  const numPages = pages.length;
+
+  const pageRefs = React.useMemo(
+    () => new Array(pages.length).fill(React.createRef<PaperlessPageElement>()),
+    [numPages]
   );
+
+  const pagesMeasurementsRef = React.useRef<
+    Record<number, MeasureElement | null>
+  >(pages.reduce((memo, _page, index) => ({ ...memo, [index]: null }), {}));
 
   const scrollViewRef = React.useRef<ScrollView>(null);
 
   const scrollToPage = (pageIndex: number) => {
     const y = sum(
       range(pageIndex).map(
-        (index) => pagesRef.current[index]?.layout?.height || 0
+        (index) => pagesMeasurementsRef.current[index]?.layout?.height || 0
       )
     );
 
@@ -223,7 +236,7 @@ function PaperlessDocument() {
         <Measure
           key={page.id}
           ref={(node) => {
-            pagesRef.current[index] = node;
+            pagesMeasurementsRef.current[index] = node;
           }}
         >
           <Layout.Row justifyContent="center">
@@ -233,10 +246,16 @@ function PaperlessDocument() {
           <Layout.Box spacingSize={[0, 0.5]} alignItems="center">
             <PageWrapper>
               <Page
+                ref={pageRefs[index]}
                 page={page}
                 pageNum={index + 1}
                 isFocused={focusedPageIndex === index}
-                onFocus={() => setFocusedPageIndex(index)}
+                onFocus={() => {
+                  setFocusedPageIndex(index);
+                  const nextEditor = pageRefs[index].current?.getEditor();
+
+                  setEditor(nextEditor);
+                }}
                 pageCount={pages.length}
                 onChange={(page) =>
                   setPages((prevPages) => [
@@ -299,6 +318,23 @@ function PaperlessDocument() {
         {titleBar}
 
         <Layout.Row greedy>
+          <Surface fullHeight>
+            <ScrollView>
+              {({ contentOffset }) => (
+                <React.Fragment>
+                  {/* <Tooltip.Provider> */}
+                  <Layout.Box spacingSize={1}>
+                    <RichTextInput.Toolbar
+                      editor={editor}
+                      topOffset={-(contentOffset?.y || 0)}
+                    />
+                  </Layout.Box>
+                  {/* </Tooltip.Provider> */}
+                </React.Fragment>
+              )}
+            </ScrollView>
+          </Surface>
+
           <ScrollView ref={scrollViewRef} contentContainerStyle={{ flex: 1 }}>
             <Tooltip.Provider ref={tooltipProviderRef}>
               {pagesContent}

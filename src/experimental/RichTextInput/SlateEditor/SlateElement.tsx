@@ -16,7 +16,7 @@ import {
 } from "../../../components";
 import { FormatElement, ListItemElement } from "../../../typings-slate";
 import { log } from "../../../utils";
-import { Editor, Element } from "./slate";
+import { Editor, Element } from "./customSlate";
 import { Node, Transforms } from "slate";
 import { isNumber, last } from "lodash";
 import { theme } from "../../../styles";

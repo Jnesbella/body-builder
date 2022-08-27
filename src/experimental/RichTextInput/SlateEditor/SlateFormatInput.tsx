@@ -5,7 +5,7 @@ import { IconButton, Layout, Tooltip } from "../../../components";
 import { theme } from "../../../styles";
 
 import { FORMAT_TYPES } from "./slateConstants";
-import { Editor, Element } from "./slate";
+import { Editor, Element } from "./customSlate";
 
 import {
   CustomEditor,
@@ -34,16 +34,14 @@ function SlateFormatInput({
       content={<SlateFormatMenu {...slateFormatMenuProps} />}
       placement="right"
     >
-      {({ onBlur, onFocus, onLayout, onPress }) => (
-        <Layout.Box onLayout={onLayout}>
-          <IconButton
-            size="small"
-            icon={Icons.Type}
-            onBlur={onBlur}
-            onFocus={onFocus}
-            onPress={onPress}
-          />
-        </Layout.Box>
+      {({ onBlur, onFocus, onPress }) => (
+        <IconButton
+          size="small"
+          icon={Icons.Type}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          onPress={onPress}
+        />
       )}
     </Tooltip>
   );

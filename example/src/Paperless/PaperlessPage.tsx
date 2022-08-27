@@ -16,19 +16,23 @@ import {
   setRef,
   log,
   ButtonElement,
+  useSetRef,
+  RichTextInputElement,
 } from "@jnesbella/body-builder";
 import * as Icons from "react-bootstrap-icons";
 import styled from "styled-components/native";
 import { isNumber } from "lodash";
 import { LayoutChangeEvent, LayoutRectangle } from "react-native";
 import { PaperlessPage as Page } from "./paperlessTypes";
+import { ReactEditor } from "slate-react";
 
 const PaperlessPageContainer = styled(Layout.Box)`
   overflow: hidden;
 `;
 
 export interface PaperlessPageElement {
-  layout?: LayoutRectangle;
+  // layout?: LayoutRectangle;
+  getEditor?: () => ReactEditor | undefined;
 }
 
 // interface Page {
@@ -50,87 +54,82 @@ export interface PaperlessPageProps {
 const PaperlessPage = React.forwardRef<
   PaperlessPageElement,
   PaperlessPageProps
->(
-  (
-    {
-      page,
-      isFocused,
-      // onFocus,
-      pageCount,
-      onChange,
-      pageNum,
-    },
-    ref
-  ) => {
-    const [isTitleFocused, setIsTitleFocused] = React.useState(false);
+>(({ page, isFocused, onFocus, pageCount, onChange, pageNum }, ref) => {
+  const [isTitleFocused, setIsTitleFocused] = React.useState(false);
 
-    const [isContentFocused, setIsContentFocused] = React.useState(false);
+  const [isContentFocused, setIsContentFocused] = React.useState(false);
 
-    const tooltipRef = React.useRef<TooltipElement>(null);
+  const tooltipRef = React.useRef<TooltipElement>(null);
 
-    const [layout, setLayout] = React.useState<LayoutRectangle>();
+  const [layout, setLayout] = React.useState<LayoutRectangle>();
 
-    const element: PaperlessPageElement = {
-      layout,
-    };
+  const richTextEditorRef = React.useRef<RichTextInputElement>(null);
 
-    React.useEffect(function handleRef() {
-      setRef(ref, element);
-    });
+  const element: PaperlessPageElement = {
+    // layout,
+    getEditor: () => richTextEditorRef.current?.getEditor(),
+  };
 
-    const threeDotsMenuButtonRef = React.useRef<ButtonElement>(null);
+  // React.useEffect(function handleRef() {
+  //   setRef(ref, element);
+  // });
 
-    return (
-      // <PaperlessPageContainer
-      // // onLayout={(event) => setLayout(event.nativeEvent.layout)}
-      // >
-      <Pressable
-        isFocused={isTitleFocused || isContentFocused}
-        // id={`Page_${pageNum}`}
-        onBlur={() => {
-          tooltipRef.current?.hide();
-        }}
-        // focusOnPress
-        // focusable={false}
-        // focusOn="none"
-      >
-        {(pressableProps) => (
-          <Layout.Column>
-            <Surface spacingSize={1}>
-              <Layout.Row alignItems="center">
-                <Layout.Box greedy>
-                  <TextInput
-                    value={page.title}
-                    onChangeText={(text) =>
-                      onChange?.({ ...page, title: text })
-                    }
-                    fullWidth
-                    placeholder={
-                      pressableProps.hovered || pressableProps.focused
-                        ? "Untitled"
-                        : ""
-                    }
-                    onFocus={() => {
-                      setIsTitleFocused(true);
-                      tooltipRef.current?.hide();
-                    }}
-                    onBlur={() => {
-                      setIsTitleFocused(false);
-                    }}
-                  />
-                </Layout.Box>
+  useSetRef(ref, element);
 
-                <Space />
+  const threeDotsMenuButtonRef = React.useRef<ButtonElement>(null);
 
-                <Tooltip
-                  ref={tooltipRef}
-                  onHide={() => {
-                    threeDotsMenuButtonRef.current?.blur();
+  return (
+    // <PaperlessPageContainer
+    // // onLayout={(event) => setLayout(event.nativeEvent.layout)}
+    // >
+    <Pressable
+      isFocused={isTitleFocused || isContentFocused}
+      // id={`Page_${pageNum}`}
+      onBlur={() => {
+        tooltipRef.current?.hide();
+      }}
+      // onFocus={() => {
+      //   onFocus?.();
+      // }}
+      // focusOnPress
+      // focusable={false}
+      // focusOn="none"
+    >
+      {(pressableProps) => (
+        <Layout.Column>
+          <Surface spacingSize={1}>
+            <Layout.Row alignItems="center">
+              <Layout.Box greedy>
+                <TextInput
+                  value={page.title}
+                  onChangeText={(text) => onChange?.({ ...page, title: text })}
+                  fullWidth
+                  placeholder={
+                    pressableProps.hovered || pressableProps.focused
+                      ? "Untitled"
+                      : ""
+                  }
+                  onFocus={() => {
+                    setIsTitleFocused(true);
+                    tooltipRef.current?.hide();
                   }}
-                  placement="left"
-                  content={(tooltipProps) => (
-                    <Menu elevation={1}>
-                      {/* <Menu.Item
+                  onBlur={() => {
+                    setIsTitleFocused(false);
+                  }}
+                />
+              </Layout.Box>
+
+              <Space />
+
+              <Tooltip
+                ref={tooltipRef}
+                onHide={() => {
+                  threeDotsMenuButtonRef.current?.blur();
+                }}
+                placement="left"
+                content={(tooltipProps) => (
+                  <Menu elevation={1}>
+                    {/* <Menu.Item
                         onPress={() => {
                           tooltipProps.hide();
                         }}
@@ -144,73 +143,74 @@ const PaperlessPage = React.forwardRef<
                         </Layout.Row>
                       </Menu.Item> */}
 
-                      <Menu.Item
-                        onPress={() => {
-                          tooltipProps.hide();
-                        }}
-                      >
-                        <Layout.Row alignItems="center">
-                          <Icon icon={Icons.Trash} size={Icon.size.small} />
-
-                          <Space />
-
-                          <Menu.Text>Delete</Menu.Text>
-                        </Layout.Row>
-                      </Menu.Item>
-                    </Menu>
-                  )}
-                >
-                  {(tooltipProps) => (
-                    <Layout.Box
-                      opacity={
-                        pressableProps.hovered || pressableProps.focused ? 1 : 0
-                      }
+                    <Menu.Item
+                      onPress={() => {
+                        tooltipProps.hide();
+                      }}
                     >
-                      <IconButton
-                        ref={threeDotsMenuButtonRef}
-                        size="small"
-                        icon={Icons.ThreeDotsVertical}
-                        onPress={() => {
-                          tooltipProps.onPress();
-                        }}
-                        isFocused={tooltipProps.focused}
-                        onBlur={() => {
-                          tooltipProps.onBlur();
-                        }}
-                        // focusable={false}
-                        // focusOn="none"
-                      />
-                    </Layout.Box>
-                  )}
-                </Tooltip>
-              </Layout.Row>
+                      <Layout.Row alignItems="center">
+                        <Icon icon={Icons.Trash} size={Icon.size.small} />
 
-              <Space spacingSize={1} />
+                        <Space />
 
-              <RichTextInput
-                name={`page-${page.id}`}
-                value={page.content}
-                placeholder={
-                  pressableProps.hovered || pressableProps.focused
-                    ? "Write here"
-                    : ""
-                }
-                onFocus={() => {
-                  setIsContentFocused(true);
-                  tooltipRef.current?.hide();
-                }}
-                onBlur={() => {
-                  setIsContentFocused(false);
-                }}
-                onChange={(content) => onChange?.({ ...page, content })}
-              />
-            </Surface>
-          </Layout.Column>
-        )}
-      </Pressable>
-      // </PaperlessPageContainer>
-    );
-  }
-);
+                        <Menu.Text>Delete</Menu.Text>
+                      </Layout.Row>
+                    </Menu.Item>
+                  </Menu>
+                )}
+              >
+                {(tooltipProps) => (
+                  <Layout.Box
+                    opacity={
+                      pressableProps.hovered || pressableProps.focused ? 1 : 0
+                    }
+                  >
+                    <IconButton
+                      ref={threeDotsMenuButtonRef}
+                      size="small"
+                      icon={Icons.ThreeDotsVertical}
+                      onPress={() => {
+                        tooltipProps.onPress();
+                      }}
+                      isFocused={tooltipProps.focused}
+                      onBlur={() => {
+                        tooltipProps.onBlur();
+                      }}
+                      // focusable={false}
+                      // focusOn="none"
+                    />
+                  </Layout.Box>
+                )}
+              </Tooltip>
+            </Layout.Row>
+
+            <Space spacingSize={1} />
+
+            <RichTextInput
+              ref={richTextEditorRef}
+              name={`page-${page.id}`}
+              value={page.content}
+              placeholder={
+                pressableProps.hovered || pressableProps.focused
+                  ? "Write here"
+                  : ""
+              }
+              onFocus={() => {
+                setIsContentFocused(true);
+                tooltipRef.current?.hide();
+                onFocus?.();
+              }}
+              onBlur={() => {
+                setIsContentFocused(false);
+              }}
+              onChange={(content) => onChange?.({ ...page, content })}
+            />
+          </Surface>
+        </Layout.Column>
+      )}
+    </Pressable>
+    // </PaperlessPageContainer>
+  );
+});
 
 export default PaperlessPage;
