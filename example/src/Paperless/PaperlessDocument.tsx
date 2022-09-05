@@ -23,6 +23,7 @@ import {
   ButtonElement,
   RichTextInput,
   ScrollView,
+  useForceUpdate,
 } from "@jnesbella/body-builder";
 import * as Icons from "react-bootstrap-icons";
 // import { ScrollView } from "react-native";
@@ -33,7 +34,7 @@ import { createPage } from "./paperlessHelpers";
 import { PaperlessPage } from "./paperlessTypes";
 import Page, { PaperlessPageElement } from "./PaperlessPage";
 import Measure, { MeasureElement } from "./Measure";
-import { range, sum } from "lodash";
+import { isNumber, range, sum } from "lodash";
 import { ReactEditor } from "slate-react";
 import { CustomEditor } from "../../../dist/typings-slate";
 
@@ -59,7 +60,7 @@ function PaperlessDocument() {
     number | undefined
   >();
 
-  const [editor, setEditor] = React.useState<CustomEditor>();
+  log({ focusedPageIndex });
 
   const tooltipRef = React.useRef<TooltipElement>(null);
 
@@ -69,11 +70,40 @@ function PaperlessDocument() {
 
   const addPage = () => setPages((prevPages) => [...prevPages, createPage()]);
 
-  const numPages = pages.length;
+  const [pageElements, setPageElements] = React.useState<
+    Record<number, PaperlessPageElement | null>
+  >({});
 
-  const pageRefs = React.useMemo(
-    () => new Array(pages.length).fill(React.createRef<PaperlessPageElement>()),
-    [numPages]
+  const capturePageElement = React.useCallback(
+    (pageIndex: number, pageElement: PaperlessPageElement | null) => {
+      const { name } = pageElements?.[pageIndex] || {};
+
+      if (name !== pageElement?.name) {
+        setPageElements((prevPageElements) => ({
+          ...prevPageElements,
+          [pageIndex]: pageElement,
+        }));
+      }
+    },
+    [pageElements]
+  );
+
+  // const editor = isNumber(focusedPageIndex)
+  //   ? pageRefs?.[focusedPageIndex].current?.getEditor()
+  //   : undefined;
+
+  // const forceUpdate = useForceUpdate();
+
+  // React.useEffect(() => {
+  //   forceUpdate();
+  // }, [focusedPageIndex, forceUpdate]);
+
+  const editor = React.useMemo(
+    () =>
+      isNumber(focusedPageIndex)
+        ? pageElements?.[focusedPageIndex]?.editor
+        : undefined,
+    [pageElements, focusedPageIndex]
   );
 
   const pagesMeasurementsRef = React.useRef<
@@ -246,15 +276,22 @@ function PaperlessDocument() {
           <Layout.Box spacingSize={[0, 0.5]} alignItems="center">
             <PageWrapper>
               <Page
-                ref={pageRefs[index]}
+                ref={(pageElement) => capturePageElement(index, pageElement)}
                 page={page}
                 pageNum={index + 1}
                 isFocused={focusedPageIndex === index}
                 onFocus={() => {
                   setFocusedPageIndex(index);
-                  const nextEditor = pageRefs[index].current?.getEditor();
+                  // const nextEditor = pageRefs[index].current?.getEditor();
 
-                  setEditor(nextEditor);
+                  // setEditor(nextEditor);
+                }}
+                onBlur={() => {
+                  if (focusedPageIndex === index) {
+                    setFocusedPageIndex(undefined);
+                  }
+
+                  // setEditor(undefined);
                 }}
                 pageCount={pages.length}
                 onChange={(page) =>
@@ -321,16 +358,12 @@ function PaperlessDocument() {
           <Surface fullHeight>
             <ScrollView>
               {({ contentOffset }) => (
-                <React.Fragment>
-                  {/* <Tooltip.Provider> */}
-                  <Layout.Box spacingSize={1}>
-                    <RichTextInput.Toolbar
-                      editor={editor}
-                      topOffset={-(contentOffset?.y || 0)}
-                    />
-                  </Layout.Box>
-                  {/* </Tooltip.Provider> */}
-                </React.Fragment>
+                <Layout.Box spacingSize={1}>
+                  <RichTextInput.Toolbar
+                    editor={editor}
+                    topOffset={-(contentOffset?.y || 0)}
+                  />
+                </Layout.Box>
               )}
             </ScrollView>
           </Surface>

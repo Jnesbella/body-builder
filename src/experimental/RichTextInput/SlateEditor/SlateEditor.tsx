@@ -26,7 +26,7 @@ import { Editor, Element } from "./customSlate";
 import { theme } from "../../../styles";
 import { InputOutline } from "../../../components/TextInput";
 import Pressable from "../../Pressable";
-import { isNumber, pick } from "lodash";
+import { debounce, isNumber, pick } from "lodash";
 import { ListItemElement } from "../../../typings-slate";
 import {
   Divider,
@@ -37,6 +37,7 @@ import {
 } from "../../../components";
 import SlateToolbar from "../RichTextToolbar/RichTextToolbar";
 import { useSetRef } from "../../../hooks";
+import { log } from "../../../utils";
 
 export const SLATE_EDITOR_MIN_HEIGHT = 300;
 
@@ -62,7 +63,9 @@ export interface SlateEditorProps {
 }
 
 export interface SlateEditorElement {
+  name?: string;
   focus: () => void;
+  blur: () => void;
   editor?: DefaultEditor;
 }
 
@@ -75,13 +78,13 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       disabled,
       maxLength = -1,
       readonly,
-      onFocus,
-      onBlur,
+      onFocus: onFocusProp,
+      onBlur: onBlurProp,
       name = "",
     },
     ref
   ) => {
-    const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
+    // const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
 
     const isConstrainedByMaxLength = isNumber(maxLength) && maxLength >= 0;
 
@@ -96,34 +99,49 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
     const { selection } = editor;
 
-    const focus = () => {
-      ReactEditor.focus(editor);
-    };
+    const focus = React.useCallback(() => {
+      if (!ReactEditor.isFocused(editor)) {
+        ReactEditor.focus(editor);
+      }
+    }, [editor]);
 
-    const blur = () => {
-      ReactEditor.blur(editor);
-    };
+    const blur = React.useCallback(() => {
+      if (ReactEditor.isFocused(editor)) {
+        ReactEditor.blur(editor);
+      }
+    }, [editor]);
 
-    const element: SlateEditorElement = {
-      focus,
-      editor,
+    const element = React.useMemo<SlateEditorElement>(
+      () => ({
+        name,
+        focus,
+        blur,
+        editor,
+      }),
+      [focus, blur, editor, name]
+    );
+
+    const onBlurCache = React.useRef(onBlurProp);
+
+    React.useEffect(function handleCacheBlurHandler() {
+      onBlurCache.current = onBlurProp;
+    });
+
+    const onBlur = React.useMemo(
+      () =>
+        debounce(() => {
+          onBlurCache.current?.();
+          Transforms.deselect(editor);
+        }, 250),
+      [editor]
+    );
+
+    const onFocus = () => {
+      onBlur.cancel();
+      onFocusProp?.();
     };
 
     useSetRef(ref, element);
-
-    // React.useEffect(function handleRef() {
-    //   if (typeof ref === "function") {
-    //     ref(element);
-    //   } else if (ref && "current" in ref) {
-    //     ref.current = element;
-    //   }
-    // });
-
-    // React.useEffect(() => {
-    //   if (!valueProp) return;
-
-    //   setValue(valueProp);
-    // }, [valueProp]);
 
     const processHotkeys = (event: React.KeyboardEvent<HTMLDivElement>) => {
       // let marked = false;
@@ -180,7 +198,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     const onDOMBeforeInput = (event: DragEvent & InputEvent) => {
       const { inputType } = event;
 
-      // console.log("onDOMBeforeInput: ", { inputType, event });
+      // log("onDOMBeforeInput: ", { inputType, event });
 
       // handle paste events
       const isInsertFromPaste = event.inputType === "insertFromPaste";
@@ -343,66 +361,67 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       <Slate editor={editor} value={value} onChange={onChange}>
         <InputPressable
           focusable={false}
-          focusOnPress
-          onFocus={() => {
-            onFocus?.();
-            focus();
-          }}
-          onBlur={() => {
-            onBlur?.();
-            blur();
-          }}
+          focusOn="none"
+          // focusOnPress
+          // onFocus={() => {
+          //   log("FOCUS PRESSABLE");
+
+          //   onFocus?.();
+          //   focus();
+          // }}
+          // onBlur={() => {
+          //   log("BLUR PRESSABLE");
+
+          //   onBlur?.();
+          //   blur();
+          // }}
         >
           {(pressableProps) => (
             <InputOutline
               {...pick(pressableProps, ["focused", "pressed", "hovered"])}
               spacingSize={0}
             >
-              <Layout.Box
-                spacingSize={[1, 0.5]}
-                greedy
-                style={{ minHeight: SLATE_EDITOR_MIN_HEIGHT }}
-              >
-                <Editable
-                  placeholder={placeholder}
-                  className="editable"
-                  readOnly={readonly || disabled}
-                  renderElement={renderElement}
-                  renderLeaf={renderLeaf}
-                  renderPlaceholder={(placeholderProps) => {
-                    return (
-                      <DefaultPlaceholder
-                        {...placeholderProps}
-                        attributes={{
-                          ...placeholderProps.attributes,
-                          style: {
-                            ...placeholderProps.attributes.style,
-                            opacity: 1,
-                            color: theme.colors.textPlaceholder,
-                          },
-                        }}
-                      />
-                    );
-                  }}
-                  spellCheck
-                  onKeyDown={handleKeyDown}
-                  onDOMBeforeInput={(event) => {
-                    onDOMBeforeInput(event as DragEvent & InputEvent);
-                  }}
-                  onClick={() => {
-                    blurTooltip(`SlateToolbar_Format_${name}`);
-                  }}
-                  onFocus={() => {
-                    // pressableProps.focus();
-                  }}
-                  onBlur={() => {
-                    pressableProps.blur();
-                  }}
-                  style={{
-                    flex: 1,
-                  }}
-                />
-              </Layout.Box>
+              <Editable
+                placeholder={placeholder}
+                className="editable"
+                readOnly={readonly || disabled}
+                renderElement={renderElement}
+                renderLeaf={renderLeaf}
+                renderPlaceholder={(placeholderProps) => {
+                  return (
+                    <DefaultPlaceholder
+                      {...placeholderProps}
+                      attributes={{
+                        ...placeholderProps.attributes,
+                        style: {
+                          ...placeholderProps.attributes.style,
+                          opacity: 1,
+                          color: theme.colors.textPlaceholder,
+                        },
+                      }}
+                    />
+                  );
+                }}
+                spellCheck
+                onKeyDown={handleKeyDown}
+                onDOMBeforeInput={(event) => {
+                  onDOMBeforeInput(event as DragEvent & InputEvent);
+                }}
+                // onClick={() => {
+                //   blurTooltip(`SlateToolbar_Format_${name}`);
+                // }}
+                onFocus={() => {
+                  onFocus?.();
+                  pressableProps.focus();
+                }}
+                onBlur={() => {
+                  onBlur?.();
+                  pressableProps.blur();
+                }}
+                style={{
+                  padding: `${theme.spacing / 2}px ${theme.spacing}px`,
+                }}
+              />
             </InputOutline>
           )}
         </InputPressable>

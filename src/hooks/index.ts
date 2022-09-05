@@ -12,3 +12,4 @@ export { default as useAnimatedValueListener } from "./useAnimatedValueListener"
 export { default as useAnimation } from "./useAnimation";
 export { default as useId } from "./useId";
 export { default as useSetRef } from "./useSetRef";
+export { default as useForceUpdate } from "./useForceUpdate";

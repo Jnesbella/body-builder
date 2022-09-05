@@ -166,6 +166,8 @@ const ListItem = React.forwardRef<any, ListItemProps>(
     const { type: formatType } = firstChild || {};
 
     const toggleChecked = () => {
+      ReactEditor.focus(editor);
+
       Transforms.setNodes(
         editor,
         {

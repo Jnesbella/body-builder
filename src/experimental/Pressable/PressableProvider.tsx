@@ -1,15 +1,18 @@
 import * as React from "react";
-import { debounce, noop } from "lodash";
+import { debounce, DebouncedFunc, noop } from "lodash";
 
 import { PressableState as DefaultPressableState } from "../../components/componentsTypes";
 import { log } from "../../utils";
+import { useSetRef } from "../../hooks";
+
 import { useFocusActions, useFocusState } from "./FocusProvider";
 
 export interface PressableState extends DefaultPressableState {}
 
 export const PressableState = React.createContext<PressableState | null>(null);
 
-export type BlurHandler = (() => void) & { cancel: () => void };
+// export type BlurHandler = (() => void) & { cancel: () => void };
+export type BlurHandler = DebouncedFunc<() => void>;
 
 export interface PressableActions {
   focus: () => void;
@@ -58,12 +61,14 @@ export interface PressableProviderElement
   extends PressableActions,
     PressableState {}
 
+type PressableProviderRenderChildrenCallback = (
+  props: PressableProviderElement
+) => React.ReactNode;
+
 export interface PressableProviderProps {
   id: string;
 
-  children?:
-    | React.ReactNode
-    | ((props: PressableProviderElement) => React.ReactNode);
+  children?: React.ReactNode | PressableProviderRenderChildrenCallback;
   defaultState?: Partial<PressableState>;
 
   // focused
@@ -255,19 +260,13 @@ const PressableProvider = React.forwardRef<
 
     const element: PressableProviderElement = { ...actions, ...state };
 
-    React.useEffect(function handleRef() {
-      if (typeof ref === "function") {
-        ref(element);
-      } else if (ref) {
-        ref.current = element;
-      }
-    });
+    useSetRef(ref, element);
 
     return (
       <PressableState.Provider value={state}>
         <PressableActions.Provider value={actions}>
           {children && typeof children === "function"
-            ? (children as unknown as any)(element)
+            ? (children as PressableProviderRenderChildrenCallback)(element)
             : children}
         </PressableActions.Provider>
       </PressableState.Provider>

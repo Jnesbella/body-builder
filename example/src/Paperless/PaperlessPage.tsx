@@ -30,10 +30,7 @@ const PaperlessPageContainer = styled(Layout.Box)`
   overflow: hidden;
 `;
 
-export interface PaperlessPageElement {
-  // layout?: LayoutRectangle;
-  getEditor?: () => ReactEditor | undefined;
-}
+export interface PaperlessPageElement extends RichTextInputElement {}
 
 // interface Page {
 //   id: string;
@@ -49,12 +46,13 @@ export interface PaperlessPageProps {
   pageCount?: number;
   onChange?: (page: Page) => void;
   pageNum?: number;
+  onBlur?: () => void;
 }
 
 const PaperlessPage = React.forwardRef<
   PaperlessPageElement,
   PaperlessPageProps
->(({ page, isFocused, onFocus, pageCount, onChange, pageNum }, ref) => {
+>(({ page, onFocus, onChange, onBlur }, ref) => {
   const [isTitleFocused, setIsTitleFocused] = React.useState(false);
 
   const [isContentFocused, setIsContentFocused] = React.useState(false);
@@ -63,18 +61,9 @@ const PaperlessPage = React.forwardRef<
 
   const [layout, setLayout] = React.useState<LayoutRectangle>();
 
-  const richTextEditorRef = React.useRef<RichTextInputElement>(null);
-
-  const element: PaperlessPageElement = {
-    // layout,
-    getEditor: () => richTextEditorRef.current?.getEditor(),
-  };
-
   // React.useEffect(function handleRef() {
   //   setRef(ref, element);
   // });
-
-  useSetRef(ref, element);
 
   const threeDotsMenuButtonRef = React.useRef<ButtonElement>(null);
 
@@ -187,7 +176,7 @@ const PaperlessPage = React.forwardRef<
             <Space spacingSize={1} />
 
             <RichTextInput
-              ref={richTextEditorRef}
+              ref={ref}
               name={`page-${page.id}`}
               value={page.content}
               placeholder={
@@ -202,6 +191,7 @@ const PaperlessPage = React.forwardRef<
               }}
               onBlur={() => {
                 setIsContentFocused(false);
+                onBlur?.();
               }}
               onChange={(content) => onChange?.({ ...page, content })}
             />
