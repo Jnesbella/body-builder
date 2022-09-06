@@ -8,9 +8,14 @@ import { Editor, Element } from "./customSlate";
 
 export function useSetFormatElement({ editor }: { editor?: DefaultEditor }) {
   const setFormatElement = React.useCallback(
-    ({ type }: Partial<FormatElement>) => {
-      if (type && editor) {
-        Editor.setFormatElement(editor, { type });
+    (
+      updates: {
+        type?: FormatElement["type"];
+        textAlign?: FormatElement["textAlign"];
+      } = {}
+    ) => {
+      if (editor) {
+        Editor.setFormatElement(editor, updates);
       }
     },
     [editor]
@@ -43,4 +48,30 @@ export function useActiveFormat({
   })();
 
   return activeFormatType;
+}
+
+export function useActiveTextAlign({
+  editor,
+}: {
+  editor?: DefaultEditor;
+} = {}) {
+  const activeTextAlign: FormatElement["textAlign"] = (() => {
+    if (editor) {
+      const [match] =
+        Editor.nodes(editor, {
+          match: (node) =>
+            !Editor.isEditor(node) &&
+            Element.isElement(node) &&
+            Element.isFormatElement(node),
+          mode: "lowest",
+        }) || [];
+      const [element] = match || [];
+
+      const { textAlign } = (element as FormatElement) || {};
+
+      return textAlign;
+    }
+  })();
+
+  return activeTextAlign || "left";
 }

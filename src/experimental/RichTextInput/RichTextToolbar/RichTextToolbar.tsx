@@ -12,6 +12,7 @@ import {
   Tooltip,
   TooltipElement,
   TooltipProps,
+  useTooltipActions,
 } from "../../../components";
 import { theme } from "../../../styles";
 import { ListElement } from "../../../typings-slate";
@@ -21,9 +22,11 @@ import { BlockButtonProps } from "../SlateEditor/BlockButton";
 import { Editor } from "../SlateEditor/customSlate";
 import {
   useActiveFormat,
+  useActiveTextAlign,
   useSetFormatElement,
 } from "../SlateEditor/slateHooks";
 import SlateFormatMenu from "../SlateEditor/SlateFormatMenu";
+import SlateTextAlignMenu from "../SlateEditor/SlateTextAlignMenu";
 
 import ToolbarItem from "./RichTextToolbarItem";
 
@@ -38,7 +41,7 @@ export interface RichTextToolbarProps {
 
 function RichTextToolbar({
   editor,
-  name,
+  // name,
   disabled,
   tooltipsDisabled,
   onFocusItem,
@@ -48,6 +51,8 @@ function RichTextToolbar({
 
   const [isExpanded, setIsExpanded] = React.useState(false);
   const expanded = isExpanded; // && isFocused;
+
+  const blurTooltip = useTooltipActions((actions) => actions.blurTooltip);
 
   const setFormatElement = useSetFormatElement({ editor });
 
@@ -137,6 +142,24 @@ function RichTextToolbar({
 
   const activeFormat = useActiveFormat({ editor });
 
+  const activeTextAlign = useActiveTextAlign({ editor });
+
+  const textAlignIcon = (() => {
+    switch (activeTextAlign) {
+      case "center":
+        return Icons.TextCenter;
+
+      case "right":
+        return Icons.TextRight;
+
+      case "justify":
+        return Icons.Justify;
+
+      default:
+        return Icons.TextLeft;
+    }
+  })();
+
   const undo = () => {
     if (editor) {
       HistoryEditor.undo(editor);
@@ -202,7 +225,7 @@ function RichTextToolbar({
       <Tooltip
         topOffset={topOffset}
         ref={tooltipRef}
-        id={`RichTextToolbar_Format_${name}`}
+        // id={`RichTextToolbar_Format_${name}`}
         placement="right"
         leftOffset={theme.spacing + 1}
         renderChildren={Tooltip.ContentFullWidth}
@@ -235,6 +258,48 @@ function RichTextToolbar({
             onFocus={onFocusItem}
             editor={editor}
             topOffset={topOffset}
+            onHoverOver={blurTooltip}
+          />
+        )}
+      </Tooltip>
+
+      <Tooltip
+        topOffset={topOffset}
+        ref={tooltipRef}
+        // id={`RichTextToolbar_Format_${name}`}
+        placement="right"
+        leftOffset={theme.spacing + 1}
+        renderChildren={Tooltip.ContentFullWidth}
+        content={(tooltipProps) => (
+          <SlateTextAlignMenu
+            disabled={disabled}
+            value={activeTextAlign}
+            onChange={(textAlign) => {
+              setFormatElement({ textAlign });
+
+              if (editor) {
+                ReactEditor.focus(editor);
+              }
+
+              tooltipProps.hide();
+            }}
+            onFocus={onFocusItem}
+          />
+        )}
+      >
+        {(tooltipProps) => (
+          <ToolbarItem
+            tooltipDisabled={tooltipsDisabled}
+            disabled={disabled || !editor}
+            isExpanded={expanded}
+            isHovered={tooltipProps.focused}
+            icon={textAlignIcon}
+            label={startCase(activeTextAlign)}
+            onPress={tooltipProps.onPress}
+            onFocus={onFocusItem}
+            editor={editor}
+            topOffset={topOffset}
+            onHoverOver={blurTooltip}
           />
         )}
       </Tooltip>

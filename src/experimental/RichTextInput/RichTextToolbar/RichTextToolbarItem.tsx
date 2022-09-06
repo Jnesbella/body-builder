@@ -30,6 +30,8 @@ interface RichTextToolbarItemProps {
   id?: IconButtonProps["id"];
   editor?: ReactEditor;
   topOffset?: TooltipProps["topOffset"];
+  onHoverOver?: IconButtonProps["onHoverOver"];
+  onHoverOut?: IconButtonProps["onHoverOut"];
 }
 
 function RichTextToolbarItem({
@@ -47,6 +49,8 @@ function RichTextToolbarItem({
   id,
   editor,
   topOffset,
+  onHoverOver,
+  onHoverOut,
 }: RichTextToolbarItemProps) {
   const iconButton = (
     <Tooltip
@@ -68,16 +72,13 @@ function RichTextToolbarItem({
           focusOn="none"
           onPress={() => {
             onPress?.();
+
             if (editor) {
               ReactEditor.focus(editor);
             }
           }}
-          onFocus={() => {
-            onFocus?.();
-          }}
-          onBlur={() => {
-            onBlur?.();
-          }}
+          onFocus={onFocus}
+          onBlur={onBlur}
           onHoverOver={tooltipProps.onHoverOver}
           onHoverOut={tooltipProps.onHoverOut}
         />
@@ -102,12 +103,10 @@ function RichTextToolbarItem({
           ReactEditor.focus(editor);
         }
       }}
-      onFocus={() => {
-        onFocus?.();
-      }}
-      onBlur={() => {
-        onBlur?.();
-      }}
+      onFocus={onFocus}
+      onBlur={onBlur}
+      onHoverOut={onHoverOut}
+      onHoverOver={onHoverOver}
     >
       {(buttonProps) => (
         <Button.Container

@@ -18,7 +18,9 @@ export interface ScrollViewProps
   children?: React.ReactNode | ScrollViewRenderChildrenCallback;
 }
 
-const ScrollView = React.forwardRef<DefaultScrollView, ScrollViewProps>(
+export interface ScrollViewElement extends DefaultScrollView {}
+
+const ScrollView = React.forwardRef<ScrollViewElement, ScrollViewProps>(
   ({ onScroll, children, scrollEventThrottle = 16, ...rest }, ref) => {
     const [nativeEvent, setNativeEvent] = React.useState<NativeScrollEvent>();
 

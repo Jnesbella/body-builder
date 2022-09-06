@@ -57,12 +57,16 @@ export type LinkElement = {
   url?: string;
 };
 
-export type FormatElement =
+export type FormatElement = (
   | ParagraphElement
   | HeadingElement
   | SubheadingElement
   | LabelElement
-  | CaptionElement;
+  | CaptionElement
+) & {
+  textAlign?: "left" | "center" | "right" | "justify";
+  fontSize?: number;
+};
 
 export type ImageElement = {
   type: "image";

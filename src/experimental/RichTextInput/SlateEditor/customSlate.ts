@@ -219,7 +219,14 @@ export const Editor = {
 
   setFormatElement: (
     editor: DefaultEditor,
-    { at, ...options }: { type: FormatElement["type"]; at?: Location }
+    {
+      at,
+      ...options
+    }: {
+      type?: FormatElement["type"];
+      textAlign?: FormatElement["textAlign"];
+      at?: Location;
+    }
   ) => {
     // const [match] = Editor.nodes(editor, {
     //   match: (node) =>

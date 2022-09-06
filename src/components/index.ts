@@ -39,3 +39,4 @@ export * from "./Portal/Portal";
 export * from "./Tooltip";
 export * from "./Menu";
 export * from "./ScrollView";
+export * from "./TextInput";

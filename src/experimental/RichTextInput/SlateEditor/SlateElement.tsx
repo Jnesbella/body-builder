@@ -20,11 +20,18 @@ import { Editor, Element } from "./customSlate";
 import { Node, Transforms } from "slate";
 import { isNumber, last } from "lodash";
 import { theme } from "../../../styles";
+import { TEXT_ALIGN_DEFAULT } from "./slateConstants";
 
 export interface SlateElementProps extends RenderElementProps {}
 
+const textAlign = css`
+  text-align: ${({ textAlign }: { textAlign?: FormatElement["textAlign"] }) =>
+    textAlign || TEXT_ALIGN_DEFAULT};
+`;
+
 const Paragraph = styled.p`
   ${paragraph};
+  ${textAlign};
 
   margin: 0;
   padding: 0;
@@ -34,6 +41,7 @@ const Paragraph = styled.p`
 export const Normal = Paragraph;
 
 export const Heading = styled(Normal)`
+  ${textAlign};
   ${heading};
 `;
 
@@ -51,6 +59,7 @@ export const Label = styled(Normal)`
 
 interface FormatElementTextProps {
   type?: FormatElement["type"];
+  textAlign?: FormatElement["textAlign"];
   children?: React.ReactNode;
   contentEditable?: boolean;
 }
@@ -216,8 +225,10 @@ function SlateElement(props: SlateElementProps) {
   const path = ReactEditor.findPath(editor, element);
 
   if (Element.isElement(element) && Element.isFormatElement(element)) {
+    const { type, textAlign } = props.element as FormatElement;
+
     return (
-      <FormatElementText {...attributes} type={(element as FormatElement).type}>
+      <FormatElementText {...attributes} type={type} textAlign={textAlign}>
         {children}
       </FormatElementText>
     );

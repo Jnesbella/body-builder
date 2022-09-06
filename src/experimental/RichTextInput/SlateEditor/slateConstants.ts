@@ -1,4 +1,5 @@
 import { Element } from "slate";
+import { FontSize } from "../../../components";
 
 import { MarkType, ListElement, FormatElement } from "../../../typings-slate";
 
@@ -30,3 +31,14 @@ export const FORMAT_TYPES: FormatElement["type"][] = [
   "caption",
   "paragraph",
 ];
+
+export const TEXT_ALIGN_TYPES: FormatElement["textAlign"][] = [
+  "left",
+  "center",
+  "right",
+  "justify",
+];
+
+export const TEXT_ALIGN_DEFAULT: FormatElement["textAlign"] = "left";
+
+export const FONT_SIZE_DEFAULT = FontSize.Normal;

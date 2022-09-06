@@ -60,8 +60,6 @@ function PaperlessDocument() {
     number | undefined
   >();
 
-  log({ focusedPageIndex });
-
   const tooltipRef = React.useRef<TooltipElement>(null);
 
   const threeDotsMenuButtonRef = React.useRef<ButtonElement>(null);
@@ -87,16 +85,6 @@ function PaperlessDocument() {
     },
     [pageElements]
   );
-
-  // const editor = isNumber(focusedPageIndex)
-  //   ? pageRefs?.[focusedPageIndex].current?.getEditor()
-  //   : undefined;
-
-  // const forceUpdate = useForceUpdate();
-
-  // React.useEffect(() => {
-  //   forceUpdate();
-  // }, [focusedPageIndex, forceUpdate]);
 
   const editor = React.useMemo(
     () =>
