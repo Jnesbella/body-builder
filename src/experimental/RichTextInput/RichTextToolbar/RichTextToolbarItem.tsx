@@ -14,8 +14,9 @@ import {
   TooltipProps,
 } from "../../../components";
 import { theme } from "../../../styles";
+import { CustomEditor } from "../../../typings-slate";
 
-interface RichTextToolbarItemProps {
+export interface RichTextToolbarItemProps {
   label?: string;
   isExpanded?: boolean;
   icon: IconButtonProps["icon"];
@@ -28,10 +29,11 @@ interface RichTextToolbarItemProps {
   disabled?: IconButtonProps["disabled"];
   tooltipDisabled?: boolean;
   id?: IconButtonProps["id"];
-  editor?: ReactEditor;
+  editor?: CustomEditor;
   topOffset?: TooltipProps["topOffset"];
   onHoverOver?: IconButtonProps["onHoverOver"];
   onHoverOut?: IconButtonProps["onHoverOut"];
+  onPressCapture?: IconButtonProps["onPressCapture"];
 }
 
 function RichTextToolbarItem({
@@ -51,6 +53,7 @@ function RichTextToolbarItem({
   topOffset,
   onHoverOver,
   onHoverOut,
+  onPressCapture,
 }: RichTextToolbarItemProps) {
   const iconButton = (
     <Tooltip
@@ -81,6 +84,7 @@ function RichTextToolbarItem({
           onBlur={onBlur}
           onHoverOver={tooltipProps.onHoverOver}
           onHoverOut={tooltipProps.onHoverOut}
+          onPressCapture={onPressCapture}
         />
       )}
     </Tooltip>
@@ -107,6 +111,7 @@ function RichTextToolbarItem({
       onBlur={onBlur}
       onHoverOut={onHoverOut}
       onHoverOver={onHoverOver}
+      onPressCapture={onPressCapture}
     >
       {(buttonProps) => (
         <Button.Container

@@ -38,6 +38,7 @@ import {
 import SlateToolbar from "../RichTextToolbar/RichTextToolbar";
 import { useSetRef } from "../../../hooks";
 import { log } from "../../../utils";
+import { withPlugins } from "./slatePlugins";
 
 export const SLATE_EDITOR_MIN_HEIGHT = 300;
 
@@ -93,7 +94,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     const renderLeaf = SlateLeaf;
 
     const editor = React.useMemo(
-      () => withHistory(withReact(createEditor())),
+      () => withHistory(withReact(withPlugins(createEditor()))),
       []
     );
 

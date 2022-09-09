@@ -15,7 +15,7 @@ import {
   useTooltipActions,
 } from "../../../components";
 import { theme } from "../../../styles";
-import { ListElement } from "../../../typings-slate";
+import { CustomEditor, ListElement } from "../../../typings-slate";
 
 import { MarkButtonProps } from "../SlateEditor/MarkButton";
 import { BlockButtonProps } from "../SlateEditor/BlockButton";
@@ -29,10 +29,11 @@ import SlateFormatMenu from "../SlateEditor/SlateFormatMenu";
 import SlateTextAlignMenu from "../SlateEditor/SlateTextAlignMenu";
 
 import ToolbarItem from "./RichTextToolbarItem";
+import InsertImageButton from "./InsertImageButton";
 
 export interface RichTextToolbarProps {
   disabled?: boolean;
-  editor?: DefaultEditor;
+  editor?: CustomEditor;
   name?: string;
   tooltipsDisabled?: boolean;
   onFocusItem?: () => void;
@@ -307,6 +308,17 @@ function RichTextToolbar({
       <Space />
 
       {listBlockButtons}
+
+      <Space />
+
+      <InsertImageButton
+        tooltipDisabled={tooltipsDisabled}
+        disabled={disabled || !editor}
+        isExpanded={expanded}
+        onFocus={onFocusItem}
+        editor={editor}
+        topOffset={topOffset}
+      />
     </Layout.Column>
   );
 }

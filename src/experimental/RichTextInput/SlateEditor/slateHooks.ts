@@ -31,19 +31,23 @@ export function useActiveFormat({
 } = {}) {
   const activeFormatType: FormatElement["type"] | undefined = (() => {
     if (editor) {
-      const [match] =
-        Editor.nodes(editor, {
-          match: (node) =>
-            !Editor.isEditor(node) &&
-            Element.isElement(node) &&
-            Element.isFormatElement(node),
-          mode: "lowest",
-        }) || [];
-      const [element] = match || [];
+      const matches = Editor.nodes(editor, {
+        match: (node) =>
+          !Editor.isEditor(node) &&
+          Element.isElement(node) &&
+          Element.isFormatElement(node),
+        // mode: "lowest",
+      });
 
-      const { type } = (element as FormatElement) || {};
+      let type: FormatElement["type"] | undefined;
 
-      return type ? type : undefined;
+      for (let match of matches) {
+        const [element] = match || [];
+
+        type = type || (element as FormatElement).type;
+      }
+
+      return type;
     }
   })();
 
@@ -57,17 +61,21 @@ export function useActiveTextAlign({
 } = {}) {
   const activeTextAlign: FormatElement["textAlign"] = (() => {
     if (editor) {
-      const [match] =
-        Editor.nodes(editor, {
-          match: (node) =>
-            !Editor.isEditor(node) &&
-            Element.isElement(node) &&
-            Element.isFormatElement(node),
-          mode: "lowest",
-        }) || [];
-      const [element] = match || [];
+      const matches = Editor.nodes(editor, {
+        match: (node) =>
+          !Editor.isEditor(node) &&
+          Element.isElement(node) &&
+          Element.isFormatElement(node),
+        // mode: "lowest",
+      });
 
-      const { textAlign } = (element as FormatElement) || {};
+      let textAlign: FormatElement["textAlign"] | undefined;
+
+      for (let match of matches) {
+        const [element] = match || [];
+
+        textAlign = textAlign || (element as FormatElement).textAlign;
+      }
 
       return textAlign;
     }

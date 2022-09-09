@@ -32,14 +32,18 @@ export const Element = {
       : LIST_TYPES.some((type) => Element.isElementType(node, type));
   },
 
+  isListItemElement: (node: Node) => {
+    return Element.isElementType(node, "list-item");
+  },
+
+  isImageElement: (node: Node) => {
+    return Element.isElementType(node, "image");
+  },
+
   isFormatElement: (node: Node, formatType?: FormatElement["type"]) => {
     return formatType
       ? Element.isElementType(node, formatType)
       : FORMAT_TYPES.some((type) => Element.isElementType(node, type));
-  },
-
-  isListItemElement: (node: Node) => {
-    return Element.isElementType(node, "list-item");
   },
 
   hasChildren: (node: Node): boolean => {
@@ -59,8 +63,21 @@ export const Element = {
   },
 };
 
+const hasMatches = (matches: Generator<NodeEntry<Node>, void, undefined>) => {
+  let matched = false;
+
+  for (let _match of matches) {
+    matched = true;
+    break;
+  }
+
+  return matched;
+};
+
 export const Editor = {
   ...DefaultEditor,
+
+  hasMatches,
 
   hasMark: (editor: DefaultEditor, type: MarkType) => {
     const marks = Editor.marks(editor);
@@ -79,14 +96,14 @@ export const Editor = {
   },
 
   isListBlock: (editor: DefaultEditor, listType?: ListElement["type"]) => {
-    const [match] = Editor.nodes(editor, {
+    const matches = Editor.nodes(editor, {
       match: (node) =>
         !Editor.isEditor(node) &&
         Element.isElement(node) &&
         Element.isListElement(node, listType),
     });
 
-    return !!match;
+    return hasMatches(matches);
   },
 
   toggleListElement: (editor: DefaultEditor, listType: ListElement["type"]) => {
@@ -259,15 +276,8 @@ export const Editor = {
       // mode: "lowest",
     });
 
-    log("-----");
-
-    log("mergeListNodes: ", { matches, listType });
-
     for (let match of matches) {
       const [node, path] = match;
-
-      log(".");
-      log("match: ", { node, path });
 
       if (Node.has(editor, Path.next(path))) {
         const [nextSibling, nextSiblingPath] = Editor.node(
@@ -276,8 +286,6 @@ export const Editor = {
         );
 
         const isNextSiblingList = Element.isListElement(nextSibling, listType);
-
-        log({ isNextSiblingList });
 
         if (isNextSiblingList) {
           Transforms.mergeNodes(editor, { at: nextSiblingPath });
@@ -292,81 +300,12 @@ export const Editor = {
         );
         const isPrevSiblingList = Element.isListElement(prevSibling, listType);
 
-        log({ isPrevSiblingList });
-
         if (isPrevSiblingList) {
           Transforms.mergeNodes(editor, { at: path });
         }
       }
     }
   },
-
-  // toggleBlock: (editor: DefaultEditor, type: DefaultElement["type"]) => {
-  //   const findBlockElement = (): [Node, Path] | undefined => {
-  //     const [match] = Editor.nodes(editor, {
-  //       match: (node) =>
-  //         !Editor.isEditor(node) &&
-  //         Element.isElement(node) &&
-  //         Editor.isBlock(editor, { type }),
-  //     });
-
-  //     return match;
-  //   };
-
-  //   let match = findBlockElement();
-
-  //   const isCurrentlyActive = !!match;
-  //   const isList = isListType(type);
-  //   const selection = editor.selection;
-
-  //   log("toggleBlock", {
-  //     match,
-  //     type,
-  //     isCurrentlyActive,
-  //     isList,
-  //     selection,
-  //   });
-
-  //   const setElementType = (type: DefaultElement["type"], nodeProps = {}) => {
-  //     Transforms.setNodes(
-  //       editor,
-  //       { ...nodeProps, type },
-  //       {
-  //         match: (node) =>
-  //           !Editor.isEditor(node) &&
-  //           Element.isElement(node) &&
-  //           Editor.isBlock(editor, node),
-  //       }
-  //     );
-  //   };
-
-  //   const wrapListItems = (listType: ListType) => {
-  //     Transforms.wrapNodes(
-  //       editor,
-  //       { type: listType, children: [] },
-  //       {
-  //         match: (node) =>
-  //           !Editor.isEditor(node) &&
-  //           Element.isElement(node) &&
-  //           Editor.isBlock(editor, node),
-  //       }
-  //     );
-  //   };
-
-  //   if (isList) {
-  //     if (!isCurrentlyActive) {
-  //       // convert elements to list items
-  //       // if element already is list item then
-  //       const listType = type as ListType;
-  //       setElementType("list-item", { listType });
-  //       wrapListItems(listType);
-  //     } else {
-  //     }
-  //   } else {
-  //     const nextType = isCurrentlyActive ? "paragraph" : type;
-  //     setElementType(nextType);
-  //   }
-  // },
 
   getText: (editor: DefaultEditor) => {
     const { children } = editor;
@@ -394,13 +333,19 @@ export const Editor = {
   ): NodeEntry<Output> | undefined => {
     const { selection } = editor;
 
-    const [match] = selection
+    const matches = selection
       ? Editor.nodes(editor, {
           at: selection,
           match: (node) => !Editor.isEditor(node) && Element.isElement(node),
           mode: "lowest",
         })
       : [];
+
+    let match: NodeEntry<Node> | undefined = undefined;
+
+    for (let m of matches) {
+      match = match || m;
+    }
 
     return match ? (match as NodeEntry<Output>) : undefined;
   },

@@ -57,6 +57,10 @@ export const Label = styled(Normal)`
   ${label};
 `;
 
+export const Image = styled.img`
+  max-width: 100%;
+`;
+
 interface FormatElementTextProps {
   type?: FormatElement["type"];
   textAlign?: FormatElement["textAlign"];
@@ -237,6 +241,16 @@ function SlateElement(props: SlateElementProps) {
   switch (element.type) {
     // case "block-quote":
     //   return <blockquote {...attributes}>{children}</blockquote>;
+
+    case "image":
+      return (
+        <React.Fragment>
+          <div contentEditable={false}>
+            <Image {...attributes} src={element.src} />
+          </div>
+          {children}
+        </React.Fragment>
+      );
 
     case "bullet-list":
       return <BulletList {...attributes}>{children}</BulletList>;

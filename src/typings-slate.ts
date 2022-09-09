@@ -70,8 +70,8 @@ export type FormatElement = (
 
 export type ImageElement = {
   type: "image";
-
-  src?: string;
+  children: CustomText[];
+  src: string;
 };
 
 export type TaskListElement = {

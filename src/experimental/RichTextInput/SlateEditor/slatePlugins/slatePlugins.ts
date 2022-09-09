@@ -1,7 +1,9 @@
-import { withLists } from "./slateLists";
+import { CustomEditor } from "../../../../typings-slate";
+
 import { withImages } from "./slateImages";
 
-export function withPlugins() {
-  withImages();
-  withLists();
+const PLUGINS = [withImages];
+
+export function withPlugins(editor: CustomEditor) {
+  return PLUGINS.reduce((e, plugin) => plugin(e), editor);
 }
