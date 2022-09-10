@@ -93,11 +93,17 @@ function InsertImageButton(props: InsertImageButtonProps) {
 
             Transforms.insertNodes(
               editor,
-              {
-                type: "image",
-                src: url,
-                children: [{ text: "" }],
-              },
+              [
+                {
+                  type: "image",
+                  src: url,
+                  children: [{ text: "" }],
+                },
+                {
+                  type: "paragraph",
+                  children: [{ text: "" }],
+                },
+              ],
               { at }
             );
           }

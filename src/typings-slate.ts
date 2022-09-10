@@ -53,8 +53,7 @@ export type CaptionElement = {
 export type LinkElement = {
   type: "link";
   children: CustomText[];
-
-  url?: string;
+  url: string;
 };
 
 export type FormatElement = (
