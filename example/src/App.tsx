@@ -22,6 +22,7 @@ import { QueryClient, QueryClientProvider, useQuery } from "react-query";
 import FlubberExample from "./FlubberExample";
 import RichTextEdtiorExample from "./RichTextEditorExample";
 import Paperless from "./Paperless";
+import WorksheetExample from "./WorksheetExample";
 
 // type PressableState = Readonly<{
 //   pressed: boolean;
@@ -129,7 +130,9 @@ const App = () => {
 
             <Space /> */}
 
-              <Paperless.Document />
+              {/* <Paperless.Document /> */}
+
+              <WorksheetExample />
 
               {/* <RichTextEdtiorExample /> */}
             </Layout.Column>

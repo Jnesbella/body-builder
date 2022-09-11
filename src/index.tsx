@@ -7,6 +7,7 @@ export * from "./styles";
 export * from "./types";
 export * from "./utils";
 export * from "./experimental/RichTextInput";
+export * from "./experimental/Worksheets";
 
 export { default as RichTextInput } from "./experimental/RichTextInput";
 export { default as Pressable } from "./experimental/Pressable";
