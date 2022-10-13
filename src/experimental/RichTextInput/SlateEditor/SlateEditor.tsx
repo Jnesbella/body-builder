@@ -21,7 +21,12 @@ import styled from "styled-components/native";
 
 import SlateElement from "./SlateElement";
 import SlateLeaf from "./SlateLeaf";
-import { HOTKEYS, DEFAULT_VALUE } from "./slateConstants";
+import {
+  HOTKEYS,
+  DEFAULT_VALUE,
+  ELEMENT_TAGS,
+  TEXT_TAGS,
+} from "./slateConstants";
 import { Editor, Element } from "./customSlate";
 import { theme } from "../../../styles";
 import { InputOutline } from "../../../components/TextInput";
@@ -39,6 +44,7 @@ import SlateToolbar from "../RichTextToolbar/RichTextToolbar";
 import { useSetRef } from "../../../hooks";
 import { log } from "../../../utils";
 import { withPlugins } from "./slatePlugins";
+import { deserializeHTML } from "./slatePlugins/slateHTML";
 
 export const SLATE_EDITOR_MIN_HEIGHT = 300;
 
@@ -94,7 +100,8 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     const renderLeaf = SlateLeaf;
 
     const editor = React.useMemo(
-      () => withHistory(withReact(withPlugins(createEditor()))),
+      // () => withHistory(withReact(withPlugins(createEditor()))),
+      () => withPlugins(withReact(withHistory(createEditor()))),
       []
     );
 
@@ -177,6 +184,16 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
     const handleInsertFromPaste = (event: DragEvent & InputEvent) => {
       let text = event.dataTransfer?.getData("text/plain");
+      let html = event.dataTransfer?.getData("text/html");
+
+      if (html) {
+        const parsed = new DOMParser().parseFromString(html, "text/html");
+        const fragment = deserializeHTML(parsed.body);
+        Transforms.insertFragment(editor, fragment);
+
+        return;
+      }
+
       if (!text) {
         return;
       }
@@ -199,7 +216,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     const onDOMBeforeInput = (event: DragEvent & InputEvent) => {
       const { inputType } = event;
 
-      // log("onDOMBeforeInput: ", { inputType, event });
+      log("onDOMBeforeInput: ", { inputType, event });
 
       // handle paste events
       const isInsertFromPaste = event.inputType === "insertFromPaste";
@@ -360,23 +377,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
     return (
       <Slate editor={editor} value={value} onChange={onChange}>
-        <InputPressable
-          focusable={false}
-          focusOn="none"
-          // focusOnPress
-          // onFocus={() => {
-          //   log("FOCUS PRESSABLE");
-
-          //   onFocus?.();
-          //   focus();
-          // }}
-          // onBlur={() => {
-          //   log("BLUR PRESSABLE");
-
-          //   onBlur?.();
-          //   blur();
-          // }}
-        >
+        <InputPressable focusable={false} focusOn="none">
           {(pressableProps) => (
             <InputOutline
               {...pick(pressableProps, ["focused", "pressed", "hovered"])}
@@ -408,9 +409,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                 onDOMBeforeInput={(event) => {
                   onDOMBeforeInput(event as DragEvent & InputEvent);
                 }}
-                // onClick={() => {
-                //   blurTooltip(`SlateToolbar_Format_${name}`);
-                // }}
                 onFocus={() => {
                   onFocus?.();
                   pressableProps.focus();

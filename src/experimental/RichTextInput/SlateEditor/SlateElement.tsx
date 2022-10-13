@@ -13,14 +13,20 @@ import {
   subheading,
   caption,
   label,
+  InputOutline,
 } from "../../../components";
-import { FormatElement, ListItemElement } from "../../../typings-slate";
+import {
+  FormatElement,
+  ImageElement,
+  ListItemElement,
+} from "../../../typings-slate";
 import { log } from "../../../utils";
 import { Editor, Element } from "./customSlate";
-import { Node, Transforms } from "slate";
-import { isNumber, last } from "lodash";
+import { BasePoint, Node, Path, Transforms } from "slate";
+import { isNumber, last, pick } from "lodash";
 import { theme } from "../../../styles";
 import { TEXT_ALIGN_DEFAULT } from "./slateConstants";
+import Pressable, { PressableActions, PressableState } from "../../Pressable";
 
 export interface SlateElementProps extends RenderElementProps {}
 
@@ -55,10 +61,6 @@ export const Caption = styled(Normal)`
 
 export const Label = styled(Normal)`
   ${label};
-`;
-
-export const Image = styled.img`
-  max-width: 100%;
 `;
 
 interface FormatElementTextProps {
@@ -222,6 +224,56 @@ const ListItem = React.forwardRef<any, ListItemProps>(
   }
 );
 
+export const Image = styled.img<{ width: number }>`
+  max-width: 100%;
+  width: ${(props) => props.width}px;
+`;
+
+type ImageElementProps = SlateElementProps["attributes"] & {
+  element: ImageElement;
+  children: SlateElementProps["children"];
+};
+
+const ImageElement = React.forwardRef<any, ImageElementProps>(
+  ({ children, element, ...attributes }, ref) => {
+    const editor = useSlate();
+    const path = ReactEditor.findPath(editor, element);
+    const { selection } = editor;
+    const { anchor, focus } = selection || {};
+
+    const isDescendant = (point?: BasePoint) =>
+      point?.path && Path.isDescendant(point.path, path);
+
+    const isSelected = isDescendant(anchor) || isDescendant(focus);
+
+    console.log({ path, selection, isSelected });
+
+    return (
+      <div {...attributes} ref={ref}>
+        <div contentEditable={false} style={{ display: "inline-block" }}>
+          <Pressable
+            isFocused={isSelected || false}
+            // focusOn="none"
+            focusable={false}
+            focusOnPress={false}
+            onPress={() => Transforms.select(editor, path)}
+          >
+            {(pressableProps: PressableState & PressableActions) => (
+              <InputOutline
+                {...pick(pressableProps, ["focused", "pressed", "hovered"])}
+                spacingSize={0}
+              >
+                <Image src={element.src} width={element.width || 200} />
+              </InputOutline>
+            )}
+          </Pressable>
+        </div>
+        {children}
+      </div>
+    );
+  }
+);
+
 function SlateElement(props: SlateElementProps) {
   const { children, element, attributes } = props;
 
@@ -244,12 +296,15 @@ function SlateElement(props: SlateElementProps) {
 
     case "image":
       return (
-        <React.Fragment>
-          <div contentEditable={false}>
-            <Image {...attributes} src={element.src} />
-          </div>
+        <ImageElement {...attributes} element={element}>
           {children}
-        </React.Fragment>
+        </ImageElement>
+        // <React.Fragment>
+        //   <div contentEditable={false}>
+        //     <Image {...attributes} src={element.src} />
+        //   </div>
+        //   {children}
+        // </React.Fragment>
       );
 
     case "bullet-list":

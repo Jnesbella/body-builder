@@ -13,6 +13,7 @@ export interface SpreadsheetTextInputProps extends SpreadsheetCellContentProps {
   value?: string;
   autoFocus?: boolean;
   onBlur?: () => void;
+  onFocus?: () => void;
 }
 
 function SpreadsheetTextInput({
@@ -21,6 +22,7 @@ function SpreadsheetTextInput({
   children: _children,
   autoFocus,
   onBlur,
+  onFocus,
   ...cell
 }: SpreadsheetTextInputProps) {
   const { row, column } = cell;
@@ -38,7 +40,10 @@ function SpreadsheetTextInput({
       {/* <Button greedy onPress={() => onSelectCell(row, column)} spacingSize={0}> */}
       <TextInput
         // onPress={() => onSelectCell(row, column)}
-        onFocus={() => onSelectCell(row, column)}
+        onFocus={() => {
+          onSelectCell(row, column);
+          onFocus?.();
+        }}
         greedy
         fullWidth
         multiline

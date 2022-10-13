@@ -6,8 +6,8 @@ import {
   WorksheetScrollView,
   WorksheetColumn,
   WorksheetRow,
-  Info,
   WorksheetCell,
+  Info,
 } from "@jnesbella/body-builder";
 
 function WorksheetExample() {

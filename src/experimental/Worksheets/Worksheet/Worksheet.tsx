@@ -17,6 +17,9 @@ export interface WorksheetProps {
   rows?: React.ReactNode;
   title?: React.ReactNode;
   onChangeSelection?: WorksheetContextProviderProps["onChangeSelection"];
+  onChange?: () => void;
+  onFocus?: () => void;
+  onBlur?: () => void;
 }
 
 const Worksheet = React.forwardRef<WorksheetElement, WorksheetProps>(

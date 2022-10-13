@@ -50,13 +50,20 @@ export interface TextInputProps
     | ((props: React.PropsWithChildren<PressableState>) => JSX.Element);
 }
 
-const StyledTextInput = styled.TextInput.attrs({
-  fontSize: FontSize.Normal,
-  placeholderTextColor: theme.colors.textPlaceholder,
-})<TextInputProps & PressableState>`
-  outline-width: 0;
+export type StyledTextInputProps = PressableState &
+  SpacingProps &
+  TextInputProps;
+
+const StyledTextInput = styled.TextInput.attrs<StyledTextInputProps>(
+  ({ spacingSize = [1, 0] }) => ({
+    fontSize: FontSize.Normal,
+    placeholderTextColor: theme.colors.textPlaceholder,
+    spacingSize,
+  })
+)<StyledTextInputProps>`
   min-height: ${theme.spacing * 4}px;
 
+  ${spacing};
   ${rounded};
   ${greedy};
   ${full};
@@ -77,19 +84,23 @@ const InputPressable = styled(Pressable)`
   background: ${theme.colors.transparent};
 `;
 
-export const InputOutline = styled(Layout.Box).attrs(
+export type InputOutlineProps = PressableState &
+  SpacingProps &
+  Background &
+  Rounded &
+  Bordered;
+
+export const InputOutline = styled(Layout.Box).attrs<InputOutlineProps>(
   ({
     hovered,
     focused,
-    spacingSize = [1, 0],
     background = theme.colors.transparent,
     borderColor = theme.colors.primary,
-  }: PressableState & SpacingProps & Background & Rounded & Bordered) => ({
+  }) => ({
     borderColor: hovered || focused ? borderColor : theme.colors.transparent,
     background: focused ? theme.colors.background : background,
-    spacingSize,
   })
-)<PressableState & Rounded & Background & Bordered>`
+)<InputOutlineProps>`
   ${background};
   ${rounded};
   ${bordered};

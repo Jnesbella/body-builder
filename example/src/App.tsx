@@ -130,9 +130,9 @@ const App = () => {
 
             <Space /> */}
 
-              {/* <Paperless.Document /> */}
+              <Paperless.Document />
 
-              <WorksheetExample />
+              {/* <WorksheetExample /> */}
 
               {/* <RichTextEdtiorExample /> */}
             </Layout.Column>
