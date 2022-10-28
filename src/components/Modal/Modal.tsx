@@ -5,12 +5,13 @@ import * as Icons from "react-bootstrap-icons";
 
 import { theme } from "../../styles";
 
-import { background, bordered, rounded, Space } from "../styled-components";
+import { background, rounded, Space, Rounded } from "../styled-components";
 import Button, { ButtonProps } from "../Button";
 import Layout from "../Layout";
 import IconButton from "../IconButton";
 import Text from "../Text";
 import Divider from "../Divider";
+import { bordered, Bordered } from "../bordered";
 
 const ModalBackdrop = styled.Pressable.attrs({
   background: theme.colors.backdrop,
@@ -25,7 +26,7 @@ const ModalBackdrop = styled.Pressable.attrs({
 
 const ModalContainer = styled.Pressable.attrs({
   background: theme.colors.background,
-})`
+})<Rounded & Bordered>`
   ${background};
   ${rounded};
   ${bordered};

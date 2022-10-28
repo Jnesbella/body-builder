@@ -18,8 +18,8 @@ class Fetch {
   state: FetchState;
 
   constructor({
-    origin = "http://localhost:3000",
-    apiRoot = "http://localhost:3001",
+    origin = window.location.origin,
+    apiRoot = "http://REPLACE_ME:3001",
     retryCount = 0,
   }: Partial<FetchState> = {}) {
     this.state = {
@@ -54,6 +54,10 @@ class Fetch {
     this.updateState({
       apiRoot: nextApiRoot,
     });
+  };
+
+  getApiRoot = () => {
+    return this.getState().apiRoot;
   };
 
   setHeader = (

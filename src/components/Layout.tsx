@@ -23,7 +23,12 @@ export interface LayoutBoxProps
     Opacity,
     MaxProps {}
 
-export const LayoutBox = styled.View<LayoutBoxProps>`
+export const LayoutBox = styled.View.attrs<LayoutBoxProps>(
+  ({ alignItems = "flex-start", justifyContent = "flex-start" }) => ({
+    alignItems,
+    justifyContent,
+  })
+)<LayoutBoxProps>`
   ${full};
   ${greedy};
   ${flexible};
@@ -31,7 +36,7 @@ export const LayoutBox = styled.View<LayoutBoxProps>`
   ${opacity};
   ${max};
 
-  position: static;
+  // position: static;
 `;
 
 export const LayoutRow = styled(LayoutBox)`

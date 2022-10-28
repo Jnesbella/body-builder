@@ -11,11 +11,17 @@ import {
 } from "./styled-components";
 import Layout, { LayoutBoxProps } from "./Layout";
 
-const Surface = styled(Layout.Box).attrs(
-  ({ background = theme.colors.background }: Background) => ({
+export interface SurfaceProps
+  extends LayoutBoxProps,
+    Background,
+    ElevationProps,
+    Greedy {}
+
+const Surface = styled(Layout.Box).attrs<SurfaceProps>(
+  ({ background = theme.colors.background }) => ({
     background,
   })
-)<Greedy & ElevationProps & LayoutBoxProps>`
+)`
   ${background};
   ${elevation};
 `;

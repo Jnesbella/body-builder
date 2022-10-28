@@ -9,32 +9,15 @@ import PressableProvider, {
   PressableProviderElement,
 } from "./PressableProvider";
 import FocusProvider from "./FocusProvider";
-import { Greedy, greedy } from "../../components";
+import { full, Greedy, greedy } from "../../components";
 
 const DefaultPressable = styled.div<{ fullWidth?: boolean } & Greedy>`
   ${greedy};
+  ${full};
+  ${greedy};
 
   user-select: none;
-
-  ${({ fullWidth }) => {
-    if (fullWidth) {
-      return css`
-        width: 100%;
-      `;
-    }
-
-    return "";
-  }}
-
-  ${({ greedy }) => {
-    if (greedy) {
-      return css`
-        display: flex;
-      `;
-    }
-
-    return "";
-  }}
+  display: inline-flex;
 `;
 
 export type PressableElement = HTMLDivElement;

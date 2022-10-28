@@ -216,8 +216,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
     const onDOMBeforeInput = (event: DragEvent & InputEvent) => {
       const { inputType } = event;
 
-      log("onDOMBeforeInput: ", { inputType, event });
-
       // handle paste events
       const isInsertFromPaste = event.inputType === "insertFromPaste";
       if (isInsertFromPaste) {

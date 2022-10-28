@@ -23,6 +23,7 @@ import FlubberExample from "./FlubberExample";
 import RichTextEdtiorExample from "./RichTextEditorExample";
 import Paperless from "./Paperless";
 import WorksheetExample from "./WorksheetExample";
+import ComponentsDemo from "./ComponentsDemo";
 
 // type PressableState = Readonly<{
 //   pressed: boolean;
@@ -84,6 +85,8 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
+  return <ComponentsDemo />;
+
   return (
     <QueryClientProvider client={queryClient}>
       <ErrorBoundary

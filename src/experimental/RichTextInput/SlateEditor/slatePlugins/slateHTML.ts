@@ -28,7 +28,9 @@ export const deserializeHTML = (el: HTMLElement) => {
     parent = el.childNodes[0];
   }
 
-  let children: any = Array.from(parent.childNodes).map(deserializeHTML).flat();
+  let children: any = Array.from(parent.childNodes)
+    .map((node) => deserializeHTML(node as HTMLElement))
+    .flat();
 
   if (children.length === 0) {
     children = [{ text: "" }];
@@ -68,8 +70,6 @@ export function withHTML(editor: CustomEditor) {
     if (html) {
       const parsed = new DOMParser().parseFromString(html, "text/html");
       const fragment = deserializeHTML(parsed.body);
-
-      log({ fragment });
 
       Transforms.insertFragment(editor, fragment);
       return;

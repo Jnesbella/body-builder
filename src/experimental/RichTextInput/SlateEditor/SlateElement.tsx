@@ -14,6 +14,7 @@ import {
   caption,
   label,
   InputOutline,
+  SpacingProps,
 } from "../../../components";
 import {
   FormatElement,
@@ -112,7 +113,7 @@ const FormatElementText = React.forwardRef<
   }
 });
 
-const ListContainer = styled.div.attrs({ spacingSize: [0, 0.5] })`
+const ListContainer = styled.div.attrs({ spacingSize: [0, 0.5] })<SpacingProps>`
   ${spacing};
 `;
 
@@ -163,7 +164,7 @@ type ListItemProps = SlateElementProps["attributes"] & {
   children: SlateElementProps["children"];
 };
 
-const ListItemIconWrapper = styled.span`
+const ListItemIconWrapper = styled.span<SpacingProps>`
   ${spacing};
 
   min-width: ${theme.spacing * (theme.spacing - 1)}px;
@@ -249,7 +250,7 @@ const ImageElement = React.forwardRef<any, ImageElementProps>(
     console.log({ path, selection, isSelected });
 
     return (
-      <div {...attributes} ref={ref}>
+      <span {...attributes} ref={ref}>
         <div contentEditable={false} style={{ display: "inline-block" }}>
           <Pressable
             isFocused={isSelected || false}
@@ -269,7 +270,7 @@ const ImageElement = React.forwardRef<any, ImageElementProps>(
           </Pressable>
         </div>
         {children}
-      </div>
+      </span>
     );
   }
 );

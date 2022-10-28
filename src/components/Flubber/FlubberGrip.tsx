@@ -19,6 +19,7 @@ import {
   rounded,
   greedy,
   Greedy,
+  Rounded,
 } from "../styled-components";
 import Icon from "../Icon";
 import Layout from "../Layout";
@@ -30,7 +31,8 @@ interface GripContainerProps
     Full,
     SpacingProps,
     Background,
-    Greedy {
+    Greedy,
+    Rounded {
   dragging?: boolean;
   width?: AnimatedValueQuery;
   orientation?: OrientationProp;

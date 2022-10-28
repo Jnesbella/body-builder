@@ -19,13 +19,14 @@ import {
 } from "../styles";
 import { SizeProp } from "../types";
 import { log } from "../utils";
+import { Bordered } from "./bordered";
 
 import { PressableState } from "./componentsTypes";
 import { LayoutBoxProps } from "./Layout";
 import {
   background,
   color,
-  flex,
+  flexible,
   FontSize,
   Greedy,
   outlineColor,
@@ -35,11 +36,11 @@ import {
   spacing,
   SpacingProps,
   opacity,
-  Bordered,
   full,
   Full,
   greedy,
   Rounded,
+  Flexible,
 } from "./styled-components";
 import Text from "./Text";
 
@@ -49,7 +50,7 @@ const ButtonContainer = styled.View<
   ${background};
   ${color};
   ${outlineColor};
-  ${flex};
+  ${flexible};
   ${rounded};
   ${spacing};
   ${opacity};

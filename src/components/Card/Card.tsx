@@ -1,13 +1,14 @@
 import * as React from "react";
 import styled from "styled-components/native";
 
-import { bordered, rounded } from "../styled-components";
-import Surface from "../Surface";
+import { bordered, Bordered } from "../bordered";
+import { rounded, Rounded } from "../styled-components";
+import Surface, { SurfaceProps } from "../Surface";
 
 import CardHeader from "./CardHeader";
 import CardSubHeader from "./CardSubHeader";
 
-const Container = styled(Surface)`
+const Container = styled(Surface)<SurfaceProps & Rounded & Bordered>`
   ${rounded};
   ${bordered};
 `;

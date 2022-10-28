@@ -1,13 +1,9 @@
-import { isNumber, isUndefined } from "lodash";
+import { get, isNil, isNumber, isUndefined } from "lodash";
 import styled, { css } from "styled-components/native";
 
 import { theme, getContrastColor } from "../styles";
 
 import { zIndex as _zIndex } from "../styles/zIndex";
-
-export interface Greedy {
-  greedy?: boolean;
-}
 
 export enum FontWeight {
   Light = 300,
@@ -44,27 +40,35 @@ export enum AlignItems {
   Stretch = "stretch",
 }
 
+export const setStyleFromProps =
+  <T extends object>(styleKey: string, propsKey: string, defaultValue?: any) =>
+  (props: T) => {
+    const styleValue = get(props, propsKey, defaultValue);
+
+    if (isNil(styleValue)) {
+      return;
+    }
+
+    return css<T>`
+      ${styleKey}: ${styleValue};
+    `;
+  };
+
 export interface Background {
   background?: string;
 }
 
-export const background = css<Background>`
-  ${(props) => {
-    if (props.background) {
-      return css`
-        background: ${props.background};
-      `;
-    }
-
-    return "";
-  }}
+export const background = ({
+  background = theme.colors.background,
+}: Background = {}) => css<Background>`
+  background: ${background};
 `;
 
 export interface Color {
   color?: string;
 }
 
-export function getColor(props: Background | Color) {
+export function fontColor(props: Background | Color) {
   if ("color" in props && props.color) {
     return props.color;
   }
@@ -76,8 +80,10 @@ export function getColor(props: Background | Color) {
   return theme.colors.text;
 }
 
+export const getColor = fontColor;
+
 export const color = css<Background | Color>`
-  color: ${getColor};
+  color: ${fontColor};
 `;
 
 export interface SpacingProps {
@@ -91,23 +97,25 @@ export interface SpacingProps {
   spacingSize?: number | [number, number];
 }
 
-export const spacing = css<SpacingProps>`
-  ${({ spacing = theme.spacing, size = 0, spacingSize = size }) => {
-    let spacingSizeX: number;
-    let spacingSizeY: number;
+export const spacing = ({
+  spacing = theme.spacing,
+  size = 0,
+  spacingSize = size,
+}: SpacingProps = {}) => {
+  let spacingSizeX: number;
+  let spacingSizeY: number;
 
-    if (Array.isArray(spacingSize)) {
-      [spacingSizeX, spacingSizeY] = spacingSize;
-    } else {
-      spacingSizeX = spacingSize;
-      spacingSizeY = spacingSize;
-    }
+  if (Array.isArray(spacingSize)) {
+    [spacingSizeX, spacingSizeY] = spacingSize;
+  } else {
+    spacingSizeX = spacingSize;
+    spacingSizeY = spacingSize;
+  }
 
-    return css`
-      padding: ${spacingSizeY * spacing}px ${spacingSizeX * spacing}px;
-    `;
-  }}
-`;
+  return css<SpacingProps>`
+    padding: ${spacingSizeY * spacing}px ${spacingSizeX * spacing}px;
+  `;
+};
 
 export const fontSize = css<{ fontSize?: FontSize }>`
   font-size: ${(props) => props.fontSize || FontSize.Normal}px;
@@ -134,87 +142,57 @@ export interface Opacity {
   opacity?: number;
 }
 
-export const opacity = css<Opacity>`
-  opacity: ${(props) => (isNumber(props.opacity) ? props.opacity : 1)};
+export const opacity = ({ opacity = 1 }: Opacity = {}) => css<Opacity>`
+  opacity: ${opacity};
 `;
 
 export interface Rounded {
   roundness?: number;
 }
 
-export const rounded = css<Rounded>`
-  border-radius: ${(props) =>
-    isUndefined(props.roundness) ? theme.roundness : props.roundness}px;
+export const rounded = ({
+  roundness = theme.roundness,
+}: Rounded = {}) => css<Rounded>`
+  border-radius: ${roundness}px;
   overflow: hidden;
 `;
 
-export const greedy = css<Greedy>`
-  ${({ greedy }) => {
-    if (greedy) {
-      return css`
+export interface Greedy {
+  greedy?: boolean;
+}
+
+export const greedy = ({ greedy }: Greedy = {}) =>
+  greedy
+    ? css<Greedy>`
         flex: 1;
-      `;
-    }
-  }}
-`;
-
-export const flex = css<{ flex?: number } & Greedy>`
-  ${greedy};
-
-  ${(props) => {
-    if (props.flex) {
-      return { flex: props.flex };
-    }
-
-    return "";
-  }}
-`;
+      `
+    : undefined;
 
 export interface Full {
   fullWidth?: boolean;
   fullHeight?: boolean;
 }
 
-export const full = css<Full>`
-  ${(props) => {
-    if (props.fullHeight && props.fullWidth) {
-      return css`
-        width: 100%;
-        height: 100%;
-      `;
-    }
-
-    if (props.fullWidth) {
-      return css`
-        width: 100%;
-      `;
-    }
-
-    if (props.fullHeight) {
-      return css`
-        height: 100%;
-      `;
-    }
-
-    return "";
-  }}
-`;
-
-export interface Bordered {
-  borderColor?: string;
-  borderWidth?: number;
-}
-
-export const bordered = css<Bordered>`
-  ${({
-    borderColor = theme.colors.backgroundDivider,
-    borderWidth = theme.borderThickness,
-  }) => {
-    return css`
-      border: ${borderWidth}px solid ${borderColor};
+export const full = ({ fullHeight, fullWidth }: Full = {}) => {
+  if (fullHeight && fullWidth) {
+    return css<Full>`
+      width: 100%;
+      height: 100%;
     `;
-  }};
-`;
+  }
+
+  if (fullWidth) {
+    return css<Full>`
+      width: 100%;
+    `;
+  }
+
+  if (fullHeight) {
+    return css<Full>`
+      height: 100%;
+    `;
+  }
+};
 
 export const Space = styled.View<SpacingProps>`
   ${(props) => {
@@ -232,6 +210,18 @@ export const Space = styled.View<SpacingProps>`
     `;
   }};
 `;
+
+// export const flex = css<{ flex?: number } & Greedy>`
+//   ${greedy};
+
+//   ${(props) => {
+//     if (props.flex) {
+//       return { flex: props.flex };
+//     }
+
+//     return "";
+//   }}
+// `;
 
 export interface Flexible {
   flex?: React.ReactText;
@@ -284,13 +274,15 @@ export interface MaxProps {
 }
 
 export const max = css<MaxProps>`
-  ${({ maxHeight, maxWidth }) => {
+  ${({ maxWidth }) => {
     if (!isUndefined(maxWidth)) {
       return css`
         max-width: ${maxWidth}px;
       `;
     }
+  }}
 
+  ${({ maxHeight }) => {
     if (!isUndefined(maxHeight)) {
       return css`
         max-height: ${maxHeight}px;

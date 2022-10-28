@@ -7,11 +7,9 @@ import useAsyncStorageState from "../useAsyncStorageState";
 import { makeKey } from "./hooksUtils";
 import { DEFAULT_STORAGE_KEY_PREFIX } from "./hooksConstants";
 
-export type UseQueryStorageOtpions<TData = any> = UseQueryOptions<
-  TData,
-  unknown,
-  TData,
-  QueryKey
+export type UseQueryStorageOtpions<TData = any> = Omit<
+  UseQueryOptions<TData, unknown, TData, string>,
+  "queryFn" | "queryKey"
 >;
 
 function useStorageQuery<TData = any>(
@@ -23,10 +21,10 @@ function useStorageQuery<TData = any>(
 ) {
   const storage = useAsyncStorageState((state) => state.storage);
 
-  const loadItem = React.useCallback(async (): Promise<TData | undefined> => {
+  const loadItem = React.useCallback(async (): Promise<TData> => {
     await storage.deleteItemAsync(key);
     const item = await storage.getItemAsync(key);
-    return (item || undefined) as TData | undefined;
+    return item as TData;
   }, [storage, key]);
 
   const storageKey = makeKey([keyPrefix, key]);

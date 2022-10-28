@@ -7,6 +7,7 @@ import Pressable, {
 } from "../../experimental/Pressable";
 
 import { theme } from "../../styles";
+import { bordered, Bordered } from "../bordered";
 import { PressableState } from "../componentsTypes";
 import Layout from "../Layout";
 
@@ -17,7 +18,6 @@ import {
   color,
   fontSize,
   rounded,
-  bordered,
   greedy,
   full,
   background,
@@ -25,7 +25,6 @@ import {
   spacing,
   Rounded,
   Background,
-  Bordered,
 } from "../styled-components";
 import { text, TextProps } from "../Text";
 

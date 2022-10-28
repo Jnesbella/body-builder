@@ -11,13 +11,13 @@ import {
   full,
   rounded,
   zIndex,
+  Rounded,
 } from "../styled-components";
 import Surface from "../Surface";
 import Text from "../Text";
 
-const MenuContainer = styled(Surface)`
+const MenuContainer = styled(Surface)<Rounded>`
   ${rounded};
-  ${full};
 
   background: ${theme.colors.background};
 `;
