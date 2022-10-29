@@ -2,9 +2,10 @@ import * as React from "react";
 import styled from "styled-components/native";
 import * as Icons from "react-bootstrap-icons";
 
-import { Divider, Layout, Text } from "../../../components";
-import { useSlate } from "slate-react";
+import { Divider, Layout, Text } from "../../components";
+
 import { Editor } from "./customSlate";
+import { useSlate } from "slate-react";
 
 // const Container = styled.div`
 //   display: flex;
@@ -68,19 +69,19 @@ function PageNumberItem({ pageNum, pageCount }: PageNumberItemProps) {
   );
 }
 
-export interface SlateFooterProps {
+export interface SlateEditorFooterProps {
   disabled?: boolean;
   children?: React.ReactNode;
 }
 
-function SlateFooter({ children }: SlateFooterProps) {
+function SlateEditorFooter({ children }: SlateEditorFooterProps) {
   return <Layout.Row>{children}</Layout.Row>;
 }
 
-SlateFooter.Text = FooterText;
-SlateFooter.Item = FooterItem;
-SlateFooter.WordCountItem = WordCountItem;
-SlateFooter.CharacterCountItem = CharacterCountItem;
-SlateFooter.PageNumberItem = PageNumberItem;
+SlateEditorFooter.Text = FooterText;
+SlateEditorFooter.Item = FooterItem;
+SlateEditorFooter.WordCountItem = WordCountItem;
+SlateEditorFooter.CharacterCountItem = CharacterCountItem;
+SlateEditorFooter.PageNumberItem = PageNumberItem;
 
-export default SlateFooter;
+export default SlateEditorFooter;

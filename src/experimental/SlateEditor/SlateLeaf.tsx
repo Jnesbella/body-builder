@@ -2,10 +2,10 @@ import * as React from "react";
 import { RenderLeafProps } from "slate-react";
 import styled, { css } from "styled-components";
 
-import { FontWeight, FontSize, Color, color } from "../../../components";
-import { theme } from "../../../styles";
-import { MarkType } from "../../../typings-slate";
-import { log } from "../../../utils";
+import { FontWeight, FontSize, Color, color } from "../../components";
+import { theme } from "../../styles";
+import { MarkType, MarkRecord } from "../../slateTypings";
+import { log } from "../../utils";
 
 import {
   text,
@@ -14,11 +14,12 @@ import {
   underline,
   strikethrough,
   code,
+  SlateTextProps,
 } from "./slateStyles";
 
-interface LeafTextProps extends Partial<Record<MarkType, boolean>> {}
+interface SlateLeafTextProps extends MarkRecord, SlateTextProps {}
 
-const LeafText = styled.span<LeafTextProps>`
+const SlateLeafText = styled.span<SlateLeafTextProps>`
   ${text};
   ${color};
 
@@ -35,9 +36,9 @@ function SlateLeaf({ children, leaf, attributes }: SlateLeafProps) {
   const color = leaf.code ? theme.colors.textCode : theme.colors.text;
 
   return (
-    <LeafText {...attributes} {...leaf} color={color}>
+    <SlateLeafText {...attributes} {...leaf} color={color}>
       {children}
-    </LeafText>
+    </SlateLeafText>
   );
 }
 

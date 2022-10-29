@@ -1,12 +1,12 @@
 import * as React from "react";
 import { startCase, isEqual } from "lodash";
 
-import { FormatElement } from "../../../typings-slate";
-import { Text, Menu, MenuItemProps } from "../../../components";
+import { FormatElement } from "../../slateTypings";
+import { Text, Menu, MenuItemProps } from "../../components";
 
 import { TEXT_ALIGN_TYPES } from "./slateConstants";
 
-export interface SlateFormatMenuProps {
+export interface SlateTextAlignMenuProps {
   disabled?: boolean;
   value?: FormatElement["textAlign"];
   onChange?: (type: FormatElement["textAlign"]) => void;
@@ -15,14 +15,14 @@ export interface SlateFormatMenuProps {
   onBlur?: MenuItemProps["onBlur"];
 }
 
-function SlateFormatMenu({
+function SlateTextAlignMenu({
   disabled,
   value,
   onChange,
   onChangeCapture,
   onFocus,
   onBlur,
-}: SlateFormatMenuProps) {
+}: SlateTextAlignMenuProps) {
   return (
     <Menu elevation={1}>
       {TEXT_ALIGN_TYPES.map((type) => {
@@ -47,4 +47,4 @@ function SlateFormatMenu({
   );
 }
 
-export default SlateFormatMenu;
+export default SlateTextAlignMenu;

@@ -12,14 +12,11 @@ export type MarkType =
   | "code"
   | "strikethrough";
 
+export type MarkRecord = Partial<Record<MarkType, boolean>>;
+
 export type FormattedText = {
   text: string;
-  // bold?: boolean;
-  // code?: boolean;
-  // italic?: boolean;
-  // underline?: boolean;
-  // strikethrough?: boolean;
-} & Partial<Record<MarkType, boolean>>;
+} & MarkRecord;
 
 export type CustomText = FormattedText;
 
@@ -69,7 +66,6 @@ export type FormatElement = (
 
 export type ImageElement = {
   type: "image";
-  children: CustomText[];
   src: string;
   width?: number;
 };
@@ -79,19 +75,19 @@ export type TaskListElement = {
   children: ListItemElement[];
 };
 
-export type BulletListElement = {
-  type: "bullet-list";
+export type BulletedListElement = {
+  type: "bulleted-list";
   children: ListItemElement[];
 };
 
-export type NumberListElement = {
-  type: "number-list";
+export type NumberedListElement = {
+  type: "numbered-list";
   children: ListItemElement[];
 };
 
 export type ListElement =
-  | BulletListElement
-  | NumberListElement
+  | BulletedListElement
+  | NumberedListElement
   | TaskListElement;
 
 export type ListItemElement = {

@@ -1,4 +1,4 @@
-import { CustomEditor } from "../../../../typings-slate";
+import { CustomEditor } from "../../../slateTypings";
 
 import { withHTML } from "./slateHTML";
 import { withImages } from "./slateImages";

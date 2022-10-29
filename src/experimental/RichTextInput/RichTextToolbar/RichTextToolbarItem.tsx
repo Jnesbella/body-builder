@@ -14,7 +14,7 @@ import {
   TooltipProps,
 } from "../../../components";
 import { theme } from "../../../styles";
-import { CustomEditor } from "../../../typings-slate";
+import { CustomEditor } from "../../../slateTypings";
 
 export interface RichTextToolbarItemProps {
   label?: string;

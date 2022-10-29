@@ -16,8 +16,8 @@ import {
   ListElement,
   FormatElement,
   MarkType,
-} from "../../../typings-slate";
-import { log } from "../../../utils";
+} from "../../slateTypings";
+import { log } from "../../utils";
 
 import { LIST_TYPES, FORMAT_TYPES } from "./slateConstants";
 

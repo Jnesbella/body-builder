@@ -36,7 +36,7 @@ import Page, { PaperlessPageElement } from "./PaperlessPage";
 import Measure, { MeasureElement } from "./Measure";
 import { isNumber, range, sum } from "lodash";
 import { ReactEditor } from "slate-react";
-import { CustomEditor } from "../../../dist/typings-slate";
+import { CustomEditor } from "../../../dist/slateTypings";
 
 const TitleBarContainer = styled(Surface).attrs({ elevation: 1 })`
   ${zIndex("aboveAll")};

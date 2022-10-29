@@ -1,4 +1,4 @@
-import { CustomEditor } from "../../../../typings-slate";
+import { CustomEditor } from "../../../slateTypings";
 
 export function withImages(editor: CustomEditor) {
   const { isVoid, isInline } = editor;

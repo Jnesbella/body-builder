@@ -18,35 +18,24 @@ import {
 } from "slate";
 import { withHistory } from "slate-history";
 import styled from "styled-components/native";
-
-import SlateElement from "./SlateElement";
-import SlateLeaf from "./SlateLeaf";
-import {
-  HOTKEYS,
-  DEFAULT_VALUE,
-  ELEMENT_TAGS,
-  TEXT_TAGS,
-} from "./slateConstants";
-import { Editor, Element } from "./customSlate";
-import { theme } from "../../../styles";
-import { InputOutline } from "../../../components/TextInput";
-import Pressable from "../../Pressable";
 import { debounce, isNumber, pick } from "lodash";
-import { ListItemElement } from "../../../typings-slate";
-import {
-  Divider,
-  Layout,
-  Space,
-  Surface,
-  useTooltipActions,
-} from "../../../components";
-import SlateToolbar from "../RichTextToolbar/RichTextToolbar";
-import { useSetRef } from "../../../hooks";
-import { log } from "../../../utils";
+
+import { theme } from "../../styles";
+import { InputOutline } from "../../components/TextInput";
+import Pressable from "../Pressable";
+import { ListItemElement } from "../../slateTypings";
+import { useSetRef } from "../../hooks";
+
 import { withPlugins } from "./slatePlugins";
 import { deserializeHTML } from "./slatePlugins/slateHTML";
-
-export const SLATE_EDITOR_MIN_HEIGHT = 300;
+import SlateElement from "./SlateElement";
+import SlateLeaf from "./SlateLeaf";
+import { HOTKEYS, DEFAULT_VALUE } from "./slateConstants";
+import { Editor, Element } from "./customSlate";
+import SlateProvider from "./SlateProvider";
+import SlateBlockButton from "./SlateBlockButton";
+import SlateMarkButton from "./SlateMarkButton";
+import useSlateState from "./useSlateState";
 
 const InputPressable = styled(Pressable)`
   overflow: hidden;
@@ -67,6 +56,9 @@ export interface SlateEditorProps {
   renderEditable?: (props: React.PropsWithChildren<{}>) => JSX.Element;
   isFocused?: boolean;
   name?: string;
+  fullWidth?: boolean;
+  above?: React.ReactNode;
+  below?: React.ReactNode;
 }
 
 export interface SlateEditorElement {
@@ -74,6 +66,7 @@ export interface SlateEditorElement {
   focus: () => void;
   blur: () => void;
   editor?: DefaultEditor;
+  clear: () => void;
 }
 
 const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
@@ -88,6 +81,9 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       onFocus: onFocusProp,
       onBlur: onBlurProp,
       name = "",
+      fullWidth,
+      above,
+      below,
     },
     ref
   ) => {
@@ -99,11 +95,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
 
     const renderLeaf = SlateLeaf;
 
-    const editor = React.useMemo(
-      // () => withHistory(withReact(withPlugins(createEditor()))),
-      () => withPlugins(withReact(withHistory(createEditor()))),
-      []
-    );
+    const editor = useSlateState((state) => state.editor);
 
     const { selection } = editor;
 
@@ -119,14 +111,24 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       }
     }, [editor]);
 
+    const clear = React.useCallback(() => {
+      Transforms.delete(editor, {
+        at: {
+          anchor: Editor.start(editor, []),
+          focus: Editor.end(editor, []),
+        },
+      });
+    }, [editor]);
+
     const element = React.useMemo<SlateEditorElement>(
       () => ({
         name,
         focus,
         blur,
         editor,
+        clear,
       }),
-      [focus, blur, editor, name]
+      [focus, blur, editor, name, clear]
     );
 
     const onBlurCache = React.useRef(onBlurProp);
@@ -373,13 +375,31 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       }
     };
 
+    // const EditableWrapper = ({ children }: { children?: React.ReactNode }) => (
+    //   <InputPressable focusable={false} focusOn="none" fullWidth={fullWidth}>
+    //     {(pressableProps) => (
+    //       <InputOutline
+    //         {...pick(pressableProps, ["focused", "pressed", "hovered"])}
+    //         spacingSize={0}
+    //         fullWidth={fullWidth}
+    //       >
+    //         {children}
+    //       </InputOutline>
+    //     )}
+    //   </InputPressable>
+    // );
+
     return (
       <Slate editor={editor} value={value} onChange={onChange}>
-        <InputPressable focusable={false} focusOn="none">
+        {above}
+
+        <InputPressable focusable={false} focusOn="none" fullWidth={fullWidth}>
           {(pressableProps) => (
             <InputOutline
               {...pick(pressableProps, ["focused", "pressed", "hovered"])}
               spacingSize={0}
+              fullWidth={fullWidth}
+              disabled={disabled}
             >
               <Editable
                 placeholder={placeholder}
@@ -417,14 +437,28 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                 }}
                 style={{
                   padding: `${theme.spacing / 2}px ${theme.spacing}px`,
+                  width: fullWidth ? "100%" : undefined,
+                  boxSizing: "border-box",
                 }}
               />
             </InputOutline>
           )}
         </InputPressable>
+
+        {below}
       </Slate>
     );
   }
 );
 
-export default SlateEditor;
+type SlateEditor = typeof SlateEditor & {
+  Provider: typeof SlateProvider;
+  BlockButton: typeof SlateBlockButton;
+  MarkButton: typeof SlateMarkButton;
+};
+
+(SlateEditor as SlateEditor).Provider = SlateProvider;
+(SlateEditor as SlateEditor).BlockButton = SlateBlockButton;
+(SlateEditor as SlateEditor).MarkButton = SlateMarkButton;
+
+export default SlateEditor as SlateEditor;

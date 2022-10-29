@@ -15,10 +15,10 @@ import IconButtonDemo from "./IconButtonDemo";
 
 function ComponentsDemo() {
   const examples = [
-    <BorderedDemo />,
-    <RoundedDemo />,
-    <SurfaceDemo />,
-    <IconButtonDemo />,
+    // <BorderedDemo />,
+    // <RoundedDemo />,
+    // <SurfaceDemo />,
+    // <IconButtonDemo />,
     <RichTextEditorDemo />,
   ];
 

@@ -21,7 +21,7 @@ const Surface = styled(Layout.Box).attrs<SurfaceProps>(
   ({ background = theme.colors.background }) => ({
     background,
   })
-)`
+)<SurfaceProps>`
   ${background};
   ${elevation};
 `;

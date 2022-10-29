@@ -87,18 +87,28 @@ export type InputOutlineProps = PressableState &
   SpacingProps &
   Background &
   Rounded &
-  Bordered;
+  Bordered & { disabled?: boolean };
 
 export const InputOutline = styled(Layout.Box).attrs<InputOutlineProps>(
   ({
     hovered,
     focused,
     background = theme.colors.transparent,
-    borderColor = theme.colors.primary,
-  }) => ({
-    borderColor: hovered || focused ? borderColor : theme.colors.transparent,
-    background: focused ? theme.colors.background : background,
-  })
+    borderColor: borderColorProp = theme.colors.primary,
+    disabled,
+  }) => {
+    let borderColor =
+      hovered || focused ? borderColorProp : theme.colors.backgroundDivider;
+
+    if (disabled) {
+      borderColor = theme.colors.transparent;
+    }
+
+    return {
+      borderColor,
+      background: focused ? theme.colors.background : background,
+    };
+  }
 )<InputOutlineProps>`
   ${background};
   ${rounded};

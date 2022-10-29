@@ -1,11 +1,17 @@
 import * as React from "react";
 import { startCase, isEqual } from "lodash";
 
-import { FormatElement } from "../../../typings-slate";
-import Menu, { MenuItemProps } from "../../../components/Menu";
+import { FormatElement } from "../../slateTypings";
+import Menu, { MenuItemProps } from "../../components/Menu";
 
 import { FORMAT_TYPES } from "./slateConstants";
-import { Normal, Heading, Subheading, Caption, Label } from "./SlateElement";
+import {
+  Normal,
+  Heading,
+  Subheading,
+  Caption,
+  Label,
+} from "./SlateElement/SlateElement";
 
 export interface SlateFormatMenuProps {
   disabled?: boolean;

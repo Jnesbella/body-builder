@@ -20,13 +20,13 @@ import {
   FormatElement,
   ImageElement,
   ListItemElement,
-} from "../../../typings-slate";
+} from "../../../slateTypings";
 import { log } from "../../../utils";
-import { Editor, Element } from "./customSlate";
+import { Editor, Element } from "../customSlate";
 import { BasePoint, Node, Path, Transforms } from "slate";
 import { isNumber, last, pick } from "lodash";
 import { theme } from "../../../styles";
-import { TEXT_ALIGN_DEFAULT } from "./slateConstants";
+import { TEXT_ALIGN_DEFAULT } from "../slateConstants";
 import Pressable, { PressableActions, PressableState } from "../../Pressable";
 
 export interface SlateElementProps extends RenderElementProps {}
@@ -211,9 +211,9 @@ const ListItem = React.forwardRef<any, ListItemProps>(
               />
             )}
 
-            {element.listType === "bullet-list" && <Icon icon={Icons.Dot} />}
+            {element.listType === "bulleted-list" && <Icon icon={Icons.Dot} />}
 
-            {element.listType === "number-list" && isNumber(index) && (
+            {element.listType === "numbered-list" && isNumber(index) && (
               <React.Fragment>{index + 1}.</React.Fragment>
             )}
           </FormatElementText>
@@ -308,10 +308,10 @@ function SlateElement(props: SlateElementProps) {
         // </React.Fragment>
       );
 
-    case "bullet-list":
+    case "bulleted-list":
       return <BulletList {...attributes}>{children}</BulletList>;
 
-    case "number-list":
+    case "numbered-list":
       return <NumberList {...attributes}>{children}</NumberList>;
 
     case "task-list":

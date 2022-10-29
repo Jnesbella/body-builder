@@ -1,19 +1,37 @@
 import * as React from "react";
-import { IconButton } from "@jnesbella/body-builder";
+import {
+  Button,
+  IconButton,
+  RichTextEditor,
+  RichTextEditorElement,
+  Text,
+} from "@jnesbella/body-builder";
 import styled from "styled-components/native";
 import DemoTemplate from "./DemoTemplate";
 import * as Icons from "react-bootstrap-icons";
 
 function RichTextEditorDemo() {
+  const ref = React.useRef<RichTextEditorElement>(null);
+
   return (
-    <DemoTemplate
-      title="RichTextEditor"
-      examples={
-        [
-          // () => <IconButton icon={Icons.Fonts} />,
-        ]
-      }
-    />
+    <React.Fragment>
+      <Button onPress={() => ref.current?.clear()}>
+        <Button.Text>Clear</Button.Text>
+      </Button>
+
+      <DemoTemplate
+        title="RichTextEditor"
+        examples={[
+          () => (
+            <RichTextEditor
+              ref={ref}
+              fullWidth
+              placeholder="Jot something down"
+            />
+          ),
+        ]}
+      />
+    </React.Fragment>
   );
 }
 

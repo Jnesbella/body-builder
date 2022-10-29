@@ -6,7 +6,7 @@ import SlateEditor, {
   SlateEditorFooter,
   SlateEditorElement,
   SlateEditorProps,
-} from "./SlateEditor";
+} from "../SlateEditor";
 import Toolbar from "./RichTextToolbar";
 
 export interface RichTextInputElement extends SlateEditorElement {}

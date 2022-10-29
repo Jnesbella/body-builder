@@ -1,7 +1,6 @@
 import * as React from "react";
 import * as Icons from "react-bootstrap-icons";
 import { ReactEditor } from "slate-react";
-import { Editor as DefaultEditor } from "slate";
 import { HistoryEditor } from "slate-history";
 import { startCase } from "lodash";
 
@@ -15,21 +14,30 @@ import {
   useTooltipActions,
 } from "../../../components";
 import { theme } from "../../../styles";
-import { CustomEditor, ListElement } from "../../../typings-slate";
+import { CustomEditor, ListElement, MarkType } from "../../../slateTypings";
 
-import { MarkButtonProps } from "../SlateEditor/MarkButton";
-import { BlockButtonProps } from "../SlateEditor/BlockButton";
-import { Editor } from "../SlateEditor/customSlate";
+import { Editor } from "../../SlateEditor/customSlate";
 import {
   useActiveFormat,
   useActiveTextAlign,
   useSetFormatElement,
-} from "../SlateEditor/slateHooks";
-import SlateFormatMenu from "../SlateEditor/SlateFormatMenu";
-import SlateTextAlignMenu from "../SlateEditor/SlateTextAlignMenu";
+} from "../../SlateEditor/slateHooks";
+import SlateFormatMenu from "../../SlateEditor/SlateFormatMenu";
+import SlateTextAlignMenu from "../../SlateEditor/SlateTextAlignMenu";
 
 import ToolbarItem from "./RichTextToolbarItem";
 import InsertImageButton from "./InsertImageButton";
+import { LIST_BLOCK_ICONS, MARK_ICONS } from "../../SlateEditor/slateConstants";
+
+const marks = Object.entries(MARK_ICONS).map(([mark, icon]) => ({
+  mark: mark as MarkType,
+  icon,
+}));
+
+const listBlocks = Object.entries(LIST_BLOCK_ICONS).map(([block, icon]) => ({
+  block: block as ListElement["type"],
+  icon,
+}));
 
 export interface RichTextToolbarProps {
   disabled?: boolean;
@@ -66,26 +74,6 @@ function RichTextToolbar({
     },
     [disabled]
   );
-
-  const marks: {
-    mark: MarkButtonProps["mark"];
-    icon: MarkButtonProps["icon"];
-  }[] = [
-    { mark: "bold", icon: Icons.TypeBold },
-    { mark: "italic", icon: Icons.TypeItalic },
-    { mark: "underline", icon: Icons.TypeUnderline },
-    { mark: "strikethrough", icon: Icons.TypeStrikethrough },
-    { mark: "code", icon: Icons.Code },
-  ];
-
-  const listBlocks: {
-    block: ListElement["type"];
-    icon: BlockButtonProps["icon"];
-  }[] = [
-    { block: "bullet-list", icon: Icons.ListUl },
-    { block: "number-list", icon: Icons.ListOl },
-    { block: "task-list", icon: Icons.ListCheck },
-  ];
 
   const markButtons = (
     <React.Fragment>

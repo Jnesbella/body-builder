@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Editor as DefaultEditor } from "slate";
 
-import { FormatElement } from "../../../typings-slate";
-import { log } from "../../../utils";
+import { FormatElement } from "../../slateTypings";
 
 import { Editor, Element } from "./customSlate";
+import useSlateState from "./useSlateState";
 
 export function useSetFormatElement({ editor }: { editor?: DefaultEditor }) {
   const setFormatElement = React.useCallback(

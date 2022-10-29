@@ -1,8 +1,8 @@
 import { Transforms } from "slate";
 import { jsx } from "slate-hyperscript";
 
-import { CustomEditor } from "../../../../typings-slate";
-import { log } from "../../../../utils";
+import { CustomEditor } from "../../../slateTypings";
+import { log } from "../../../utils";
 
 import { ELEMENT_TAGS, TEXT_TAGS } from "../slateConstants";
 
