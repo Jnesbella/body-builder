@@ -68,6 +68,7 @@ export type ImageElement = {
   type: "image";
   src: string;
   width?: number;
+  children: CustomText[];
 };
 
 export type TaskListElement = {

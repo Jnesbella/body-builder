@@ -14,7 +14,6 @@ import { full, Greedy, greedy } from "../../components";
 const DefaultPressable = styled.div<{ fullWidth?: boolean } & Greedy>`
   ${greedy};
   ${full};
-  ${greedy};
 
   user-select: none;
   display: inline-flex;

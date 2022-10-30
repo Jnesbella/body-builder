@@ -11,7 +11,7 @@ import {
   Subheading,
   Caption,
   Label,
-} from "./SlateElement/SlateElement";
+} from "./SlateElement/FormatElementText";
 
 export interface SlateFormatMenuProps {
   disabled?: boolean;

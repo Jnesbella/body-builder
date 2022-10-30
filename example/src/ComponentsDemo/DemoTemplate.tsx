@@ -16,8 +16,8 @@ export interface DemoTemplateProps {
 
 function DemoTemplate({ title, examples }: DemoTemplateProps) {
   return (
-    <Surface fullWidth>
-      <Layout.Column spacingSize={1} fullWidth>
+    <Surface>
+      <Layout.Column spacingSize={1}>
         <Text.Label>{title}</Text.Label>
 
         {examples.map((example, index) => (

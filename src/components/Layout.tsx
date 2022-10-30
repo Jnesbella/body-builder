@@ -24,7 +24,7 @@ export interface LayoutBoxProps
     MaxProps {}
 
 export const LayoutBox = styled.View.attrs<LayoutBoxProps>(
-  ({ alignItems = "flex-start", justifyContent = "flex-start" }) => ({
+  ({ alignItems, justifyContent }) => ({
     alignItems,
     justifyContent,
   })

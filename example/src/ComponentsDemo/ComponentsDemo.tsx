@@ -24,8 +24,8 @@ function ComponentsDemo() {
 
   return (
     <Pressable.Provider>
-      <Surface background={theme.colors.backgroundInfo} fullWidth>
-        <Layout.Column spacingSize={1} fullWidth>
+      <Surface background={theme.colors.backgroundInfo}>
+        <Layout.Column spacingSize={1}>
           {examples.map((example, index) => (
             <React.Fragment key={["demo", index].join("-")}>
               {index > 0 && <Space />}

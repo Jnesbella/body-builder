@@ -22,13 +22,7 @@ function RichTextEditorDemo() {
       <DemoTemplate
         title="RichTextEditor"
         examples={[
-          () => (
-            <RichTextEditor
-              ref={ref}
-              fullWidth
-              placeholder="Jot something down"
-            />
-          ),
+          () => <RichTextEditor ref={ref} placeholder="Jot something down" />,
         ]}
       />
     </React.Fragment>

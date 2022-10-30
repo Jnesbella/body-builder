@@ -24,8 +24,6 @@ function SlateMarkButton({
 
   const isActive = Editor.hasMark(editor, mark);
 
-  log("SlateMarkButton", { mark, isActive });
-
   return (
     <SlateButton
       {...iconButtonProps}

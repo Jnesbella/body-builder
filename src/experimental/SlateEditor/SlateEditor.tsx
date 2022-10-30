@@ -56,7 +56,6 @@ export interface SlateEditorProps {
   renderEditable?: (props: React.PropsWithChildren<{}>) => JSX.Element;
   isFocused?: boolean;
   name?: string;
-  fullWidth?: boolean;
   above?: React.ReactNode;
   below?: React.ReactNode;
 }
@@ -81,7 +80,6 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       onFocus: onFocusProp,
       onBlur: onBlurProp,
       name = "",
-      fullWidth,
       above,
       below,
     },
@@ -393,13 +391,13 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       <Slate editor={editor} value={value} onChange={onChange}>
         {above}
 
-        <InputPressable focusable={false} focusOn="none" fullWidth={fullWidth}>
+        <InputPressable focusable={false} focusOn="none">
           {(pressableProps) => (
             <InputOutline
               {...pick(pressableProps, ["focused", "pressed", "hovered"])}
               spacingSize={0}
-              fullWidth={fullWidth}
               disabled={disabled}
+              fullWidth
             >
               <Editable
                 placeholder={placeholder}
@@ -437,7 +435,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                 }}
                 style={{
                   padding: `${theme.spacing / 2}px ${theme.spacing}px`,
-                  width: fullWidth ? "100%" : undefined,
+                  width: "100%",
                   boxSizing: "border-box",
                 }}
               />

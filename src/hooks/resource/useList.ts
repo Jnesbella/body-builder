@@ -1,5 +1,11 @@
 import * as React from "react";
-import { useQuery, useQueryClient, QueryKey } from "react-query";
+import {
+  useQuery,
+  useQueryClient,
+  QueryKey,
+  useQueries,
+  UseQueryOptions,
+} from "react-query";
 
 import { ResourceDocument } from "../../services";
 
@@ -19,10 +25,24 @@ function useList<T extends ResourceDocument>(
 
   const queryKey = _queryKey || service.getQueryKey();
 
-  const { data, isLoading } = useQuery(queryKey, () => service.list(payload), {
+  const { data: resources = [], isLoading } = useQuery(
+    queryKey,
+    () => service.list(payload),
+    {
+      suspense: true,
+      onSuccess,
+    }
+  );
+
+  const queries: UseQueryOptions[] = resources.map((value) => ({
+    queryKey: service.getQueryKey(value.id),
+    queryFn: () => service.get(value.id),
     suspense: true,
-    onSuccess,
-  });
+  }));
+
+  const results = useQueries(queries);
+
+  const data = results.map((result) => result.data);
 
   const prefetch = React.useCallback(
     <P>(p?: P) =>
