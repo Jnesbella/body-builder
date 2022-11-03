@@ -80,7 +80,6 @@ const StyledTextInput = styled.TextInput.attrs<StyledTextInputProps>(
 
 const InputPressable = styled(Pressable)`
   overflow: hidden;
-  background: ${theme.colors.transparent};
 `;
 
 export type InputOutlineProps = PressableState &
@@ -158,6 +157,7 @@ function TextInput({
         >
           <StyledTextInput
             {...(textInputProps as unknown as any)}
+            background={background}
             ref={textInputRef}
             greedy={greedy}
             fullWidth={fullWidth}

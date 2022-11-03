@@ -24,6 +24,7 @@ import RichTextEdtiorExample from "./RichTextEditorExample";
 import Paperless from "./Paperless";
 import WorksheetExample from "./WorksheetExample";
 import ComponentsDemo from "./ComponentsDemo";
+import Main from "./MockApp/Main";
 
 // type PressableState = Readonly<{
 //   pressed: boolean;
@@ -85,7 +86,9 @@ const queryClient = new QueryClient({
 });
 
 const App = () => {
-  return <ComponentsDemo />;
+  // return <ComponentsDemo />;
+
+  return <Main />;
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -98,7 +101,7 @@ const App = () => {
       >
         <AsyncStorageProvider storage={storage}>
           <Pressable.Provider>
-            <Layout.Column greedy>
+            <Layout.Column>
               {/* <Layout.Box spacingSize={1}>
               <Text>BODY BUILDER</Text>
             </Layout.Box> */}

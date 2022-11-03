@@ -24,10 +24,12 @@ function WorksheetExample() {
                     column="description"
                     renderCell={WorksheetCell.TextInput}
                   />
+
                   <WorksheetColumn
                     column="effectiveness"
                     renderCell={WorksheetCell.TextInput}
                   />
+
                   <WorksheetColumn
                     column="result"
                     renderCell={WorksheetCell.TextInput}
@@ -35,6 +37,20 @@ function WorksheetExample() {
                 </React.Fragment>
               }
             >
+              <WorksheetRow
+                row="headers"
+                defaultHeight={40}
+                renderCell={(cell) => (
+                  <WorksheetCell.Header
+                    {...cell}
+                    label={cell.column}
+                    mode="column"
+                  />
+                )}
+              />
+
+              <WorksheetRow.Grip rowAbove="headers" rowBelow="banana" />
+
               <WorksheetRow row="banana" />
             </Worksheet>
           </Layout.Box>

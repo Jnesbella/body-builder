@@ -6,7 +6,9 @@ import useIsSelected from "../useIsSelected";
 import SpreadsheetCellContent, {
   SpreadsheetCellContentProps,
 } from "./WorksheetCellContent";
-import { TextInput } from "../../../components";
+import { Bordered, Layout, TextInput } from "../../../components";
+import { theme } from "../../../styles";
+import { log } from "../../../utils";
 
 export interface SpreadsheetTextInputProps extends SpreadsheetCellContentProps {
   onChangeText?: (text: string) => void;
@@ -14,6 +16,7 @@ export interface SpreadsheetTextInputProps extends SpreadsheetCellContentProps {
   autoFocus?: boolean;
   onBlur?: () => void;
   onFocus?: () => void;
+  borderColor?: Bordered["borderColor"];
 }
 
 function SpreadsheetTextInput({
@@ -23,6 +26,7 @@ function SpreadsheetTextInput({
   autoFocus,
   onBlur,
   onFocus,
+  borderColor,
   ...cell
 }: SpreadsheetTextInputProps) {
   const { row, column } = cell;
@@ -35,30 +39,36 @@ function SpreadsheetTextInput({
 
   const onSelectCell = useWorksheetActions((actions) => actions.onSelectCell);
 
+  log({ isSelected, row: cell.row, column: cell.column });
+
   return (
     <SpreadsheetCellContent {...cell}>
       {/* <Button greedy onPress={() => onSelectCell(row, column)} spacingSize={0}> */}
-      <TextInput
-        // onPress={() => onSelectCell(row, column)}
-        onFocus={() => {
-          onSelectCell(row, column);
-          onFocus?.();
-        }}
-        greedy
-        fullWidth
-        multiline
-        editable={editable}
-        onChangeText={onChangeText}
-        value={value}
-        autoFocus={autoFocus || isSelected}
-        onBlur={onBlur}
+      <Layout.Box spacingSize={0.25} greedy>
+        <TextInput
+          // onPress={() => onSelectCell(row, column)}
+          onFocus={() => {
+            onSelectCell(row, column);
+            onFocus?.();
+          }}
+          greedy
+          fullWidth
+          multiline
+          editable={editable}
+          onChangeText={onChangeText}
+          value={value}
+          autoFocus={autoFocus || isSelected}
+          onBlur={onBlur}
+          borderColor={borderColor}
+          background={theme.colors.transparent}
 
-        // readonly={!editable}
-        // editable={false}
-        // onContentSizeChange={(event) => {
-        //   log({ contentSize: event.nativeEvent.contentSize })
-        // }}
-      />
+          // readonly={!editable}
+          // editable={false}
+          // onContentSizeChange={(event) => {
+          //   log({ contentSize: event.nativeEvent.contentSize })
+          // }}
+        />
+      </Layout.Box>
       {/* </Button> */}
     </SpreadsheetCellContent>
   );

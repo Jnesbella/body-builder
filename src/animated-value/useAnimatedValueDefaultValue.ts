@@ -1,4 +1,4 @@
-import { isUndefined } from "lodash";
+import { isNil, isUndefined } from "lodash";
 
 import useStorageQuery from "../async-storage/deprecated/useStorageQuery";
 import { AnimatedValueQuery } from "./animatedValueTypes";
@@ -16,7 +16,7 @@ function useAnimatedValueDefaultValue(
     enabled,
   });
 
-  return !isUndefined(defaultValue) ? defaultValue : _defaultValue;
+  return !isNil(defaultValue) ? defaultValue : _defaultValue;
 }
 
 export default useAnimatedValueDefaultValue;

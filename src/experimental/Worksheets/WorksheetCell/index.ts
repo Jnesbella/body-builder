@@ -14,5 +14,6 @@ type WorksheetCell = typeof WorksheetCell & {
 
 export * from "./worksheetCellTypes";
 export * from "./WorksheetCell";
+export * from "./WorksheetCellContent";
 
 export default WorksheetCell as WorksheetCell;

@@ -7,6 +7,7 @@ import SlateEditor, {
   SlateEditorElement,
   SlateEditorProps,
 } from "../SlateEditor";
+import SlateProvider from "../SlateEditor/SlateProvider";
 import Toolbar from "./RichTextToolbar";
 
 export interface RichTextInputElement extends SlateEditorElement {}
@@ -26,16 +27,18 @@ const RichTextInput = React.forwardRef<
   RichTextInputProps
 >(({ onChange, disabled, placeholder, onFocus, name, onBlur, value }, ref) => {
   return (
-    <SlateEditor
-      ref={ref}
-      placeholder={placeholder}
-      onChange={onChange}
-      disabled={disabled}
-      onFocus={onFocus}
-      onBlur={onBlur}
-      name={name}
-      value={value}
-    />
+    <SlateProvider>
+      <SlateEditor
+        ref={ref}
+        placeholder={placeholder}
+        onChange={onChange}
+        disabled={disabled}
+        onFocus={onFocus}
+        onBlur={onBlur}
+        name={name}
+        value={value}
+      />
+    </SlateProvider>
   );
 });
 

@@ -38,6 +38,7 @@ function SlateTextAlignMenu({
             onPressCapture={() => onChangeCapture?.(type)}
             onFocus={onFocus}
             onBlur={onBlur}
+            fullWidth
           >
             <Text>{startCase(type)}</Text>
           </Menu.Item>

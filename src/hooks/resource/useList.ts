@@ -50,11 +50,14 @@ function useList<T extends ResourceDocument>(
     [payload, service]
   );
 
-  const { updateListQueryDataToAppendItem, updateListQueryDataToFilterItem } =
-    useQueryUtils();
+  const {
+    updateListQueryDataToAppendItem,
+    updateListQueryDataToFilterItem,
+    updateListQueryDataToSetItem,
+  } = useQueryUtils();
 
   const onCreateSuccess: OnMutationSuccess = React.useCallback(
-    (data) => updateListQueryDataToAppendItem(queryKey, data),
+    (nextData) => updateListQueryDataToAppendItem(queryKey, nextData),
     [queryKey, updateListQueryDataToAppendItem]
   );
 
@@ -63,12 +66,19 @@ function useList<T extends ResourceDocument>(
     [queryKey, updateListQueryDataToFilterItem]
   );
 
+  const onUpdateSuccess: OnMutationSuccess = React.useCallback(
+    (nextData) => updateListQueryDataToSetItem(queryKey, nextData),
+    [queryKey, updateListQueryDataToSetItem]
+  );
+
   return {
+    // data: resources,
     data,
     prefetch,
     isLoading,
     onCreateSuccess,
     onDeleteSuccess,
+    onUpdateSuccess,
   };
 }
 

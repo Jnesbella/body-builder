@@ -97,7 +97,7 @@ class Fetch {
     if (token) {
       this.setHeader("Authorization", token, { prefix: tokenType });
     } else {
-      log("? FETCH \t Invalid authorization header. Unsetting authorization.", {
+      log("FETCH Invalid authorization header. Unsetting authorization.", {
         tokenType,
         accessToken,
         refreshToken,

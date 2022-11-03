@@ -9,6 +9,7 @@ import {
   useAnimatedValueDefaultValue,
 } from "../../animated-value";
 import { useWatchAnimatedValue } from "../../hooks";
+import { log } from "../../utils";
 
 const FlubberContainer = styled(Animated.View)``;
 

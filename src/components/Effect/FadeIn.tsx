@@ -1,46 +1,77 @@
-import * as React from 'react'
-import { Animated, Easing } from 'react-native'
-import styled from 'styled-components/native'
+import * as React from "react";
+import { Animated, Easing } from "react-native";
+import styled from "styled-components/native";
 
-import { Greedy, greedy } from '../styled-components'
+import { useSetRef } from "../../hooks";
+import { Greedy, greedy } from "../styled-components";
 
 const FadeInContainer = styled(Animated.View)`
   ${greedy};
-`
+`;
+
+export interface FadeInElement {
+  fadeOut: () => void;
+  fadeIn: () => void;
+}
 
 export interface FadeInProps extends Greedy {
-  children?: React.ReactNode
-  duration?: number
+  children?: React.ReactNode;
+  duration?: number;
 }
 
-function FadeIn({ children, duration = 100, ...rest }: FadeInProps) {
-  const { current: fadeAnim } = React.useRef(new Animated.Value(0))
+const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
+  ({ children, duration = 100, ...rest }, ref) => {
+    const { current: fadeAnim } = React.useRef(new Animated.Value(0));
 
-  React.useEffect(() => {
-    const timing = Animated.timing(fadeAnim, {
-      toValue: 1,
+    const timingOptions = {
       duration,
       easing: Easing.ease,
-      useNativeDriver: false
-    })
+      useNativeDriver: false,
+    };
 
-    timing.start()
+    const fadeInTiming = Animated.timing(fadeAnim, {
+      ...timingOptions,
+      toValue: 1,
+    });
 
-    return () => {
-      timing.stop()
-    }
-  }, [fadeAnim, duration])
+    const fadeOutTiming = Animated.timing(fadeAnim, {
+      ...timingOptions,
+      toValue: 0,
+    });
 
-  return (
-    <FadeInContainer
-      style={{
-        opacity: fadeAnim
-      }}
-      {...rest}
-    >
-      {children}
-    </FadeInContainer>
-  )
-}
+    const fadeIn = () => {
+      fadeInTiming.start();
 
-export default FadeIn
+      return fadeInTiming;
+    };
+
+    const fadeOut = () => {
+      fadeOutTiming.start();
+
+      return fadeOutTiming;
+    };
+
+    useSetRef(ref, { fadeIn, fadeOut });
+
+    React.useEffect(function handleOnMound() {
+      const timing = fadeIn();
+
+      return () => {
+        timing.stop();
+      };
+    }, []);
+
+    return (
+      <FadeInContainer
+        style={{
+          opacity: fadeAnim,
+        }}
+        {...rest}
+      >
+        {children}
+      </FadeInContainer>
+    );
+  }
+);
+
+export default FadeIn;

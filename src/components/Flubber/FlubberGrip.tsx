@@ -44,7 +44,9 @@ const FlubberGripContainer = styled(Layout.Box).attrs<GripContainerProps>(
     fullHeight: true,
     justifyContent: JustifyContent.Center,
     // spacingSize: 0.5,
-    background: dragging ? theme.colors.backgroundDisabled : undefined,
+    background: dragging
+      ? theme.colors.backgroundDisabled
+      : theme.colors.transparent,
   })
 )<GripContainerProps>`
   ${full};

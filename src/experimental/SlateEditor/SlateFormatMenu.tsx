@@ -65,6 +65,7 @@ function SlateFormatMenu({
             onPressCapture={() => onChangeCapture?.(type)}
             onFocus={onFocus}
             onBlur={onBlur}
+            fullWidth
           >
             <Wrapper>{startCase(type)}</Wrapper>
           </Menu.Item>

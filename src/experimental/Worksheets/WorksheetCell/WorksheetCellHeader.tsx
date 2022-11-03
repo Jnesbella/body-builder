@@ -63,6 +63,7 @@ function SpreadsheetHeaderCell({
             onSelectColumn(column);
           }
         }}
+        background={theme.colors.transparent}
       >
         <HeaderText textAlign={TextAlign.Center}>{label}</HeaderText>
       </Button>

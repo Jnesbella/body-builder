@@ -19,6 +19,7 @@ export interface WorksheetRowProps {
   defaultHeight?: number;
   defaultWidth?: number;
   rowIndex?: number;
+  isHeaderRow?: boolean;
 }
 
 function WorksheetRow({
@@ -27,8 +28,9 @@ function WorksheetRow({
   defaultHeight,
   defaultWidth,
   rowIndex,
+  isHeaderRow: isHeaderRowProp,
 }: WorksheetRowProps) {
-  const isHeader = row === HEADER_ROW;
+  const isHeaderRow = isHeaderRowProp || row === HEADER_ROW;
   const columns = useWorksheetState((state) => state.sheet?.columns);
   const sheet = useWorksheetState((state) => state.sheet?.name);
   const getCellProps = useWorksheetActions((actions) => actions.getCellProps);
@@ -51,58 +53,66 @@ function WorksheetRow({
   );
 
   return (
-    <Surface
-      background={
-        isHeader ? theme.colors.backgroundInfo : theme.colors.transparent
-      }
+    // <Layout.Box
+    //   // background={
+    //   //   isHeaderRow ? theme.colors.backgroundInfo : theme.colors.transparent
+    //   // }
+    //   spacingSize={[0.5, 0]}
+    //   style={
+    //     isHeaderRow && {
+    //       borderBottomWidth: theme.borderThickness,
+    //       borderBottomColor: theme.colors.backgroundInfo,
+    //     }
+    //   }
+    // >
+    <Layout.Row
       spacingSize={[0.5, 0]}
       style={
-        isHeader && {
+        isHeaderRow && {
           borderBottomWidth: theme.borderThickness,
           borderBottomColor: theme.colors.backgroundInfo,
         }
       }
     >
-      <Layout.Row>
-        {columns?.map((column, columnIndex) => {
-          const isFirstColumn = columnIndex === 0;
-          const prevColumn = !isFirstColumn
-            ? columns?.[columnIndex - 1]
-            : undefined;
+      {columns?.map((column, columnIndex) => {
+        const isFirstColumn = columnIndex === 0;
+        const prevColumn = !isFirstColumn
+          ? columns?.[columnIndex - 1]
+          : undefined;
 
-          const cell: WorksheetCell = {
-            row,
-            column,
-          };
+        const cell: WorksheetCell = {
+          row,
+          column,
+        };
 
-          const cellProps = getCellProps(column, {
-            defaultWidth,
-            defaultHeight,
-          });
+        const cellProps = getCellProps(column, {
+          defaultWidth,
+          defaultHeight,
+        });
 
-          return (
-            <React.Fragment key={sheet + row + column}>
-              {prevColumn && (
-                <SpreadsheetGrip pushAndPull={[prevColumn, column]} />
-              )}
+        return (
+          <React.Fragment key={sheet + row + column}>
+            {prevColumn && (
+              <SpreadsheetGrip pushAndPull={[prevColumn, column]} />
+            )}
 
-              <Cell
-                {...cellProps}
+            <Cell
+              {...cellProps}
+              {...cell}
+              columnIndex={columnIndex}
+              rowIndex={rowIndex}
+            >
+              <CellContent
                 {...cell}
                 columnIndex={columnIndex}
                 rowIndex={rowIndex}
-              >
-                <CellContent
-                  {...cell}
-                  columnIndex={columnIndex}
-                  rowIndex={rowIndex}
-                />
-              </Cell>
-            </React.Fragment>
-          );
-        })}
-      </Layout.Row>
-    </Surface>
+              />
+            </Cell>
+          </React.Fragment>
+        );
+      })}
+    </Layout.Row>
+    // </Layout.Box>
   );
 }
 
