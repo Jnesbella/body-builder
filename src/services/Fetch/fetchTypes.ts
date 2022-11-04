@@ -34,6 +34,8 @@ export interface CustomRequstInit
   method: RequestInit["method"];
 }
 
+export type FetchPriority = "high" | "low";
+
 export interface FetchOptions {
   priority?: "queue" | "immediate";
   retryCount?: FetchState["retryCount"];

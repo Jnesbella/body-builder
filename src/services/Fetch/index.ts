@@ -1,4 +1,4 @@
-export { default } from "./Fetch";
+export { default } from "./RemoteFetch";
 
 export { default as LocalFetch } from "./LocalFetch";
 export { default as RemoteFetch } from "./RemoteFetch";

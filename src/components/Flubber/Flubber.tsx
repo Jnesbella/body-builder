@@ -1,15 +1,10 @@
 import * as React from "react";
-import { isNumber, isUndefined } from "lodash";
 import styled from "styled-components/native";
 import { Animated } from "react-native";
+import { QueryKey } from "react-query";
 
-import {
-  AnimatedValueQuery,
-  useAnimatedValue,
-  useAnimatedValueDefaultValue,
-} from "../../animated-value";
+import { useAnimatedValue } from "../../animated-value";
 import { useWatchAnimatedValue } from "../../hooks";
-import { log } from "../../utils";
 
 const FlubberContainer = styled(Animated.View)``;
 
@@ -17,9 +12,9 @@ export interface FlubberElement {}
 
 export interface FlubberProps {
   children?: React.ReactNode;
-  width: AnimatedValueQuery;
+  width: QueryKey;
   defaultWidth?: number;
-  height: AnimatedValueQuery;
+  height: QueryKey;
   defaultHeight?: number;
   autoLayout?: boolean;
   greedy?: boolean | "height" | "width";
@@ -31,8 +26,8 @@ const Flubber = React.forwardRef<FlubberElement, FlubberProps>(
       width: widthProp,
       height: heightProp,
       children,
-      defaultWidth: _defaultWidth,
-      defaultHeight: _defaultHeight,
+      defaultWidth: defaultWidth,
+      defaultHeight: defaultHeight,
       greedy,
     },
     ref
@@ -41,14 +36,9 @@ const Flubber = React.forwardRef<FlubberElement, FlubberProps>(
     const isGreedyWidth = greedy === "width";
     const isGreedy = isGreedyHeight || isGreedyWidth;
 
-    const defaultWidth = useAnimatedValueDefaultValue(widthProp, _defaultWidth);
     const width = useAnimatedValue(widthProp, defaultWidth);
     const widthValue = useWatchAnimatedValue(width, defaultWidth);
 
-    const defaultHeight = useAnimatedValueDefaultValue(
-      heightProp,
-      _defaultHeight
-    );
     const height = useAnimatedValue(heightProp, defaultHeight);
     const heightValue = useWatchAnimatedValue(height, defaultHeight);
 

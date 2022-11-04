@@ -1,7 +1,13 @@
-import { default as Square } from './Square'
+import Square from "./Square";
+import Suspend from "./Suspend";
+import ThrowError from "./ThrowError";
 
 export default {
-  Square
-}
+  Square,
+  ThrowError,
+  Suspend,
+};
 
-export * from './Square'
+export * from "./Square";
+export * from "./Suspend";
+export * from "./ThrowError";

@@ -9,14 +9,25 @@ import {
   Fetch,
   Service,
   LocalFetch,
+  ErrorMessage,
+  Info,
+  Async,
+  Util,
+  Flubber,
+  Surface,
+  IconButton,
+  Space,
+  Measure,
 } from "@jnesbella/body-builder";
-import { QueryClientProvider, QueryClient } from "react-query";
+import { QueryClientProvider, QueryClient, useQuery } from "react-query";
+import { Modal } from "react-native";
+import Loading from "../../../dist/components/Async/Loading";
+import styled from "styled-components/native";
+import * as Icons from "react-bootstrap-icons";
 
 const storage = makeAsyncStorage();
 
-const local = new Fetch({
-  apiRoot: "http://localhost:3002/api",
-});
+const fetch = new LocalFetch({ storage });
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -32,25 +43,98 @@ const queryClient = new QueryClient({
 const service = new Service({
   queryKey: "debug",
   pathRoot: "/debug",
-  fetch: local,
+  fetch,
 });
+
+const BoxWithPadding = ({ maxWidth }: { maxWidth?: number }) => {
+  return (
+    <Layout.Box greedy style={{ maxWidth }}>
+      <Surface greedy />
+    </Layout.Box>
+  );
+};
+
+function MeasureDemo() {
+  return (
+    <Surface greedy>
+      <Measure greedy>
+        {(rect) => (
+          <Layout.Box alignItems="center" justifyContent="center" greedy>
+            <Text>
+              {rect?.width || 0} x {rect?.height || 0}
+            </Text>
+          </Layout.Box>
+        )}
+      </Measure>
+    </Surface>
+  );
+}
+
+function AppLayout() {
+  return (
+    <Layout.Row greedy>
+      <Flubber
+        greedy
+        width={["nav", "width"]}
+        height={["nav", "height"]}
+        defaultWidth={300}
+      >
+        {/* <MeasureDemo /> */}
+      </Flubber>
+
+      <Flubber.Grip
+        pushAndPull={[
+          ["nav", "width"],
+          ["main", "width"],
+        ]}
+      />
+
+      <Flubber greedy width={["main", "width"]} height={["main", "height"]}>
+        <Surface>
+          <Layout.Row spacingSize={1}>
+            <IconButton icon={Icons.List} />
+          </Layout.Row>
+        </Surface>
+
+        <Space />
+
+        <Layout.Row greedy>
+          <BoxWithPadding />
+
+          <Space />
+
+          <BoxWithPadding maxWidth={300} />
+        </Layout.Row>
+      </Flubber>
+    </Layout.Row>
+  );
+}
 
 function Main() {
   return (
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary
-        fallback={
-          <Layout.Box greedy justifyContent="center" alignItems="center">
-            <Text>Error</Text>
-          </Layout.Box>
-        }
-      >
-        <AsyncStorageProvider storage={storage}>
+      <AsyncStorageProvider storage={storage}>
+        <ErrorBoundary fallback={<ErrorMessage />}>
           <Pressable.Provider>
-            <Layout.Column></Layout.Column>
+            <Info greedy>
+              <React.Suspense
+                fallback={
+                  <Layout.Box
+                    greedy
+                    alignItems="center"
+                    justifyContent="center"
+                  >
+                    <Text>Loading...</Text>
+                  </Layout.Box>
+                }
+              >
+                <AppLayout />
+                {/* <MeasureDemo /> */}
+              </React.Suspense>
+            </Info>
           </Pressable.Provider>
-        </AsyncStorageProvider>
-      </ErrorBoundary>
+        </ErrorBoundary>
+      </AsyncStorageProvider>
     </QueryClientProvider>
   );
 }

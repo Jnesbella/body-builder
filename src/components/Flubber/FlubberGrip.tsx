@@ -5,7 +5,7 @@ import * as Icons from "react-bootstrap-icons";
 
 import { theme } from "../../styles";
 import { OrientationProp, SizeProp } from "../../types";
-import { useAnimatedValue, AnimatedValueQuery } from "../../animated-value";
+import { useAnimatedValue } from "../../animated-value";
 
 import {
   flexible,
@@ -25,6 +25,8 @@ import Icon from "../Icon";
 import Layout from "../Layout";
 
 import useFlubberGripSize from "./useFlubberGripSize";
+import { QueryKey } from "react-query";
+import { useSetRef } from "../../hooks";
 
 interface GripContainerProps
   extends Flexible,
@@ -34,7 +36,6 @@ interface GripContainerProps
     Greedy,
     Rounded {
   dragging?: boolean;
-  width?: AnimatedValueQuery;
   orientation?: OrientationProp;
 }
 
@@ -70,7 +71,7 @@ const FlubberGripContainer = styled(Layout.Box).attrs<GripContainerProps>(
 export interface FlubberGripElement {}
 
 export interface FlubberGripProps {
-  pushAndPull: [AnimatedValueQuery, AnimatedValueQuery];
+  pushAndPull: [QueryKey, QueryKey];
   size?: SizeProp;
   enabled?: boolean;
   orientation?: OrientationProp;
@@ -103,13 +104,8 @@ const FlubberGrip = React.forwardRef<FlubberGripElement, FlubberGripProps>(
     const isIconVisible = !["xsmall", "small"].includes(size);
 
     const element = React.useMemo<FlubberGripElement | null>(() => ({}), []);
-    React.useEffect(function handleRef() {
-      if (ref && "current" in ref) {
-        ref.current = element;
-      } else {
-        ref?.(element);
-      }
-    });
+
+    useSetRef(ref, element);
 
     const panResponder = React.useMemo(
       () =>

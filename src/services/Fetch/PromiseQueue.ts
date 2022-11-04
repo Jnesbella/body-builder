@@ -1,8 +1,8 @@
-type PromiseGetter = () => Promise<any>;
+type PromiseGetter<TData = any> = () => Promise<TData>;
 
-interface PromiseItem {
-  promise: PromiseGetter;
-  resolve: (value: unknown | PromiseLike<unknown>) => void;
+interface PromiseItem<TData = any> {
+  getPromise: PromiseGetter<TData>;
+  resolve: (value: TData | PromiseLike<TData>) => void;
   reject: (reason?: any) => void;
 }
 
@@ -14,7 +14,7 @@ const wait = (data: any, milliseconds = defaultWait) => {
   });
 };
 
-class Queue {
+class PromiseQueue {
   static queue: PromiseItem[] = [];
   static workingOnPromise = false;
 
@@ -22,10 +22,10 @@ class Queue {
     defaultWait = nextWait;
   };
 
-  static enqueue(promise: PromiseGetter) {
-    return new Promise<unknown>((resolve, reject) => {
+  static enqueue<TData = any>(getPromise: PromiseGetter<TData>) {
+    return new Promise<TData>((resolve, reject) => {
       const item = {
-        promise,
+        getPromise,
         resolve,
         reject,
       };
@@ -55,11 +55,11 @@ class Queue {
 
     try {
       this.workingOnPromise = true;
-      item.promise().then(wait).then(resolvePromise).catch(rejectPromise);
+      item.getPromise().then(wait).then(resolvePromise).catch(rejectPromise);
     } catch (err) {
       rejectPromise(err as Error);
     }
   }
 }
 
-export default Queue;
+export default PromiseQueue;

@@ -20,6 +20,8 @@ export { default as Portal } from "./Portal";
 export { default as Tooltip } from "./Tooltip";
 export { default as Menu } from "./Menu";
 export { default as ScrollView } from "./ScrollView";
+export { default as Util } from "./Util";
+export { default as Measure } from "./Measure";
 
 export * from "./styled-components";
 export * from "./Flubber";
@@ -40,5 +42,6 @@ export * from "./Tooltip";
 export * from "./Menu";
 export * from "./ScrollView";
 export * from "./TextInput";
-
+export * from "./Util";
+export * from "./Measure";
 export * from "./bordered";

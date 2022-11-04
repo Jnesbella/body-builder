@@ -7,17 +7,18 @@ export async function checkIsOkay(response: Response) {
   return response;
 }
 
-export async function toJSON(response: Response) {
+export const toJSON = async (response: Response) => {
   let text: string = "";
 
   try {
     text = await response.text(); // Parse it as text
     const data = JSON.parse(text); // Try to parse it as JSON
+
     return data;
   } catch {
     return text;
   }
-}
+};
 
 export function getErrorMessge(err: unknown) {
   if (err && "message" in (err as Error)) {

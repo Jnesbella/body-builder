@@ -1,47 +1,47 @@
-import React, { useState } from 'react'
-import { Dimensions, StyleSheet, View, Animated, Easing } from 'react-native'
+import React, { useState } from "react";
+import { Dimensions, StyleSheet, View, Animated, Easing } from "react-native";
 // import LinearGradient from 'react-native-linear-gradient'
 
 const styles = StyleSheet.create({
   shimmer: {
-    overflow: 'hidden',
-    backgroundColor: '#eee'
-  }
-})
+    overflow: "hidden",
+    backgroundColor: "#eee",
+  },
+});
 
-const SCREEN_WIDTH = Dimensions.get('screen').width
-const START = -1
-const END = 1
-const DURATION = 2000
+const SCREEN_WIDTH = Dimensions.get("screen").width;
+const START = -1;
+const END = 1;
+const DURATION = 2000;
 // const COLORS = ['#eee', '#ddd', '#eee']
 // const LOCATIONS = [0.3, 0.5, 0.7]
-const ANIMATION = new Animated.Value(START)
+const ANIMATION = new Animated.Value(START);
 
 const runAnimation = () => {
-  ANIMATION.setValue(START)
+  ANIMATION.setValue(START);
   Animated.timing(ANIMATION, {
     toValue: END,
     duration: DURATION,
     easing: Easing.linear,
-    useNativeDriver: true
-  }).start(runAnimation)
-}
+    useNativeDriver: true,
+  }).start(runAnimation);
+};
 
 const linear = ANIMATION.interpolate({
   inputRange: [START, END],
-  outputRange: [-SCREEN_WIDTH, SCREEN_WIDTH]
-})
+  outputRange: [-SCREEN_WIDTH, SCREEN_WIDTH],
+});
 
-runAnimation()
+runAnimation();
 
 export interface ShimmerProps {
-  width?: number
-  height?: number
+  width?: number;
+  height?: number;
 }
 
 function Shimmer({ width, height }: ShimmerProps) {
-  const [positionX, setPositionX] = useState<number | null>(null)
-  let viewRef = React.useRef<View>(null)
+  const [positionX, setPositionX] = useState<number | null>(null);
+  let viewRef = React.useRef<View>(null);
 
   return (
     <View
@@ -49,8 +49,8 @@ function Shimmer({ width, height }: ShimmerProps) {
       ref={viewRef}
       onLayout={() => {
         viewRef.current?.measure((_x, _y, _width, _height, pageX, _pageY) => {
-          setPositionX(pageX)
-        })
+          setPositionX(pageX);
+        });
       }}
     >
       {positionX !== null && (
@@ -58,7 +58,7 @@ function Shimmer({ width, height }: ShimmerProps) {
           style={{
             flex: 1,
             left: -positionX,
-            transform: [{ translateX: linear }]
+            transform: [{ translateX: linear }],
           }}
         >
           {/* <LinearGradient
@@ -71,7 +71,7 @@ function Shimmer({ width, height }: ShimmerProps) {
         </Animated.View>
       )}
     </View>
-  )
+  );
 }
 
-export default Shimmer
+export default Shimmer;

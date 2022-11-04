@@ -1,23 +1,25 @@
-import * as React from 'react'
+import * as React from "react";
 
-import Text from '../Text'
-import Layout from '../Layout'
-import { Greedy } from '../styled-components'
+import Text from "../Text";
+import Layout from "../Layout";
+import { Greedy } from "../styled-components";
 
 export interface LoadingProps extends Greedy {
-  isLoading?: boolean
+  isLoading?: boolean;
+  fallback?: React.ReactNode;
+  children?: React.ReactNode;
 }
 
-function Loading({ isLoading = true, ...rest }: LoadingProps) {
+function Loading({
+  isLoading = true,
+  fallback = null,
+  children,
+}: LoadingProps) {
   if (isLoading) {
-    return null
+    return fallback;
   }
 
-  return (
-    <Layout.Box {...rest}>
-      <Text>Loading...</Text>
-    </Layout.Box>
-  )
+  return <React.Fragment>{children}</React.Fragment>;
 }
 
-export default Loading
+export default Loading;

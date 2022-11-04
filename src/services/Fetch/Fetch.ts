@@ -1,247 +1,133 @@
-import { compact, isNumber, omit } from "lodash";
-
-import { Authorization } from "../../types";
 import { log } from "../../utils";
 
-import {
-  FetchHeader,
-  FetchState,
-  FetchResponseInterceptor,
-  CustomRequstInit,
-  FetchOptions,
-} from "./fetchTypes";
-import { HEADER_DELIMITER } from "./constants";
+import { FetchResponseInterceptor } from "./fetchTypes";
 import { checkIsOkay, toJSON } from "./fetchUtils";
-import Queue from "./Queue";
+import Queue from "./PromiseQueue";
 
-class Fetch {
-  state: FetchState;
+export interface FetchOptions {
+  retryCount?: number;
+}
 
-  constructor({
-    origin = window.location.origin,
-    apiRoot = "http://REPLACE_ME:3001",
-    retryCount = 0,
-  }: Partial<FetchState> = {}) {
-    this.state = {
-      apiRoot,
-      origin,
+export interface FetchMethodOptions extends FetchOptions {
+  immediate?: boolean;
+}
 
-      // requestInterceptors: [],
-      responseInterceptors: [],
+abstract class Fetch {
+  responseInterceptors: FetchResponseInterceptor[];
+  retryCount: number;
 
-      retryCount,
-
-      headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": origin,
-      },
-    };
+  constructor({ retryCount = 0 }: FetchOptions = {}) {
+    this.retryCount = retryCount;
+    this.responseInterceptors = [];
   }
-
-  setState = (nextState: FetchState) => {
-    this.state = nextState;
-  };
-
-  getState = () => {
-    return this.state;
-  };
-
-  updateState = (updates: Partial<FetchState> = {}) => {
-    this.setState({ ...this.state, ...updates });
-  };
-
-  setApiRoot = (nextApiRoot: string) => {
-    this.updateState({
-      apiRoot: nextApiRoot,
-    });
-  };
-
-  getApiRoot = () => {
-    return this.getState().apiRoot;
-  };
-
-  setHeader = (
-    header: FetchHeader,
-    value: string,
-    { prefix }: { prefix?: string } = {}
-  ) => {
-    const { headers } = this.state;
-    headers[header] = compact([prefix, value]).join(HEADER_DELIMITER);
-
-    this.updateState({
-      headers,
-    });
-  };
-
-  deleteHeader = (header: FetchHeader) => {
-    const { headers } = this.state;
-    const nextHeaders = omit(headers, header);
-
-    this.updateState({
-      headers: nextHeaders,
-    });
-  };
-
-  setAuthorizationHeader = ({
-    tokenType,
-    accessToken,
-    refreshToken,
-  }: Authorization) => {
-    let token: string | undefined;
-    if (tokenType === "Bearer") {
-      token = accessToken;
-    } else if (tokenType === "Refresh") {
-      token = refreshToken;
-    }
-
-    if (token) {
-      this.setHeader("Authorization", token, { prefix: tokenType });
-    } else {
-      log("FETCH Invalid authorization header. Unsetting authorization.", {
-        tokenType,
-        accessToken,
-        refreshToken,
-        token,
-      });
-
-      this.unsetAuthorization();
-    }
-  };
-
-  isHeaderSet = (header: FetchHeader) => {
-    return !!this.state.headers[header];
-  };
-
-  clearAuthorizationHeader = () => this.deleteHeader("Authorization");
-
-  isAuthorizationHeaderSet = () => this.isHeaderSet("Authorization");
-
-  setAuthorization = (nextAuthorization: Authorization) => {
-    this.updateState({
-      authorization: nextAuthorization,
-    });
-    this.setAuthorizationHeader(nextAuthorization);
-  };
-
-  unsetAuthorization = () => {
-    this.updateState({
-      authorization: undefined,
-    });
-    this.clearAuthorizationHeader();
-  };
 
   addResponseInterceptor = (
     interceptor: FetchResponseInterceptor
   ): (() => void) => {
-    this.updateState({
-      responseInterceptors: [...this.state.responseInterceptors, interceptor],
-    });
+    this.responseInterceptors = [...this.responseInterceptors, interceptor];
 
-    return () => {
-      this.updateState({
-        responseInterceptors: this.state.responseInterceptors.filter(
-          (i) => i !== interceptor
-        ),
-      });
-    };
-  };
-
-  fetch = async (
-    slug: string,
-    init: CustomRequstInit,
-    {
-      retryCountOverride,
-    }: { retryCountOverride?: FetchState["retryCount"] } = {}
-  ) => {
-    const callResponseInterceptors = async (
-      response?: Response,
-      error?: unknown
-    ) => {
-      return Promise.all(
-        this.state.responseInterceptors.map(async (interceptor) => {
-          try {
-            await interceptor(response, error);
-          } catch (err) {
-            log("callResponseInterceptors", { err });
-          }
-        })
+    const removeResponseInterceptor = () => {
+      this.responseInterceptors = this.responseInterceptors.filter(
+        (i) => i !== interceptor
       );
     };
 
-    const doRequest = async () => {
-      const { headers, apiRoot } = this.state;
-      let input = `${apiRoot}${slug}`;
+    return removeResponseInterceptor;
+  };
 
-      const response = await fetch(input, {
-        ...init,
-        headers,
-      });
-      return checkIsOkay(response);
-    };
+  private callResponseInterceptors = async (
+    response?: Response,
+    error?: unknown
+  ) => {
+    return Promise.all(
+      this.responseInterceptors.map(async (interceptor) => {
+        try {
+          await interceptor(response, error);
+        } catch (err) {
+          log("callResponseInterceptors", { err });
+        }
+      })
+    );
+  };
 
+  fetchWithRetry = async <TData = any>(
+    getResponse: () => Promise<Response>,
+    {
+      retryCount = this.retryCount,
+    }: {
+      retryCount?: Fetch["retryCount"];
+    } = {}
+  ): Promise<TData> => {
     let response: Response | undefined;
     let error: unknown | undefined;
 
-    const attemptsCount =
-      (isNumber(retryCountOverride)
-        ? retryCountOverride
-        : this.state.retryCount) + 1;
-
+    const attemptsCount = retryCount + 1;
     for (let i = 0; i < attemptsCount && !response; i++) {
       try {
-        response = await doRequest();
-        await callResponseInterceptors(response);
+        response = await getResponse();
+        checkIsOkay(response);
+
+        await this.callResponseInterceptors(response);
+
+        return toJSON(response) as unknown as Promise<TData>;
       } catch (err) {
         error = err;
-        await callResponseInterceptors(undefined, error);
+
+        await this.callResponseInterceptors(undefined, error);
       }
     }
 
-    if (response) {
-      return toJSON(response);
-    }
-
-    throw error || "Network error";
+    throw error || "Unable to fetch";
   };
 
-  enqueueFetch = (
+  enqueueFetch = <TData = any>(
+    getResponse: () => Promise<Response>,
+    {
+      immediate,
+      ...rest
+    }: {
+      retryCount?: Fetch["retryCount"];
+      immediate?: boolean;
+    } = {}
+  ): Promise<TData> => {
+    const doFetch = () => this.fetchWithRetry(getResponse, rest);
+
+    return immediate ? doFetch() : Queue.enqueue(doFetch);
+  };
+
+  abstract get: <TData = any>(
     slug: string,
-    init: CustomRequstInit,
-    { priority = "queue", retryCount }: FetchOptions = {}
-  ) => {
-    const doFetch = () =>
-      this.fetch(slug, init, { retryCountOverride: retryCount });
+    payload?: any,
+    options?: FetchMethodOptions
+  ) => Promise<TData>;
 
-    return priority === "queue" ? Queue.enqueue(doFetch) : doFetch();
+  abstract post: <TData = any>(
+    slug: string,
+    payload?: any,
+    options?: FetchMethodOptions
+  ) => Promise<TData>;
+
+  abstract delete: <TData = any>(
+    slug: string,
+    payload?: any,
+    options?: FetchMethodOptions
+  ) => Promise<TData>;
+
+  put = <TData = any>(
+    _slug: string,
+    _payload?: any,
+    _options?: FetchMethodOptions
+  ): Promise<TData> => {
+    throw new Error("PUT not implemented");
   };
 
-  get = (slug: string, payload?: any, options?: FetchOptions) =>
-    this.enqueueFetch(
-      slug + (payload ? `?${new URLSearchParams(payload)}` : ""),
-      {
-        method: "GET",
-      },
-      options
-    );
-
-  post = (slug: string, payload?: any, options?: FetchOptions) =>
-    this.enqueueFetch(
-      slug,
-      {
-        method: "POST",
-        body: JSON.stringify(payload),
-      },
-      options
-    );
-
-  delete = (slug: string, options?: FetchOptions) =>
-    this.enqueueFetch(
-      slug,
-      {
-        method: "DELETE",
-      },
-      options
-    );
+  patch = <TData = any>(
+    _slug: string,
+    _payload?: any,
+    _options?: FetchMethodOptions
+  ): Promise<TData> => {
+    throw new Error("PATCH not implemented");
+  };
 }
 
 export default Fetch;
