@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LayoutChangeEvent, View } from "react-native";
+import { LayoutChangeEvent, StyleProp, View } from "react-native";
 import styled from "styled-components/native";
 
 import Pressable, {
@@ -101,6 +101,7 @@ export interface ButtonProps extends Omit<SpacingProps, "size">, Full {
   isFocused?: PressableProps["isFocused"];
   onHoverOver?: PressableProps["onHoverOver"];
   onHoverOut?: PressableProps["onHoverOut"];
+  // style?: StyleProp<View>;
   // focusOnPressCapture?: PressableProps["focusOnPressCapture"];
   // preventDefault?: PressableProps["preventDefault"];
   // stopPropagation?: PressableProps["stopPropagation"];

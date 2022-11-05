@@ -9,7 +9,7 @@ export interface GrowElement {
 export interface GrowProps {}
 
 const Grow = React.forwardRef<GrowElement, GrowProps>(({}, ref) => {
-  const growTo = (toValue: number) => {};
+  const growTo = (_toValue: number) => {};
 
   const shink = () => growTo(0);
 

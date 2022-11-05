@@ -22,6 +22,8 @@ export { default as Menu } from "./Menu";
 export { default as ScrollView } from "./ScrollView";
 export { default as Util } from "./Util";
 export { default as Measure } from "./Measure";
+export { default as Effect } from "./Effect";
+export { default as Modal } from "./Modal";
 
 export * from "./styled-components";
 export * from "./Flubber";
@@ -45,3 +47,5 @@ export * from "./TextInput";
 export * from "./Util";
 export * from "./Measure";
 export * from "./bordered";
+export * from "./Effect";
+export * from "./Modal";

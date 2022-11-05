@@ -17,36 +17,59 @@ export interface FadeInElement {
 export interface FadeInProps extends Greedy {
   children?: React.ReactNode;
   duration?: number;
+  delay?: number;
+  onFadeInComplete?: (options: { finished: boolean }) => void;
+  onFadeOutComplete?: (options: { finished: boolean }) => void;
+  value?: Animated.Value;
 }
 
 const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
-  ({ children, duration = 100, ...rest }, ref) => {
-    const { current: fadeAnim } = React.useRef(new Animated.Value(0));
+  (
+    {
+      children,
+      duration = 600,
+      delay = 0,
+      onFadeInComplete,
+      onFadeOutComplete,
+      value,
+      ...rest
+    },
+    ref
+  ) => {
+    const { current: fadeAnim } = React.useRef(value || new Animated.Value(0));
 
-    const timingOptions = {
-      duration,
-      easing: Easing.ease,
-      useNativeDriver: false,
-    };
+    const { fadeInTiming, fadeOutTiming } = React.useMemo(() => {
+      const timingOptions = {
+        duration,
+        easing: Easing.ease,
+        useNativeDriver: false,
+      };
 
-    const fadeInTiming = Animated.timing(fadeAnim, {
-      ...timingOptions,
-      toValue: 1,
-    });
+      const fadeInTiming = Animated.timing(fadeAnim, {
+        ...timingOptions,
+        toValue: 1,
+      });
 
-    const fadeOutTiming = Animated.timing(fadeAnim, {
-      ...timingOptions,
-      toValue: 0,
-    });
+      const fadeOutTiming = Animated.timing(fadeAnim, {
+        ...timingOptions,
+        toValue: 0,
+      });
+
+      return { fadeInTiming, fadeOutTiming };
+    }, [duration]);
 
     const fadeIn = () => {
-      fadeInTiming.start();
+      Animated.sequence([Animated.delay(delay), fadeInTiming]).start(
+        onFadeInComplete
+      );
 
       return fadeInTiming;
     };
 
     const fadeOut = () => {
-      fadeOutTiming.start();
+      Animated.sequence([Animated.delay(delay), fadeOutTiming]).start(
+        onFadeOutComplete
+      );
 
       return fadeOutTiming;
     };

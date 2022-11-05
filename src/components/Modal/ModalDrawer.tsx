@@ -96,8 +96,10 @@ const ModalDrawer = React.forwardRef<ModalDrawerElement, ModalDrawerProps>(
   ) => {
     const [isVisible, setIsVisible] = React.useState(isVisibleProp);
 
-    const opacity = useAnimatedValue({ name: "modalDrawer-opacity" });
-    const width = useAnimatedValue({ name: "modalDrawer-width" });
+    const name = "modalDrawer";
+
+    const opacity = useAnimatedValue([name, "opacity"]);
+    const width = useAnimatedValue([name, "width"]);
 
     const { start: fade } = useAnimation({
       toValue: isVisible ? 1 : 0,

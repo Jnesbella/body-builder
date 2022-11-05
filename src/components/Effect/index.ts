@@ -8,5 +8,3 @@ export default {
 
 export * from "./FadeIn";
 export * from "./Grow";
-
-export * from "../../hooks/useAnimation";
