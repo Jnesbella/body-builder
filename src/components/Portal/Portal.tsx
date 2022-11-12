@@ -3,10 +3,12 @@ import ReactDOM from "react-dom";
 import styled from "styled-components";
 
 import { log } from "../../utils";
+import { zIndex } from "../styled-components";
 
 import PortalProvider, { usePortalState } from "./PortalProvider";
 
 const PortalContainer = styled.div<{ top: number; left: number }>`
+  ${zIndex("aboveAll")};
   position: absolute;
 
   left: ${({ left }) => left}px;

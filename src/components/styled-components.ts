@@ -69,12 +69,12 @@ export interface Color {
 }
 
 export function fontColor(props: Background | Color) {
-  if ("color" in props && props.color) {
-    return props.color;
-  }
-
   if ("background" in props && props.background) {
     return getContrastColor(props.background);
+  }
+
+  if ("color" in props && props.color) {
+    return props.color;
   }
 
   return theme.colors.text;

@@ -32,14 +32,14 @@ function CRUDModal<T extends ResourceDocument>({
   service,
   id: resourceId,
   disabled,
-  children,
+  // children,
   getDefaultValues,
   getButtonTitle,
   getModalTitle,
-  renderForm,
+  // renderForm,
   onSuccess,
 }: CRUDModalProps<T>) {
-  const [isVisible, setIsVisible] = React.useState(false);
+  const [_isVisible, setIsVisible] = React.useState(false);
 
   const { data, create, update, isUpdating, isCreating } = useCRUD<T>({
     service,
@@ -51,7 +51,7 @@ function CRUDModal<T extends ResourceDocument>({
   const form = useForm({
     defaultValues,
   });
-  const { reset, handleSubmit } = form;
+  const { reset, handleSubmit: _handleSubmit } = form;
 
   const isNew = !resourceId;
   const isLoading = isUpdating || isCreating;
@@ -77,7 +77,7 @@ function CRUDModal<T extends ResourceDocument>({
     }
   }, [isReady, reset]);
 
-  const doSubmit = async (payload: any) => {
+  const _doSubmit = async (payload: any) => {
     const createOrUpdate = async () => {
       let resource: T;
       if (resourceId) {
@@ -100,7 +100,7 @@ function CRUDModal<T extends ResourceDocument>({
     }
   };
 
-  const openModalButton = (
+  const _openModalButton = (
     <Button
       title={buttonTitle}
       onPress={openModal}
@@ -111,7 +111,7 @@ function CRUDModal<T extends ResourceDocument>({
 
   return (
     <React.Fragment>
-      {children?.({
+      {/* {children?.({
         onPress: openModal,
         disabled: isDisabled,
         title: buttonTitle,
@@ -143,7 +143,7 @@ function CRUDModal<T extends ResourceDocument>({
             </Modal.Content>
           </ScrollView>
         }
-      />
+      /> */}
     </React.Fragment>
   );
 }

@@ -6,12 +6,13 @@ import {
   useAnimation,
   UseAnimation,
 } from "../../hooks";
-import { AnimatedValueQuery, useAnimatedValue } from "../../animated-value";
+import { useAnimatedValue } from "../../animated-value";
 
 import usePushAndPull from "./usePushAndPull";
 import Flubber, { FlubberProps } from "./Flubber";
 import FlubberGrip, { FlubberGripProps } from "./FlubberGrip";
 import { isNumber } from "lodash";
+import { QueryKey } from "react-query";
 
 const SLIDE_WIDTH = 300;
 
@@ -27,7 +28,7 @@ export interface FlubberSlideProps
   children?: React.ReactNode;
   defaultIsOpen?: boolean;
   gripPlacement?: "before" | "after";
-  gripTo?: AnimatedValueQuery;
+  gripTo: QueryKey;
   onToggle?: (isOpen: boolean) => void;
 }
 
@@ -72,7 +73,7 @@ const FlubberSlide = React.forwardRef<FlubberSlideElement, FlubberSlideProps>(
 
     const target = useAnimatedValue(gripTo);
     usePushAndPull({
-      enabled: gripTo && isAnimating,
+      enabled: !!gripTo && isAnimating,
       target,
       source: slide,
     });

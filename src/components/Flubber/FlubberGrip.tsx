@@ -71,7 +71,7 @@ const FlubberGripContainer = styled(Layout.Box).attrs<GripContainerProps>(
 export interface FlubberGripElement {}
 
 export interface FlubberGripProps {
-  pushAndPull: [QueryKey, QueryKey];
+  pushAndPull?: [QueryKey | undefined, QueryKey | undefined];
   size?: SizeProp;
   enabled?: boolean;
   orientation?: OrientationProp;
@@ -89,7 +89,7 @@ const FlubberGrip = React.forwardRef<FlubberGripElement, FlubberGripProps>(
     },
     ref
   ) => {
-    const [queryA, queryB] = pushAndPull;
+    const [queryA, queryB] = pushAndPull || [];
 
     const valueA = useAnimatedValue(queryA);
     const valueB = useAnimatedValue(queryB);

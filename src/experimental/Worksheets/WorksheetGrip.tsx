@@ -6,7 +6,7 @@ import { SizeProp } from "../../types";
 export const SPREADSHEET_GRIP_SIZE: SizeProp = "xsmall";
 
 export interface SpreadsheetGripProps {
-  pushAndPull: [string, string];
+  pushAndPull?: FlubberGripProps["pushAndPull"];
   children?: React.ReactNode;
   orientation?: FlubberGripProps["orientation"];
   greedy?: FlubberGripProps["greedy"];
@@ -19,13 +19,13 @@ function SpreadsheetGrip({
   greedy,
   size = SPREADSHEET_GRIP_SIZE,
 }: SpreadsheetGripProps) {
-  const [_push, _pull] = pushAndPull;
-  const push = React.useMemo(() => ({ name: _push }), [_push]);
-  const pull = React.useMemo(() => ({ name: _pull }), [_pull]);
+  // const [_push, _pull] = pushAndPull;
+  // const push = React.useMemo(() => ({ name: _push }), [_push]);
+  // const pull = React.useMemo(() => ({ name: _pull }), [_pull]);
 
   return (
     <Flubber.Grip
-      pushAndPull={[push, pull]}
+      pushAndPull={pushAndPull}
       size={size}
       orientation={orientation}
       greedy={greedy}

@@ -13,19 +13,22 @@ import { UseCRUD } from "./resourceHookTypes";
 import { OnMutationSuccess } from "./resourceTypes";
 import useQueryUtils from "./useQueryUtils";
 
-function useList<T extends ResourceDocument>(
+function useList<TData extends ResourceDocument>(
   {
     service,
     onSuccess,
-    queryKey: _queryKey,
-  }: UseCRUD<T> & { onSuccess?: (data: T[]) => void; queryKey?: QueryKey },
+    queryKey: queryKeyProp,
+  }: UseCRUD<TData> & {
+    onSuccess?: (data: TData[]) => void;
+    queryKey?: QueryKey;
+  },
   payload?: any
 ) {
   const queryClient = useQueryClient();
 
-  const queryKey = _queryKey || service.getQueryKey();
+  const queryKey = queryKeyProp || service.getQueryKey();
 
-  const { data: resources = [], isLoading } = useQuery(
+  const { data: resources = [], isLoading } = useQuery<TData[]>(
     queryKey,
     () => service.list(payload),
     {
@@ -34,15 +37,15 @@ function useList<T extends ResourceDocument>(
     }
   );
 
-  const queries: UseQueryOptions[] = resources.map((value) => ({
-    queryKey: service.getQueryKey(value.id),
-    queryFn: () => service.get(value.id),
-    suspense: true,
-  }));
+  // const queries: UseQueryOptions[] = resources.map((value) => ({
+  //   queryKey: service.getQueryKey(value.id),
+  //   queryFn: () => service.get(value.id),
+  //   suspense: true,
+  // }));
 
-  const results = useQueries(queries);
+  // const results = useQueries(queries);
 
-  const data = results.map((result) => result.data);
+  // const data = results.map((result) => result.data);
 
   const prefetch = React.useCallback(
     <P>(p?: P) =>
@@ -72,8 +75,8 @@ function useList<T extends ResourceDocument>(
   );
 
   return {
-    // data: resources,
-    data,
+    data: resources,
+    // data,
     prefetch,
     isLoading,
     onCreateSuccess,

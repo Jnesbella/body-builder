@@ -12,9 +12,9 @@ export interface FlubberElement {}
 
 export interface FlubberProps {
   children?: React.ReactNode;
-  width: QueryKey;
+  width?: QueryKey;
   defaultWidth?: number;
-  height: QueryKey;
+  height?: QueryKey;
   defaultHeight?: number;
   autoLayout?: boolean;
   greedy?: boolean | "height" | "width";

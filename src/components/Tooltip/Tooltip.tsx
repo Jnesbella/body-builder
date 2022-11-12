@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useId } from "../../hooks";
+import { useId, useSetRef } from "../../hooks";
 import { log } from "../../utils";
 import Layout from "../Layout";
 
@@ -237,13 +237,15 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       hide,
     };
 
-    React.useEffect(function handleRef() {
-      if (typeof ref === "function") {
-        ref(element);
-      } else if (ref) {
-        ref.current = element;
-      }
-    });
+    useSetRef(ref, element);
+
+    // React.useEffect(function handleRef() {
+    //   if (typeof ref === "function") {
+    //     ref(element);
+    //   } else if (ref) {
+    //     ref.current = element;
+    //   }
+    // });
 
     const renderTooltipCallback = (
       children?: React.ReactNode | TooltipCallback
@@ -258,6 +260,8 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
             onHoverOut: hide,
           })
         : children;
+
+    log({ isVisible, left, top, contentElement });
 
     return (
       <React.Fragment>

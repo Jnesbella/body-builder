@@ -16,9 +16,9 @@ function WorksheetCell({
   defaultHeight = SPREADSHEET_CELL_HEIGHT,
   ...cell
 }: WorksheetCellProps) {
-  const { row, column } = cell;
-  const width = React.useMemo(() => ({ name: column }), [column]);
-  const height = React.useMemo(() => ({ name: row }), [row]);
+  const { row: height, column: width } = cell;
+  // const width = column
+  // const height = row
 
   return (
     <Flubber

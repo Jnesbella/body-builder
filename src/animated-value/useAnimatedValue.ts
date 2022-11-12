@@ -4,7 +4,7 @@ import useQueryAnimatedValue from "./useQueryAnimatedValue";
 import useMutateAnimatedValue from "./useMutateAnimatedValue";
 
 export function useAnimatedValue(
-  queryKey: QueryKey,
+  queryKey?: QueryKey,
   defaultValue?: number,
   { enabled = true } = {}
 ) {

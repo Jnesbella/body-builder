@@ -1,14 +1,14 @@
 import * as React from "react";
 import { Animated } from "react-native";
 import { QueryKey, useQuery } from "react-query";
-import { isNumber } from "lodash";
+import { isNil, isNumber } from "lodash";
 
 import { useAsyncStorageState } from "../async-storage";
 
 import { queryKeyToString } from "./animatedValueUtils";
 
 function useQueryAnimatedValue(
-  queryKey: QueryKey,
+  queryKey?: QueryKey,
   defaultValue: number = 0,
   { enabled = true } = {}
 ) {
@@ -19,7 +19,9 @@ function useQueryAnimatedValue(
   const storage = useAsyncStorageState((state) => state.storage);
 
   const loadItem = async () => {
-    const storageValueRaw = await storage.getItemAsync(storageKey);
+    const storageValueRaw = storageKey
+      ? await storage.getItemAsync(storageKey)
+      : null;
     const storageValue = storageValueRaw ? JSON.parse(storageValueRaw) : null;
 
     valueRef.current = new Animated.Value(
@@ -29,9 +31,9 @@ function useQueryAnimatedValue(
     return valueRef.current;
   };
 
-  const { data: value } = useQuery(queryKey, loadItem, {
+  const { data: value } = useQuery(queryKey as QueryKey, loadItem, {
     suspense: true,
-    enabled,
+    enabled: enabled && !isNil(queryKey),
   });
 
   return value;

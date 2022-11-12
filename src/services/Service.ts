@@ -29,12 +29,12 @@ class Service {
 
   queryKey: string;
   pathRoot: string;
-  local: Fetch;
+  api: Fetch;
 
   constructor({ queryKey, pathRoot, fetch }: ServiceOptions) {
     this.queryKey = queryKey;
     this.pathRoot = pathRoot;
-    this.local = fetch;
+    this.api = fetch;
   }
 
   getQueryKey = (parts: PathParts = []): QueryKey => {
@@ -52,7 +52,7 @@ class Service {
     fetchOptions?: FetchOptions
   ) => {
     const slug = this.getPath(parts);
-    return this.local.get<TData>(slug, payload, fetchOptions);
+    return this.api.get<TData>(slug, payload, fetchOptions);
   };
 
   post = <TData = any>(
@@ -61,7 +61,7 @@ class Service {
     fetchOptions?: FetchOptions
   ) => {
     const slug = this.getPath(parts);
-    return this.local.post<TData>(slug, payload, fetchOptions);
+    return this.api.post<TData>(slug, payload, fetchOptions);
   };
 
   delete = <TData = any>(
@@ -69,7 +69,7 @@ class Service {
     fetchOptions?: FetchOptions
   ) => {
     const slug = this.getPath(parts);
-    return this.local.delete<TData>(slug, undefined, fetchOptions);
+    return this.api.delete<TData>(slug, undefined, fetchOptions);
   };
 
   put = <TData = any>(
@@ -78,7 +78,7 @@ class Service {
     fetchOptions?: FetchOptions
   ) => {
     const slug = this.getPath(parts);
-    return this.local.put<TData>(slug, payload, fetchOptions);
+    return this.api.put<TData>(slug, payload, fetchOptions);
   };
 
   patch = <TData = any>(
@@ -87,7 +87,7 @@ class Service {
     fetchOptions?: FetchOptions
   ) => {
     const slug = this.getPath(parts);
-    return this.local.patch<TData>(slug, payload, fetchOptions);
+    return this.api.patch<TData>(slug, payload, fetchOptions);
   };
 }
 

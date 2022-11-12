@@ -1,14 +1,18 @@
 import * as React from "react";
 import { TextInput as DefaultTextInput } from "react-native";
 import styled, { css } from "styled-components/native";
+import * as Icons from "react-bootstrap-icons";
+import { get } from "lodash";
+
 import Pressable, {
   PressableActions,
   PressableProps,
 } from "../../experimental/Pressable";
-
 import { theme } from "../../styles";
+
 import { bordered, Bordered } from "../bordered";
 import { PressableState } from "../componentsTypes";
+import Icon, { IconProps } from "../Icon";
 import Layout from "../Layout";
 
 import {
@@ -47,6 +51,7 @@ export interface TextInputProps
   children?:
     | React.ReactNode
     | ((props: React.PropsWithChildren<PressableState>) => JSX.Element);
+  start?: React.ReactNode;
 }
 
 export type StyledTextInputProps = PressableState &
@@ -82,11 +87,14 @@ const InputPressable = styled(Pressable)`
   overflow: hidden;
 `;
 
-export type InputOutlineProps = PressableState &
-  SpacingProps &
-  Background &
-  Rounded &
-  Bordered & { disabled?: boolean };
+export interface InputOutlineProps
+  extends PressableState,
+    SpacingProps,
+    Background,
+    Rounded,
+    Bordered {
+  disabled?: boolean;
+}
 
 export const InputOutline = styled(Layout.Box).attrs<InputOutlineProps>(
   ({
@@ -125,6 +133,8 @@ function TextInput({
   roundness,
   borderColor,
   borderWidth,
+  start,
+  style = {},
   ...textInputProps
 }: TextInputProps) {
   const textInputRef = React.useRef<DefaultTextInput>(null);
@@ -155,21 +165,29 @@ function TextInput({
           borderColor={borderColor}
           borderWidth={borderWidth}
         >
-          <StyledTextInput
-            {...(textInputProps as unknown as any)}
-            background={background}
-            ref={textInputRef}
-            greedy={greedy}
-            fullWidth={fullWidth}
-            onFocus={() => {
-              pressableProps.focus();
-            }}
-            onBlur={() => {
-              pressableProps.blur();
-            }}
-            autoComplete="off"
-            autoCompleteType="off"
-          />
+          <Layout.Row alignItems="center" fullWidth={fullWidth}>
+            {start}
+
+            <StyledTextInput
+              {...(textInputProps as unknown as any)}
+              background={background}
+              ref={textInputRef}
+              greedy={greedy}
+              fullWidth={fullWidth}
+              onFocus={() => {
+                pressableProps.focus();
+              }}
+              onBlur={() => {
+                pressableProps.blur();
+              }}
+              autoComplete="off"
+              autoCompleteType="off"
+              style={{
+                outline: "none",
+                ...(style as object),
+              }}
+            />
+          </Layout.Row>
         </InputOutline>
       )}
     </InputPressable>

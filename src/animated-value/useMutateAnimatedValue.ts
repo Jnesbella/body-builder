@@ -8,7 +8,7 @@ import { useWatchAnimatedValue } from "../hooks";
 import { queryKeyToString } from "./animatedValueUtils";
 
 export function useMutateAnimatedValue(
-  queryKey: QueryKey,
+  queryKey?: QueryKey,
   animatedValue?: Animated.Value,
   defaultValue?: number,
   { enabled = true } = {}
@@ -21,7 +21,9 @@ export function useMutateAnimatedValue(
 
   const { mutate: storeAnimatedValue } = useMutation(
     async (nextValue?: number) => {
-      await storage.setItemAsync(storageKey, JSON.stringify(nextValue));
+      if (storageKey) {
+        await storage.setItemAsync(storageKey, JSON.stringify(nextValue));
+      }
     }
   );
 
