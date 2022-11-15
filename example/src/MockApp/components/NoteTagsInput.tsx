@@ -142,6 +142,7 @@ function NoteTagsInput({ value = [], onChange }: NoteTagsInputProps) {
             onPress={tooltipProps.toggleVisibility}
             focusable={false}
             focusOn="none"
+            size="small"
             // onHoverOut={tooltipProps.onHoverOut}
             // onHoverOver={tooltipProps.onHoverOver}
           />
@@ -152,7 +153,7 @@ function NoteTagsInput({ value = [], onChange }: NoteTagsInputProps) {
         <React.Fragment key={tag.id}>
           <Space />
 
-          <Chip label={tag.label} />
+          <Chip label={tag.label} size="small" />
         </React.Fragment>
       ))}
 
@@ -160,7 +161,7 @@ function NoteTagsInput({ value = [], onChange }: NoteTagsInputProps) {
         <React.Fragment>
           <Space />
 
-          <Chip label={`+${rest.length}`} />
+          <Chip label={`+${rest.length}`} size="small" />
         </React.Fragment>
       )}
     </Layout.Row>

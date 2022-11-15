@@ -1,5 +1,6 @@
 import * as React from "react";
 import styled, { css } from "styled-components";
+import { useSetRef } from "../../hooks";
 
 import { Greedy, greedy } from "../styled-components";
 
@@ -54,13 +55,15 @@ const PortalProvider = React.forwardRef<
 >(({ children, greedy, ...rest }, ref) => {
   const [container, setContainer] = React.useState<HTMLDivElement | null>(null);
 
-  React.useEffect(function handleRef() {
-    if (typeof ref === "function") {
-      ref(container);
-    } else if (ref) {
-      ref.current = container;
-    }
-  });
+  useSetRef(ref, container);
+
+  // React.useEffect(function handleRef() {
+  //   if (typeof ref === "function") {
+  //     ref(container);
+  //   } else if (ref) {
+  //     ref.current = container;
+  //   }
+  // });
 
   return (
     <PortalProviderContainer

@@ -6,13 +6,16 @@ import {
   utcStringToDate,
   MeasureElement,
   useSetRef,
+  Text,
+  Divider,
 } from "@jnesbella/body-builder";
 import { ScrollView } from "react-native";
 
-import { useListNotes } from "../../hooks";
+import { useListNotes, useListPinnedNotes } from "../../hooks";
 import { Note } from "../../types";
 import NoteDivider from "./NoteDivider";
 import NoteComponent from "./NoteComponent";
+import PinnedNotes from "./PinnedNotes";
 
 export interface NotesListElement {
   scrollToNote: (note: Note) => void;
@@ -43,7 +46,7 @@ export const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
 
     React.useEffect(
       function scrollToBottom() {
-        scrollRef.current?.scrollToEnd();
+        scrollRef.current?.scrollToEnd({ animated: false });
       },
       [numNotes]
     );
@@ -70,9 +73,20 @@ export const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
 
     useSetRef(ref, element);
 
+    const { data: pinnedNotes } = useListPinnedNotes();
+
+    const hasPinnedNotes = pinnedNotes.length > 0;
+
     return (
       <Surface greedy>
-        <ScrollView ref={scrollRef}>
+        <ScrollView
+          ref={scrollRef}
+          stickyHeaderIndices={hasPinnedNotes ? [0] : undefined}
+        >
+          {hasPinnedNotes && (
+            <PinnedNotes onPressNote={(note) => element.scrollToNote(note)} />
+          )}
+
           <Layout.Column>
             {notes?.map((note, index) => (
               <React.Fragment key={note.id}>

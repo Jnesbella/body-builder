@@ -3,6 +3,7 @@ import styled from "styled-components";
 import { useId, useSetRef } from "../../hooks";
 import { log } from "../../utils";
 import Layout from "../Layout";
+import Measure, { MeasureElement, MeasureProps } from "../Measure";
 
 import Portal, { PortalProps } from "../Portal/Portal";
 import { full, greedy } from "../styled-components";
@@ -74,7 +75,7 @@ export interface TooltipProps {
   topOffset?: PortalProps["top"];
   leftOffset?: PortalProps["left"];
   renderChildren?: (props: React.HTMLProps<HTMLDivElement>) => JSX.Element;
-  renderContent?: (props: React.HTMLProps<HTMLDivElement>) => JSX.Element;
+  renderContent?: (props: MeasureProps) => JSX.Element;
   onShow?: () => void;
   onHide?: () => void;
   visiblity?: "hidden" | "visible";
@@ -91,7 +92,7 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       topOffset = 0,
       leftOffset = 0,
       renderChildren: Children = TooltipChildren,
-      renderContent: Content = TooltipContent,
+      renderContent: Content = Measure,
       onShow,
       onHide,
       visiblity = "visible",
@@ -105,7 +106,7 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       React.useState<HTMLDivElement | null>(null);
 
     const [contentElement, setContentElement] =
-      React.useState<HTMLDivElement | null>(null);
+      React.useState<MeasureElement | null>(null);
 
     const focusTooltip = useTooltipActions((actions) => actions.focusTooltip);
 
@@ -174,20 +175,19 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
           left += layoutElement.offsetWidth;
         }
 
-        if (contentElement) {
+        const { width = 0 } = contentElement?.rect || {};
+
+        if (width) {
           if (placement.includes("left")) {
-            left += -contentElement.offsetWidth;
+            left += -width;
           }
 
           if (placement.includes("end")) {
-            left += -(contentElement.offsetWidth - layoutElement.offsetWidth);
+            left += -(width - layoutElement.offsetWidth);
           }
 
           if (["bottom-center"].includes(placement)) {
-            left += -(
-              (layoutElement.offsetWidth - contentElement.offsetWidth) /
-              2
-            );
+            left += -((layoutElement.offsetWidth - width) / 2);
           }
         }
 
@@ -205,14 +205,15 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
           top += layoutElement.offsetHeight;
         }
 
-        if (contentElement) {
+        const { height = 0 } = contentElement?.rect || {};
+
+        if (height) {
           if (placement.includes("top")) {
-            top -= contentElement.offsetHeight;
+            top -= height;
           }
 
           if (["right-center"].includes(placement)) {
-            top +=
-              (layoutElement.offsetHeight - contentElement.offsetHeight) / 2;
+            top += (layoutElement.offsetHeight - height) / 2;
           }
         }
 

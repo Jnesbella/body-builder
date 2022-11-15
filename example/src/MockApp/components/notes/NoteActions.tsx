@@ -22,7 +22,7 @@ const NoteElementActionsMenuContainer = styled(Surface)<Bordered & Rounded>`
   ${spacing({ spacingSize: 0.5 })};
 
   position: absolute;
-  top: -${theme.spacing * 2.5}px;
+  top: -${theme.spacing * 2}px;
   right: ${theme.spacing * 2}px;
 `;
 
@@ -30,50 +30,48 @@ function NoteActions({ note }: { note: Note }) {
   const { update: updateNote } = useUpdateNote();
 
   return (
-    <NoteElementActionsMenuContainer>
-      <Layout.Row>
-        <IconButton
-          icon={Icons.Pencil}
-          size="small"
-          focusOn="none"
-          focusable={false}
-        />
+    <Layout.Row>
+      <IconButton
+        icon={Icons.Pencil}
+        size="small"
+        focusOn="none"
+        focusable={false}
+      />
 
-        <IconButton
-          icon={Icons.Trash}
-          size="small"
-          focusOn="none"
-          focusable={false}
-        />
+      <IconButton
+        icon={Icons.Trash}
+        size="small"
+        focusOn="none"
+        focusable={false}
+      />
 
-        <IconButton
-          icon={Icons.ChatRightText}
-          size="small"
-          focusOn="none"
-          focusable={false}
-        />
+      <IconButton
+        icon={Icons.ChatRightText}
+        size="small"
+        focusOn="none"
+        focusable={false}
+      />
 
-        <IconButton
-          icon={note.pinned ? Icons.BookmarkFill : Icons.Bookmark}
-          size="small"
-          focusOn="none"
-          focusable={false}
-          onPress={() => {
-            updateNote({
-              id: note.id,
-              pinned: !note.pinned,
-            });
-          }}
-        />
+      <IconButton
+        icon={note.pinned ? Icons.BookmarkFill : Icons.Bookmark}
+        size="small"
+        focusOn="none"
+        focusable={false}
+        onPress={() => {
+          updateNote({
+            id: note.id,
+            pinned: !note.pinned,
+          });
+        }}
+      />
 
-        <IconButton
-          icon={Icons.ThreeDotsVertical}
-          size="small"
-          focusOn="none"
-          focusable={false}
-        />
-      </Layout.Row>
-    </NoteElementActionsMenuContainer>
+      <IconButton
+        icon={Icons.ThreeDotsVertical}
+        size="small"
+        focusOn="none"
+        focusable={false}
+      />
+    </Layout.Row>
   );
 }
 

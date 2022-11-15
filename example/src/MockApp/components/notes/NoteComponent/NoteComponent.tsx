@@ -12,9 +12,10 @@ import {
 } from "@jnesbella/body-builder";
 import styled from "styled-components/native";
 
-import { Note } from "../../types";
+import { Note } from "../../../types";
 
-import NoteActions from "./NoteActions";
+import NoteActions from "../NoteActions";
+import NoteTags from "../NoteTags";
 
 const NoteComponentWrapper = styled(Surface).attrs({
   fullWidth: true,
@@ -45,7 +46,9 @@ function NoteComponent({ note }: { note: Note }) {
         <Space /> */}
 
               <Text.Caption>
-                {`${createdAt.getHours()}:${createdAt.getMinutes()}`}
+                {`${createdAt.getHours()}:${String(
+                  createdAt.getMinutes()
+                ).padStart(2, "0")}`}
               </Text.Caption>
             </Layout.Row>
 
@@ -54,6 +57,15 @@ function NoteComponent({ note }: { note: Note }) {
               value={note.content}
               disabled
             />
+
+            <Layout.Box
+              style={{
+                opacity: pressableProps.hovered ? 1 : 0,
+              }}
+              spacingSize={[1, 0]}
+            >
+              <NoteTags note={note} />
+            </Layout.Box>
 
             {pressableProps.hovered && <NoteActions note={note} />}
           </Layout.Column>

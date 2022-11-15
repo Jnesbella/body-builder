@@ -35,8 +35,7 @@ function AppLayout() {
               <Layout.Column greedy>
                 <ChannelName />
 
-                {/* <LabledBox label="Pinned Notes" maxHeight={theme.spacing * 6} /> */}
-                {pinnedNotes.length > 0 && (
+                {/* {pinnedNotes.length > 0 && (
                   <React.Fragment>
                     <PinnedNotes
                       onPressNote={(note) =>
@@ -46,11 +45,9 @@ function AppLayout() {
 
                     <Divider />
                   </React.Fragment>
-                )}
+                )} */}
 
                 <NotesList ref={notesListRef} />
-
-                <Divider />
 
                 <NoteEditor />
               </Layout.Column>

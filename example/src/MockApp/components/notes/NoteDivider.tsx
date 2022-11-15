@@ -11,6 +11,8 @@ import {
   Rounded,
   utcStringToDate,
   spacing,
+  Measure,
+  MeasureElement,
 } from "@jnesbella/body-builder";
 import styled from "styled-components/native";
 
@@ -22,9 +24,11 @@ const NoteDividerLabelWrapper = styled(Surface)<Bordered & Rounded>`
   ${spacing({ spacingSize: [1, 0] })};
 `;
 
-const NoteDividerDividerWrapper = styled(Layout.Box)<Bordered & Rounded>`
+const NoteDividerDividerWrapper = styled(Layout.Box)<
+  Bordered & Rounded & { top: number }
+>`
   position: absolute;
-  margin-top: ${theme.spacing * 2.5}px;
+  margin-top: ${(props) => props.top}px;
 `;
 
 function NoteDivider({ note }: { note: Note }) {
@@ -55,24 +59,31 @@ function NoteDivider({ note }: { note: Note }) {
 
   const date: Date = utcStringToDate(note.createdAt);
 
+  const [measureElement, setMeasureElement] =
+    React.useState<MeasureElement | null>(null);
+
   return (
-    <Layout.Column spacingSize={[0, 1]}>
-      <Layout.Box
-        fullWidth
-        alignItems="center"
+    <Layout.Column spacingSize={[0, 1.5]}>
+      <Measure
+        ref={setMeasureElement}
         style={{
           zIndex: theme.zIndex.aboveAll,
         }}
       >
-        <NoteDividerLabelWrapper>
-          <Text.SubHeader>
-            {days[date.getDay()]}, {months[date.getMonth() - 1]}{" "}
-            {date.getDate()}
-          </Text.SubHeader>
-        </NoteDividerLabelWrapper>
-      </Layout.Box>
+        <Layout.Box fullWidth alignItems="center">
+          <NoteDividerLabelWrapper>
+            <Text.Label>
+              {days[date.getDay()]}, {months[date.getMonth() - 1]}{" "}
+              {date.getDate()}
+            </Text.Label>
+          </NoteDividerLabelWrapper>
+        </Layout.Box>
+      </Measure>
 
-      <NoteDividerDividerWrapper fullWidth>
+      <NoteDividerDividerWrapper
+        fullWidth
+        top={(measureElement?.rect?.height || 0) / 2}
+      >
         <Divider />
       </NoteDividerDividerWrapper>
     </Layout.Column>

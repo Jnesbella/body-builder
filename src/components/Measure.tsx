@@ -2,7 +2,7 @@ import * as React from "react";
 import { LayoutRectangle } from "react-native";
 import { useSetRef } from "../hooks";
 
-import Layout from "./Layout";
+import Layout, { LayoutBoxProps } from "./Layout";
 import { Greedy } from "./styled-components";
 
 export interface MeasureElement {
@@ -11,7 +11,7 @@ export interface MeasureElement {
 
 type ChildrenRenderer = (props: MeasureElement) => JSX.Element;
 
-export interface MeasureProps extends Greedy {
+export interface MeasureProps extends LayoutBoxProps {
   children?: React.ReactNode | ChildrenRenderer;
 }
 

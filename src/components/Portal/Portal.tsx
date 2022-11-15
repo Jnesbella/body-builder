@@ -1,6 +1,7 @@
 import * as React from "react";
 import ReactDOM from "react-dom";
 import styled from "styled-components";
+import { useSetRef } from "../../hooks";
 
 import { log } from "../../utils";
 import { zIndex } from "../styled-components";
@@ -27,13 +28,15 @@ export const Portal = React.forwardRef<PortalElement, PortalProps>(
   ({ children, top = 0, left = 0 }, ref) => {
     const container = usePortalState((state) => state.container);
 
-    React.useEffect(function handleRef() {
-      if (typeof ref === "function") {
-        ref(container);
-      } else if (ref) {
-        ref.current = container;
-      }
-    });
+    useSetRef(ref, container);
+
+    // React.useEffect(function handleRef() {
+    //   if (typeof ref === "function") {
+    //     ref(container);
+    //   } else if (ref) {
+    //     ref.current = container;
+    //   }
+    // });
 
     return (
       <React.Fragment>

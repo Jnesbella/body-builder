@@ -85,13 +85,15 @@ export function ChannelName() {
   return (
     <Layout.Column>
       <Surface>
-        <Layout.Row alignItems="center" spacingSize={1}>
-          <Icon icon={Icons.Hash} />
+        <Surface background={theme.colors.accent}>
+          <Layout.Row alignItems="center" spacingSize={1}>
+            <Icon icon={Icons.Hash} />
 
-          <Space />
+            <Space />
 
-          <Text.SubHeader>{get(search, "name", "All")}</Text.SubHeader>
-        </Layout.Row>
+            <Text.SubHeader>{get(search, "name", "all")}</Text.SubHeader>
+          </Layout.Row>
+        </Surface>
       </Surface>
 
       <Divider />

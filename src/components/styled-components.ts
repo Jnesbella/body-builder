@@ -88,19 +88,12 @@ export const color = css<Background | Color>`
 
 export interface SpacingProps {
   spacing?: number;
-
-  /**
-   * @deprecated
-   */
-  size?: number;
-
   spacingSize?: number | [number, number];
 }
 
 export const spacing = ({
   spacing = theme.spacing,
-  size = 0,
-  spacingSize = size,
+  spacingSize = 0,
 }: SpacingProps = {}) => {
   let spacingSizeX: number;
   let spacingSizeY: number;
@@ -198,11 +191,9 @@ export const Space = styled.View<SpacingProps>`
   ${(props) => {
     const spacing = props.spacing || theme.spacing;
     const size =
-      props.size ||
       (Array.isArray(props.spacingSize)
         ? props.spacingSize[0]
-        : props.spacingSize) ||
-      1;
+        : props.spacingSize) || 1;
 
     return css`
       height: ${spacing * size}px;

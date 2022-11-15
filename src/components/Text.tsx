@@ -12,22 +12,23 @@ import {
   TextAlign,
   textAlign,
   TextAlignProps,
+  Background,
 } from "./styled-components";
 
-export interface TextProps extends Color {
+export interface DefaultTextProps extends Color, Background {
   fontWeight?: FontWeight;
   fontSize?: FontSize;
   textAlign?: TextAlign;
 }
 
-export const text = css<TextProps>`
+export const text = css<DefaultTextProps>`
   ${color};
   ${fontWeight};
   ${fontSize};
   ${textAlign};
 `;
 
-export const DefaultText = styled.Text.attrs<TextProps>((props) => ({
+export const DefaultText = styled.Text.attrs<DefaultTextProps>((props) => ({
   fontWeight: props.fontWeight || FontWeight.Normal,
   fontSize: props.fontSize || FontSize.Normal,
   textAlign: props.textAlign || TextAlign.Left,
@@ -97,7 +98,9 @@ export const Caption = styled(Text).attrs({
 
 export const HelperText = styled(Text)``;
 
-function Text(props: React.ComponentProps<typeof DefaultText>) {
+export type TextProps = React.ComponentProps<typeof DefaultText>;
+
+function Text(props: TextProps) {
   return <DefaultText {...props} />;
 }
 

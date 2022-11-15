@@ -6,28 +6,51 @@ import {
   theme,
   rounded,
   Surface,
+  Pressable,
 } from "@jnesbella/body-builder";
 import styled from "styled-components/native";
 
-const ChipContainer = styled(Surface)`
-  ${rounded({ roundness: theme.spacing * 2.5 })};
+const ChipContainer = styled(Surface)<{ height: number }>`
+  ${(props) => rounded({ roundness: props.height / 2 })};
+
+  height: ${(props) => props.height}px;
+  justify-content: center;
+  align-items: center;
 `;
 
 export interface ChipProps extends Background {
   size?: SizeProp;
   label?: string;
   children?: React.ReactNode;
+  onPress?: () => void;
 }
 
 export function Chip({
-  size = "large",
+  size: sizeProp = "large",
   label,
   children,
   background = theme.colors.accent,
+  onPress,
 }: ChipProps) {
+  const size = (() => {
+    if (sizeProp === "small") {
+      return 3;
+    }
+
+    return 4;
+  })();
+
+  const height = theme.spacing * size;
+
   return (
-    <ChipContainer background={background} spacingSize={[2.5, 1]}>
-      {children || <Text.Label background={background}>{label}</Text.Label>}
-    </ChipContainer>
+    <Pressable onPress={onPress}>
+      <ChipContainer
+        background={background}
+        spacingSize={[size / 2, 0]}
+        height={height}
+      >
+        {children || <Text.Label background={background}>{label}</Text.Label>}
+      </ChipContainer>
+    </Pressable>
   );
 }
