@@ -24,9 +24,14 @@ import { Chip } from "./common";
 export interface NoteTagsInputProps {
   value?: Tag["id"][];
   onChange?: (value: Tag["id"][]) => void;
+  disabled?: boolean;
 }
 
-function NoteTagsInput({ value = [], onChange }: NoteTagsInputProps) {
+function NoteTagsInput({
+  value = [],
+  onChange,
+  disabled: isDisabled,
+}: NoteTagsInputProps) {
   const [label, setLabel] = React.useState("");
 
   const { data: tags } = useListTags();
@@ -143,6 +148,7 @@ function NoteTagsInput({ value = [], onChange }: NoteTagsInputProps) {
             focusable={false}
             focusOn="none"
             size="small"
+            disabled={isDisabled}
             // onHoverOut={tooltipProps.onHoverOut}
             // onHoverOver={tooltipProps.onHoverOver}
           />

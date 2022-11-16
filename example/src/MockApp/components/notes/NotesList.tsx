@@ -83,9 +83,9 @@ export const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
           ref={scrollRef}
           stickyHeaderIndices={hasPinnedNotes ? [0] : undefined}
         >
-          {hasPinnedNotes && (
+          {/* {hasPinnedNotes && (
             <PinnedNotes onPressNote={(note) => element.scrollToNote(note)} />
-          )}
+          )} */}
 
           <Layout.Column>
             {notes?.map((note, index) => (

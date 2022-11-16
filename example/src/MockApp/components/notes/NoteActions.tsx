@@ -1,32 +1,16 @@
 import * as React from "react";
-import {
-  Layout,
-  Surface,
-  IconButton,
-  theme,
-  bordered,
-  rounded,
-  Bordered,
-  Rounded,
-  spacing,
-} from "@jnesbella/body-builder";
-import styled from "styled-components/native";
+import { Layout, IconButton } from "@jnesbella/body-builder";
 import * as Icons from "react-bootstrap-icons";
 
 import { useUpdateNote } from "../../hooks";
 import { Note } from "../../types";
 
-const NoteElementActionsMenuContainer = styled(Surface)<Bordered & Rounded>`
-  ${bordered};
-  ${rounded};
-  ${spacing({ spacingSize: 0.5 })};
+export interface NoteActionsProps {
+  note: Note;
+  onPressEdit?: () => void;
+}
 
-  position: absolute;
-  top: -${theme.spacing * 2}px;
-  right: ${theme.spacing * 2}px;
-`;
-
-function NoteActions({ note }: { note: Note }) {
+function NoteActions({ note, onPressEdit }: NoteActionsProps) {
   const { update: updateNote } = useUpdateNote();
 
   return (
@@ -36,6 +20,7 @@ function NoteActions({ note }: { note: Note }) {
         size="small"
         focusOn="none"
         focusable={false}
+        onPress={onPressEdit}
       />
 
       <IconButton

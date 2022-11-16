@@ -3,93 +3,104 @@ import {
   Layout,
   Surface,
   IconButton,
-  Space,
   RichTextEditor,
   RichTextEditorElement,
   useOnValueChange,
-  Info,
   rounded,
   bordered,
   Rounded,
   Bordered,
-  elevation,
+  RichTextEditorProps,
+  useSetRef,
+  theme,
 } from "@jnesbella/body-builder";
-import * as Icons from "react-bootstrap-icons";
-
-import {
-  useCreateNote,
-  useSelectedChannelId,
-  useTagIdsFromSearch,
-} from "../../hooks";
-import { Tag } from "../../types";
-
-import NoteTagsInput from "../NoteTagsInput";
 import styled from "styled-components/native";
 
-const NoteEditorWrapper = styled(Surface)<Bordered & Rounded>`
+import { useSelectedChannelId, useTagIdsFromSearch } from "../../hooks";
+import { Note, Tag } from "../../types";
+
+import NoteTagsInput from "../NoteTagsInput";
+
+const NoteEditorContainer = styled(Surface)<Bordered & Rounded>`
   ${rounded};
   ${bordered};
 `;
 
-function NoteEditor() {
-  const [tagIds, setTagIds] = React.useState<Tag["id"][]>([]);
+export interface NoteEditorElement {
+  reset: () => void;
+  getValue: () => Partial<Note>;
+}
 
-  const ref = React.useRef<RichTextEditorElement>(null);
+export interface NoteEditorProps extends RichTextEditorProps {
+  elevation?: number;
+  end?: React.ReactNode;
+  note?: Note;
+}
 
-  const defaultTagIds = useTagIdsFromSearch();
+const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
+  ({ elevation, end, note, disabled: isDisabled, ...props }, ref) => {
+    const defaultTagIds = useTagIdsFromSearch();
 
-  const reset = () => {
-    ref.current?.clear();
-    setTagIds(defaultTagIds);
-  };
+    const [tagIds, setTagIds] = React.useState<Tag["id"][]>(
+      note?.tagIds || defaultTagIds
+    );
 
-  const { create: createNote, isCreating } = useCreateNote({
-    onSuccess: reset,
-  });
+    const selectedChannelId = useSelectedChannelId();
 
-  const selectedChannelId = useSelectedChannelId();
+    useOnValueChange(selectedChannelId, () => {
+      setTagIds(defaultTagIds);
+    });
 
-  useOnValueChange(selectedChannelId, () => {
-    setTagIds(defaultTagIds);
-  });
+    const editorRef = React.useRef<RichTextEditorElement>(null);
 
-  const doCreate = () => {
-    createNote({
-      content: ref.current?.editor?.children,
+    const reset = () => {
+      editorRef.current?.clear();
+      setTagIds(defaultTagIds);
+    };
+
+    const getValue = () => ({
+      content: editorRef.current?.editor?.children,
       tagIds,
     });
-  };
 
-  const [elevation, setElevation] = React.useState(0);
+    const element: NoteEditorElement = {
+      reset,
+      getValue,
+    };
 
-  return (
-    <Surface fullWidth spacingSize={[3, 1]}>
-      <NoteEditorWrapper elevation={elevation}>
+    useSetRef(ref, element);
+
+    return (
+      <NoteEditorContainer
+        elevation={elevation}
+        borderColor={
+          isDisabled ? theme.colors.transparent : theme.colors.backgroundDivider
+        }
+        background={
+          isDisabled ? theme.colors.transparent : theme.colors.background
+        }
+      >
         <RichTextEditor
-          ref={ref}
+          {...props}
+          ref={editorRef}
+          value={note?.content}
           placeholder="Jot something down"
-          disabled={isCreating}
-          above={<RichTextEditor.Toolbar />}
-          onFocus={() => setElevation(1)}
-          onBlur={() => setElevation(0)}
+          above={!isDisabled && <RichTextEditor.Toolbar />}
+          disabled={isDisabled}
         />
 
         <Layout.Row justifyContent="space-between" fullWidth spacingSize={1}>
-          <NoteTagsInput value={tagIds} onChange={setTagIds} />
-
-          <IconButton
-            icon={Icons.Send}
-            onPress={doCreate}
-            focusOn="none"
-            focusable={false}
-            size="small"
+          <NoteTagsInput
+            value={tagIds}
+            onChange={setTagIds}
+            disabled={isDisabled}
           />
-        </Layout.Row>
-      </NoteEditorWrapper>
 
-      <Space spacingSize={2} />
-    </Surface>
-  );
-}
+          {end}
+        </Layout.Row>
+      </NoteEditorContainer>
+    );
+  }
+);
 
 export default NoteEditor;

@@ -13,7 +13,7 @@ import {
 } from "@jnesbella/body-builder";
 import styled from "styled-components/native";
 
-import { Note } from "../../../types";
+import { Note } from "../../types";
 
 const NoteActionsWrapper = styled(Surface)<Bordered & Rounded>`
   ${bordered};
@@ -35,7 +35,7 @@ const NoteLayoutContainer = styled(Surface).attrs({
       background: props.hovered
         ? theme.colors.backgroundInfo
         : props.note.pinned
-        ? theme.colors.primaryLight
+        ? theme.colors.background // theme.colors.primaryLight
         : theme.colors.background,
     })};
 `;
@@ -46,6 +46,7 @@ export interface NoteLayoutProps extends PressableProviderElement {
   actions?: React.ReactNode;
   tags?: React.ReactNode;
   note: Note;
+  isEditing?: boolean;
 }
 
 function NoteLayout({
@@ -54,6 +55,7 @@ function NoteLayout({
   title,
   tags,
   note,
+  isEditing,
   ...pressableProps
 }: NoteLayoutProps) {
   return (
@@ -74,7 +76,7 @@ function NoteLayout({
           {tags}
         </Layout.Box>
 
-        {pressableProps.hovered && (
+        {pressableProps.hovered && !isEditing && (
           <NoteActionsWrapper>{actions}</NoteActionsWrapper>
         )}
       </Layout.Column>

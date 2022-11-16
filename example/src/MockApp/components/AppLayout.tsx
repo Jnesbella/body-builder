@@ -8,6 +8,7 @@ import { NotesList, NotesListElement } from "./notes/NotesList";
 import NoteEditor from "./notes/NoteEditor";
 import Navigation from "./navigation/Navigation";
 import { ChannelName, LabledBox, SearchBar } from "./components";
+import NoteComposer from "./notes/NoteComposer";
 
 function AppLayout() {
   const notesListRef = React.useRef<NotesListElement>(null);
@@ -49,7 +50,7 @@ function AppLayout() {
 
                 <NotesList ref={notesListRef} />
 
-                <NoteEditor />
+                <NoteComposer />
               </Layout.Column>
 
               <Divider vertical />
