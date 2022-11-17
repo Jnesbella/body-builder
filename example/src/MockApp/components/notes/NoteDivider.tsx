@@ -13,6 +13,7 @@ import {
   spacing,
   Measure,
   MeasureElement,
+  Effect,
 } from "@jnesbella/body-builder";
 import styled from "styled-components/native";
 
@@ -80,12 +81,14 @@ function NoteDivider({ note }: { note: Note }) {
         </Layout.Box>
       </Measure>
 
-      <NoteDividerDividerWrapper
-        fullWidth
-        top={(measureElement?.rect?.height || 0) / 2}
-      >
-        <Divider />
-      </NoteDividerDividerWrapper>
+      {measureElement?.rect && (
+        <NoteDividerDividerWrapper
+          fullWidth
+          top={(measureElement?.rect?.height || 0) / 2}
+        >
+          <Divider />
+        </NoteDividerDividerWrapper>
+      )}
     </Layout.Column>
   );
 }

@@ -1,9 +1,9 @@
 import * as React from "react";
-import { debounce, DebouncedFunc, noop } from "lodash";
+import { debounce, DebouncedFunc } from "lodash";
 
 import { PressableState as DefaultPressableState } from "../../components/componentsTypes";
 import { log } from "../../utils";
-import { useSetRef } from "../../hooks";
+import { useOnValueChange, useSetRef } from "../../hooks";
 
 import { useFocusActions, useFocusState } from "./FocusProvider";
 
@@ -116,53 +116,32 @@ const PressableProvider = React.forwardRef<
     },
     ref
   ) => {
-    // focused
-    const [isFocused, setIsFocused] = React.useState(
-      defaultState.focused || false
-    );
-
     const _blur = useFocusActions((actions) => actions.blur);
 
     const _focus = useFocusActions((actions) => actions.focus);
 
     const _isFocused = useFocusActions((actions) => actions.isFocused);
-    const focused = _isFocused(id) || isFocusedProp || isFocused || false;
 
-    const isFocusedRef = React.useRef(focused);
+    const isFocused = _isFocused(id);
+    const focused = isFocused || isFocusedProp || false;
 
-    const isFocusChanged = focused !== isFocusedRef.current;
-
-    React.useEffect(
-      function cacheIsFocused() {
-        isFocusedRef.current = focused;
-      },
-      [focused]
-    );
-
-    React.useEffect(
-      function handleFocusedChange() {
-        if (isFocusChanged) {
-          if (focused) {
-            onFocus?.();
-          } else {
-            onBlur?.();
-          }
-        }
-      },
-      [isFocusChanged, focused, onBlur, onFocus]
-    );
+    useOnValueChange(focused, () => {
+      if (focused) {
+        onFocus?.();
+      } else {
+        onBlur?.();
+      }
+    });
 
     const blur = React.useMemo<BlurHandler>(() => {
       return debounce(() => {
         _blur(id);
-        setIsFocused(false);
       }, blurDebounceWait);
     }, [blurDebounceWait, _blur, id]);
 
     const focus = React.useCallback(() => {
       blur.cancel();
       _focus(id);
-      setIsFocused(true);
     }, [_focus, id, blur]);
 
     // pressed
@@ -171,25 +150,11 @@ const PressableProvider = React.forwardRef<
     );
     const pressed = isPressed || isPressedProp || false;
 
-    const isPressedRef = React.useRef(pressed);
-
-    const isPressedChanged = pressed !== isPressedRef.current;
-
-    React.useEffect(
-      function cacheIsPressed() {
-        isPressedRef.current = pressed;
-      },
-      [pressed]
-    );
-
-    React.useEffect(
-      function handlePressedChange() {
-        if (isPressedChanged && !pressed) {
-          onPress?.();
-        }
-      },
-      [isPressedChanged, pressed, onPress]
-    );
+    useOnValueChange(pressed, () => {
+      if (!pressed) {
+        onPress?.();
+      }
+    });
 
     const pressIn = React.useCallback(() => {
       setIsPressed(true);
@@ -205,30 +170,14 @@ const PressableProvider = React.forwardRef<
     );
     const hovered = isHovered || isHoveredProp || false;
 
-    const isHoveredRef = React.useRef(pressed);
-
-    const isHoveredChanged = hovered !== isHoveredRef.current;
-
-    React.useEffect(
-      function cacheIsHovered() {
-        isHoveredRef.current = hovered;
-      },
-      [hovered]
-    );
-
-    React.useEffect(
-      function handleHoveredChange() {
-        if (isHoveredChanged) {
-          if (hovered) {
-            onHoverOver?.();
-          } else {
-            setIsPressed(false);
-            onHoverOut?.();
-          }
-        }
-      },
-      [isHoveredChanged, onHoverOut, onHoverOver, onHoverOut]
-    );
+    useOnValueChange(hovered, () => {
+      if (hovered) {
+        onHoverOver?.();
+      } else {
+        setIsPressed(false);
+        onHoverOut?.();
+      }
+    });
 
     const hoverOver = React.useCallback(() => {
       setIsHovered(true);
@@ -262,12 +211,16 @@ const PressableProvider = React.forwardRef<
 
     useSetRef(ref, element);
 
+    const renderChildren = () => {
+      return typeof children === "function"
+        ? (children as PressableProviderRenderChildrenCallback)(element)
+        : children;
+    };
+
     return (
       <PressableState.Provider value={state}>
         <PressableActions.Provider value={actions}>
-          {children && typeof children === "function"
-            ? (children as PressableProviderRenderChildrenCallback)(element)
-            : children}
+          {renderChildren()}
         </PressableActions.Provider>
       </PressableState.Provider>
     );

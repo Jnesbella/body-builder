@@ -45,12 +45,6 @@ function NoteComponent({ note }: NoteComponentProps) {
           actions={<NoteActions note={note} onPressEdit={onEditStart} />}
           // tags={<NoteTags note={note} />}
           content={
-            // <RichTextEditor
-            //   placeholder="Jot something down"
-            //   value={note.content}
-            //   disabled={!isEditing}
-            // />
-
             <NoteEditor
               note={note}
               disabled={!isEditing}

@@ -10,6 +10,7 @@ import {
   spacing,
   Bordered,
   Rounded,
+  Space,
 } from "@jnesbella/body-builder";
 import styled from "styled-components/native";
 
@@ -27,26 +28,27 @@ const NoteActionsWrapper = styled(Surface)<Bordered & Rounded>`
 
 const NoteLayoutContainer = styled(Surface).attrs({
   fullWidth: true,
-})<PressableProviderElement & { note: Note }>`
+})<Partial<PressableProviderElement & { note: Note }>>`
   position: relative;
 
   ${(props) =>
     background({
       background: props.hovered
         ? theme.colors.backgroundInfo
-        : props.note.pinned
+        : props.note?.pinned
         ? theme.colors.background // theme.colors.primaryLight
         : theme.colors.background,
     })};
 `;
 
-export interface NoteLayoutProps extends PressableProviderElement {
+export interface NoteLayoutProps extends Partial<PressableProviderElement> {
   title?: React.ReactNode;
   content?: React.ReactNode;
   actions?: React.ReactNode;
   tags?: React.ReactNode;
-  note: Note;
+  note?: Note;
   isEditing?: boolean;
+  spacingSizeBottom?: number;
 }
 
 function NoteLayout({
@@ -56,11 +58,12 @@ function NoteLayout({
   tags,
   note,
   isEditing,
+  spacingSizeBottom = 0,
   ...pressableProps
 }: NoteLayoutProps) {
   return (
     <NoteLayoutContainer {...pressableProps} note={note}>
-      <Layout.Column spacingSize={[2, 1]}>
+      <Layout.Column spacingSize={[3, 1]}>
         <Layout.Row spacingSize={[1, 0]} alignItems="baseline">
           {title}
         </Layout.Row>
@@ -79,6 +82,8 @@ function NoteLayout({
         {pressableProps.hovered && !isEditing && (
           <NoteActionsWrapper>{actions}</NoteActionsWrapper>
         )}
+
+        {spacingSizeBottom ? <Space spacingSize={spacingSizeBottom} /> : null}
       </Layout.Column>
     </NoteLayoutContainer>
   );

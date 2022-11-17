@@ -1,31 +1,22 @@
 import * as React from "react";
-import styled, { css } from "styled-components";
 
 import { log, setRef } from "../../utils";
-import { useId } from "../../hooks";
+import { useId, useOnValueChange } from "../../hooks";
 
 import PressableProvider, {
   PressableProviderProps,
   PressableProviderElement,
 } from "./PressableProvider";
 import FocusProvider from "./FocusProvider";
-import { full, Greedy, greedy } from "../../components";
 
-const DefaultPressable = styled.div<{ fullWidth?: boolean } & Greedy>`
-  ${greedy};
-  ${full};
-
-  user-select: none;
-  display: inline-flex;
-`;
+import WithoutFeedback, { WithoutFeedbackProps } from "./WithoutFeedback";
 
 export type PressableElement = HTMLDivElement;
 
 export interface PressableProps
   extends Omit<PressableProviderProps, "id">,
-    Greedy {
+    WithoutFeedbackProps {
   disabled?: boolean;
-  fullWidth?: boolean;
   focusOn?: "press" | "none";
   focusable?: boolean;
   focusOnPress?: boolean;
@@ -38,7 +29,6 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
       children,
 
       disabled,
-      fullWidth,
       focusOnPress = true,
       focusOn = focusOnPress ? "press" : "none",
       focusable: isFocusable = true,
@@ -48,9 +38,20 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
       isPressed,
 
       id: idProp,
+
+      onPress,
+      onBlur,
+      onFocus,
+      onHoverOut,
+      onHoverOver,
+      onLongPress,
+      onPressCapture,
+
+      fullHeight,
+      fullWidth,
       greedy,
 
-      ...pressableProviderProps
+      // ...rest
     },
     ref
   ) => {
@@ -70,30 +71,27 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
 
     const blurRef = React.useRef<() => void>();
 
-    const disabledCache = React.useRef(disabled);
+    useOnValueChange(disabled, () => {
+      if (disabled) {
+        pressableProviderRef.current?.blur();
+        pressableProviderRef.current?.hoverOut();
+        pressableProviderRef.current?.pressOut();
+      }
+    });
 
-    const isDisabledChanged = disabledCache.current !== disabled;
+    const tryAction = (key: keyof PressableProviderElement) => {
+      return () => {
+        const action = pressableProviderRef.current?.[key];
 
-    React.useEffect(
-      function cacheDisabled() {
-        disabledCache.current = disabled;
-      },
-      [disabled]
-    );
-
-    React.useEffect(
-      function handleChangeDisabled() {
-        if (isDisabledChanged && disabled) {
-          pressableProviderRef.current?.blur();
-          pressableProviderRef.current?.hoverOut();
-          pressableProviderRef.current?.pressOut();
+        if (!disabled && action && typeof action === "function") {
+          action();
         }
-      },
-      [disabled, isDisabledChanged, id]
-    );
+      };
+    };
 
     return (
-      <DefaultPressable
+      <WithoutFeedback
+        // {...rest}
         ref={(node) => {
           const element = (node || {}) as PressableElement;
 
@@ -117,58 +115,21 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
 
           setRef(ref, element);
         }}
-        greedy={greedy}
-        fullWidth={fullWidth}
         tabIndex={!disabled && isFocusable ? 0 : undefined}
         // focused
-        onFocus={
-          !disabled && isFocusable
-            ? () => {
-                pressableProviderRef.current?.focus();
-              }
-            : undefined
-        }
-        onBlur={
-          !disabled && isFocusable
-            ? () => {
-                pressableProviderRef.current?.blur();
-              }
-            : undefined
-        }
+        onFocus={tryAction("focus")}
+        onBlur={tryAction("blur")}
         // hovered
-        onPointerOver={
-          !disabled
-            ? () => {
-                pressableProviderRef.current?.hoverOver();
-              }
-            : undefined
-        }
-        onPointerOut={
-          !disabled
-            ? () => {
-                pressableProviderRef.current?.hoverOut();
-              }
-            : undefined
-        }
+        onPointerOver={tryAction("hoverOver")}
+        onPointerOut={tryAction("hoverOut")}
         // pressed
-        onPointerDown={
-          !disabled
-            ? () => {
-                pressableProviderRef.current?.pressIn();
-              }
-            : undefined
-        }
-        onPointerUp={
-          !disabled
-            ? () => {
-                pressableProviderRef.current?.pressOut();
-                pressableProviderProps.onPressCapture?.();
-              }
-            : undefined
-        }
+        onPointerDown={tryAction("pressIn")}
+        onPointerUp={tryAction("pressOut")}
+        fullHeight={fullHeight}
+        fullWidth={fullWidth}
+        greedy={greedy}
       >
         <PressableProvider
-          {...pressableProviderProps}
           id={id}
           ref={pressableProviderRef}
           defaultState={state}
@@ -176,17 +137,23 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
           isHovered={state.hovered}
           isPressed={state.pressed}
           onPress={() => {
-            const result = pressableProviderProps.onPress?.();
+            const result = onPress?.();
             const preventFocus = result === false;
 
             if (isFocusOnPress && !preventFocus) {
               pressableProviderRef.current?.focus();
             }
           }}
+          onBlur={onBlur}
+          onFocus={onFocus}
+          onHoverOut={onHoverOut}
+          onHoverOver={onHoverOver}
+          onLongPress={onLongPress}
+          onPressCapture={onPressCapture}
         >
           {children}
         </PressableProvider>
-      </DefaultPressable>
+      </WithoutFeedback>
     );
   }
 );

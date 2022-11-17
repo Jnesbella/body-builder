@@ -1,26 +1,20 @@
 import * as React from "react";
 import { TextInput as DefaultTextInput } from "react-native";
 import styled, { css } from "styled-components/native";
-import * as Icons from "react-bootstrap-icons";
-import { get } from "lodash";
 
 import Pressable, {
-  PressableActions,
+  PressableProviderElement,
   PressableProps,
 } from "../../experimental/Pressable";
 import { theme } from "../../styles";
 
 import { bordered, Bordered } from "../bordered";
 import { PressableState } from "../componentsTypes";
-import Icon, { IconProps } from "../Icon";
 import Layout from "../Layout";
-
 import {
   Greedy,
   Full,
   FontSize,
-  color,
-  fontSize,
   rounded,
   greedy,
   full,
@@ -30,7 +24,7 @@ import {
   Rounded,
   Background,
 } from "../styled-components";
-import { text, TextProps } from "../Text";
+import { text, DefaultTextProps } from "../Text";
 
 type DefaultTextInputProps = Omit<
   React.ComponentProps<typeof DefaultTextInput>,
@@ -43,7 +37,7 @@ export interface TextInputProps
     Full,
     Rounded,
     Background,
-    TextProps,
+    DefaultTextProps,
     Bordered {
   onPress?: PressableProps["onPress"];
   onFocus?: PressableProps["onFocus"];
@@ -54,9 +48,10 @@ export interface TextInputProps
   start?: React.ReactNode;
 }
 
-export type StyledTextInputProps = PressableState &
-  SpacingProps &
-  TextInputProps;
+export interface StyledTextInputProps
+  extends PressableState,
+    SpacingProps,
+    TextInputProps {}
 
 const StyledTextInput = styled.TextInput.attrs<StyledTextInputProps>(
   ({ spacingSize = [1, 0] }) => ({
@@ -88,7 +83,7 @@ const InputPressable = styled(Pressable)`
 `;
 
 export interface InputOutlineProps
-  extends PressableState,
+  extends PressableProviderElement,
     SpacingProps,
     Background,
     Rounded,
@@ -155,7 +150,7 @@ function TextInput({
       onPress={onPress}
       fullWidth={fullWidth}
     >
-      {(pressableProps: PressableState & PressableActions) => (
+      {(pressableProps: PressableProviderElement) => (
         <InputOutline
           {...pressableProps}
           greedy={greedy}
