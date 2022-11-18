@@ -7,15 +7,28 @@ import {
   Layout,
   Button,
   Space,
+  Surface,
+  theme,
+  bordered,
+  rounded,
+  spacing,
+  Bordered,
+  Rounded,
+  Effect,
 } from "@jnesbella/body-builder";
+import styled from "styled-components/native";
 
 import { Note } from "../../types";
 
 import NoteActions, { NoteActionsProps } from "./NoteActions";
-import NoteTags from "./NoteTags";
 
 import NoteLayout from "./NoteLayout";
 import NoteEditor from "./NoteEditor";
+
+const NoteActionsWrapper = styled(Surface)<Bordered & Rounded>`
+  ${rounded({ roundness: theme.spacing * 2 })};
+  ${spacing({ spacingSize: 0.5 })};
+`;
 
 export interface NoteComponentProps {
   note: Note;
@@ -42,13 +55,27 @@ function NoteComponent({ note }: NoteComponentProps) {
           isEditing={isEditing}
           note={note}
           title={<Text.Caption>{formattedCreatedAt}</Text.Caption>}
-          actions={<NoteActions note={note} onPressEdit={onEditStart} />}
+          // actions={<NoteActions note={note} onPressEdit={onEditStart} />}
           // tags={<NoteTags note={note} />}
           content={
             <NoteEditor
               note={note}
               disabled={!isEditing}
-              end={
+              toolbarEnd={
+                // <Effect.FadeIn
+                //   fadeIn={pressableProps.hovered}
+                //   fadeOut={!pressableProps.hovered}
+                // >
+                <Layout.Row>
+                  <Layout.Box greedy />
+
+                  <NoteActionsWrapper>
+                    <NoteActions note={note} onPressEdit={onEditStart} />
+                  </NoteActionsWrapper>
+                </Layout.Row>
+                // </Effect.FadeIn>
+              }
+              footerEnd={
                 isEditing && (
                   <Layout.Row>
                     <Button title="Cancel" onPress={onEditEnd} size="small" />

@@ -31,14 +31,18 @@ export interface NoteEditorElement {
   getValue: () => Partial<Note>;
 }
 
-export interface NoteEditorProps extends RichTextEditorProps {
+export interface NoteEditorProps extends Omit<RichTextEditorProps, "below"> {
   elevation?: number;
-  end?: React.ReactNode;
+  footerEnd?: React.ReactNode;
   note?: Note;
+  toolbarEnd?: React.ReactNode;
 }
 
 const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
-  ({ elevation, end, note, disabled: isDisabled, ...props }, ref) => {
+  (
+    { elevation, toolbarEnd, footerEnd, note, disabled: isDisabled, ...props },
+    ref
+  ) => {
     const defaultTagIds = useTagIdsFromSearch();
 
     const [tagIds, setTagIds] = React.useState<Tag["id"][]>(
@@ -85,7 +89,7 @@ const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
           ref={editorRef}
           value={note?.content}
           placeholder="Jot something down"
-          above={!isDisabled && <RichTextEditor.Toolbar />}
+          above={(!isDisabled && <RichTextEditor.Toolbar />) || toolbarEnd}
           disabled={isDisabled}
         />
 
@@ -96,7 +100,7 @@ const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
             disabled={isDisabled}
           />
 
-          {end}
+          {footerEnd}
         </Layout.Row>
       </NoteEditorContainer>
     );

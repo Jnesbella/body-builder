@@ -394,7 +394,7 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
         <InputPressable focusable={false} focusOn="none">
           {(pressableProps) => (
             <InputOutline
-              {...pick(pressableProps, ["focused", "pressed", "hovered"])}
+              {...pressableProps}
               spacingSize={0}
               disabled={disabled}
               fullWidth

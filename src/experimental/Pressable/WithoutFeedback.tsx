@@ -1,16 +1,12 @@
 import * as React from "react";
 import styled from "styled-components";
 
-import { Full, full, Greedy, greedy } from "../../components";
+import PressableWebAdapter, {
+  PressableWebAdapterProps,
+} from "./PressableWebAdapter";
 
-export interface WithoutFeedbackProps extends Full, Greedy {}
+export interface WithoutFeedbackProps extends PressableWebAdapterProps {}
 
-const WithoutFeedback = styled.div<WithoutFeedbackProps>`
-  ${greedy};
-  ${full};
-
-  user-select: none;
-  display: inline-flex;
-`;
+const WithoutFeedback = styled(PressableWebAdapter)<WithoutFeedbackProps>``;
 
 export default WithoutFeedback;

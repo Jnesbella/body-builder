@@ -1,75 +1,29 @@
 import * as React from "react";
 import { debounce, DebouncedFunc } from "lodash";
 
-import { PressableState as DefaultPressableState } from "../../components/componentsTypes";
-import { log } from "../../utils";
-import { useOnValueChange, useSetRef } from "../../hooks";
+import { useId, useOnValueChange, useSetRef } from "../../hooks";
 
-import { useFocusActions, useFocusState } from "./FocusProvider";
+import FocusProvider, { useFocusActions } from "./FocusProvider";
+import { PressableState } from "./PressableState";
+import { PressableActions } from "./PressableActions";
+import { PressableElement, RenderPressableChildren } from "./pressable-types";
+import { renderPressableChildren } from "./pressable-utils";
+import PressableWithFeedback from "./PressableWithFeedback";
 
-export interface PressableState extends DefaultPressableState {}
-
-export const PressableState = React.createContext<PressableState | null>(null);
-
-// export type BlurHandler = (() => void) & { cancel: () => void };
 export type BlurHandler = DebouncedFunc<() => void>;
-
-export interface PressableActions {
-  focus: () => void;
-  blur: () => void;
-
-  pressIn: () => void;
-  pressOut: () => void;
-
-  hoverOver: () => void;
-  hoverOut: () => void;
-}
-
-export const PressableActions = React.createContext<PressableActions | null>(
-  null
-);
-
-export function usePressableState<Output>(
-  selector: (state: PressableState) => Output
-) {
-  const state = React.useContext(PressableState);
-
-  if (state === null) {
-    throw new Error("usePressableState must be used within a Pressable");
-  }
-
-  return selector(state);
-}
-
-export function usePressableActions<Output>(
-  selector: (actions: PressableActions) => Output
-) {
-  const actions = React.useContext(PressableActions);
-
-  if (actions === null) {
-    throw new Error("usePressableActions must be used within a Pressable");
-  }
-
-  return selector(actions);
-}
 
 const DEFAULT_STATE: PressableState = {
   pressed: false,
 };
 
-export interface PressableProviderElement
-  extends PressableActions,
-    PressableState {}
-
-type PressableProviderRenderChildrenCallback = (
-  props: PressableProviderElement
-) => React.ReactNode;
-
-export interface PressableProviderProps {
-  id: string;
-
-  children?: React.ReactNode | PressableProviderRenderChildrenCallback;
+export interface PressableProps {
+  children?: React.ReactNode | RenderPressableChildren;
+  id?: string;
   defaultState?: Partial<PressableState>;
+  disabled?: boolean;
+  focusOn?: "press" | "none";
+  focusable?: boolean;
+  focusOnPress?: boolean;
 
   // focused
   isFocused?: boolean;
@@ -89,15 +43,16 @@ export interface PressableProviderProps {
   onHoverOut?: () => void;
 }
 
-const PressableProvider = React.forwardRef<
-  PressableProviderElement,
-  PressableProviderProps
->(
+const Pressable = React.forwardRef<PressableElement, PressableProps>(
   (
     {
-      id,
       children,
+      id: idProp,
       defaultState = DEFAULT_STATE,
+      disabled,
+      focusOnPress = true,
+      focusOn = focusOnPress ? "press" : "none",
+      focusable: isFocusable = true,
 
       onBlur,
       onFocus,
@@ -113,16 +68,20 @@ const PressableProvider = React.forwardRef<
       isFocused: isFocusedProp,
       isPressed: isPressedProp,
       isHovered: isHoveredProp,
+
+      ...rest
     },
     ref
   ) => {
-    const _blur = useFocusActions((actions) => actions.blur);
+    const id = useId(idProp);
 
-    const _focus = useFocusActions((actions) => actions.focus);
+    const doBlur = useFocusActions((actions) => actions.blur);
 
-    const _isFocused = useFocusActions((actions) => actions.isFocused);
+    const doFocus = useFocusActions((actions) => actions.focus);
 
-    const isFocused = _isFocused(id);
+    const doIsFocused = useFocusActions((actions) => actions.isFocused);
+
+    const isFocused = doIsFocused(id);
     const focused = isFocused || isFocusedProp || false;
 
     useOnValueChange(focused, () => {
@@ -135,14 +94,14 @@ const PressableProvider = React.forwardRef<
 
     const blur = React.useMemo<BlurHandler>(() => {
       return debounce(() => {
-        _blur(id);
+        doBlur(id);
       }, blurDebounceWait);
-    }, [blurDebounceWait, _blur, id]);
+    }, [blurDebounceWait, doBlur, id]);
 
     const focus = React.useCallback(() => {
       blur.cancel();
-      _focus(id);
-    }, [_focus, id, blur]);
+      doFocus(id);
+    }, [doFocus, id, blur]);
 
     // pressed
     const [isPressed, setIsPressed] = React.useState(
@@ -193,38 +152,48 @@ const PressableProvider = React.forwardRef<
       hovered,
     };
 
+    const whenEnabled = (fn: () => void) => {
+      return () => {
+        if (!disabled) {
+          fn();
+        }
+      };
+    };
+
     const actions: PressableActions = {
       // focused
-      focus,
-      blur,
+      focus: whenEnabled(focus),
+      blur: whenEnabled(blur),
 
       // pressed
-      pressIn,
-      pressOut,
+      pressIn: whenEnabled(pressIn),
+      pressOut: whenEnabled(pressOut),
 
       // hovered
-      hoverOver,
-      hoverOut,
+      hoverOver: whenEnabled(hoverOver),
+      hoverOut: whenEnabled(hoverOut),
     };
 
-    const element: PressableProviderElement = { ...actions, ...state };
+    const element: PressableElement = { ...actions, ...state };
 
     useSetRef(ref, element);
-
-    const renderChildren = () => {
-      return typeof children === "function"
-        ? (children as PressableProviderRenderChildrenCallback)(element)
-        : children;
-    };
 
     return (
       <PressableState.Provider value={state}>
         <PressableActions.Provider value={actions}>
-          {renderChildren()}
+          {renderPressableChildren({ ...rest, ...element }, children)}
         </PressableActions.Provider>
       </PressableState.Provider>
     );
   }
 );
 
-export default PressableProvider;
+type Pressable = typeof Pressable & {
+  Provider: typeof FocusProvider;
+  WithFeedback: typeof PressableWithFeedback;
+};
+
+(Pressable as Pressable).Provider = FocusProvider;
+(Pressable as Pressable).WithFeedback = PressableWithFeedback;
+
+export default Pressable as Pressable;

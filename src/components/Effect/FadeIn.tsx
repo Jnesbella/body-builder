@@ -2,7 +2,7 @@ import * as React from "react";
 import { Animated, Easing } from "react-native";
 import styled from "styled-components/native";
 
-import { useSetRef } from "../../hooks";
+import { useOnValueChange, useSetRef } from "../../hooks";
 import { Greedy, greedy } from "../styled-components";
 
 const FadeInContainer = styled(Animated.View)`
@@ -21,6 +21,8 @@ export interface FadeInProps extends Greedy {
   onFadeInComplete?: (options: { finished: boolean }) => void;
   onFadeOutComplete?: (options: { finished: boolean }) => void;
   value?: Animated.Value;
+  fadeIn?: boolean;
+  fadeOut?: boolean;
 }
 
 const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
@@ -32,6 +34,8 @@ const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
       onFadeInComplete,
       onFadeOutComplete,
       value,
+      fadeIn: isFadeIn = true,
+      fadeOut: isFadeOut,
       ...rest
     },
     ref
@@ -76,13 +80,33 @@ const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
 
     useSetRef(ref, { fadeIn, fadeOut });
 
-    React.useEffect(function handleOnMound() {
+    React.useEffect(function handleOnMount() {
       const timing = fadeIn();
 
       return () => {
         timing.stop();
       };
     }, []);
+
+    useOnValueChange(isFadeIn, () => {
+      if (isFadeIn) {
+        const timing = fadeIn();
+
+        return () => {
+          timing.stop();
+        };
+      }
+    });
+
+    useOnValueChange(isFadeOut, () => {
+      if (isFadeOut) {
+        const timing = fadeOut();
+
+        return () => {
+          timing.stop();
+        };
+      }
+    });
 
     return (
       <FadeInContainer

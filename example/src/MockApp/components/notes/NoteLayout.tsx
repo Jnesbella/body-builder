@@ -79,9 +79,9 @@ function NoteLayout({
           {tags}
         </Layout.Box>
 
-        {pressableProps.hovered && !isEditing && (
+        {/* {pressableProps.hovered && !isEditing && (
           <NoteActionsWrapper>{actions}</NoteActionsWrapper>
-        )}
+        )} */}
 
         {spacingSizeBottom ? <Space spacingSize={spacingSizeBottom} /> : null}
       </Layout.Column>

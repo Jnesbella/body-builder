@@ -46,10 +46,7 @@ const ImageElement = React.forwardRef<any, ImageElementProps>(
             onPress={() => Transforms.select(editor, path)}
           >
             {(pressableProps: PressableState & PressableActions) => (
-              <InputOutline
-                {...pick(pressableProps, ["focused", "pressed", "hovered"])}
-                spacingSize={0}
-              >
+              <InputOutline {...pressableProps} spacingSize={0}>
                 <Image src={element.src} width={element.width || 200} />
               </InputOutline>
             )}

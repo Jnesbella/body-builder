@@ -15,7 +15,7 @@ function useOnValueChange<TValue>(value: TValue, onChange: () => void) {
   React.useEffect(
     function setDefaultTagIds() {
       if (valueChanged) {
-        onChange();
+        return onChange();
       }
     },
     [onChange, valueChanged]

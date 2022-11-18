@@ -1,4 +1,5 @@
 import * as React from "react";
+import styled from "styled-components";
 
 import { log, setRef } from "../../utils";
 import { useId, useOnValueChange } from "../../hooks";
@@ -8,8 +9,17 @@ import PressableProvider, {
   PressableProviderElement,
 } from "./PressableProvider";
 import FocusProvider from "./FocusProvider";
+import { full, Full, greedy, Greedy } from "../../components";
 
-import WithoutFeedback, { WithoutFeedbackProps } from "./WithoutFeedback";
+export interface WithoutFeedbackProps extends Full, Greedy {}
+
+const WithoutFeedback = styled.div<WithoutFeedbackProps>`
+  ${greedy};
+  ${full};
+
+  user-select: none;
+  display: inline-flex;
+`;
 
 export type PressableElement = HTMLDivElement;
 
@@ -67,10 +77,6 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
 
     const isFocusOnPress = focusOn === "press";
 
-    const focusRef = React.useRef<(options?: FocusOptions) => void>();
-
-    const blurRef = React.useRef<() => void>();
-
     useOnValueChange(disabled, () => {
       if (disabled) {
         pressableProviderRef.current?.blur();
@@ -89,32 +95,40 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
       };
     };
 
+    const innerRef = React.useRef<PressableElement>(null);
+
+    const handleRef = (node: HTMLDivElement | null) => {
+      const element = (node || {}) as PressableElement;
+
+      const { focus: focusElement, blur: blurElement } = element || {};
+
+      element.blur = () => {
+        pressableProviderRef.current?.blur();
+        blurElement?.();
+      };
+
+      element.focus = (_options?: FocusOptions) => {
+        pressableProviderRef.current?.focus();
+        focusElement?.();
+      };
+
+      setRef(innerRef, element);
+      setRef(ref, element);
+    };
+
+    const handlePress = () => {
+      const result = onPress?.();
+      const preventFocus = result === false;
+
+      if (isFocusOnPress && !preventFocus) {
+        pressableProviderRef.current?.focus();
+      }
+    };
+
     return (
       <WithoutFeedback
         // {...rest}
-        ref={(node) => {
-          const element = (node || {}) as PressableElement;
-
-          if (!focusRef.current) {
-            focusRef.current = element.focus;
-          }
-
-          if (!blurRef.current) {
-            blurRef.current = element.blur;
-          }
-
-          element["blur"] = () => {
-            // blurRef.current?.();
-            pressableProviderRef.current?.blur();
-          };
-
-          element["focus"] = () => {
-            // focusRef.current?.();
-            pressableProviderRef.current?.focus();
-          };
-
-          setRef(ref, element);
-        }}
+        ref={handleRef}
         tabIndex={!disabled && isFocusable ? 0 : undefined}
         // focused
         onFocus={tryAction("focus")}
@@ -136,14 +150,7 @@ const Pressable = React.forwardRef<PressableElement, PressableProps>(
           isFocused={state.focused}
           isHovered={state.hovered}
           isPressed={state.pressed}
-          onPress={() => {
-            const result = onPress?.();
-            const preventFocus = result === false;
-
-            if (isFocusOnPress && !preventFocus) {
-              pressableProviderRef.current?.focus();
-            }
-          }}
+          onPress={handlePress}
           onBlur={onBlur}
           onFocus={onFocus}
           onHoverOut={onHoverOut}
