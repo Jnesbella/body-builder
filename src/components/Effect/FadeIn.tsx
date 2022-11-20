@@ -4,6 +4,7 @@ import styled from "styled-components/native";
 
 import { useOnValueChange, useSetRef } from "../../hooks";
 import { Greedy, greedy } from "../styled-components";
+import Util from "../Util";
 
 const FadeInContainer = styled(Animated.View)`
   ${greedy};
@@ -23,6 +24,7 @@ export interface FadeInProps extends Greedy {
   value?: Animated.Value;
   fadeIn?: boolean;
   fadeOut?: boolean;
+  fadeInOnMount?: boolean;
 }
 
 const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
@@ -36,11 +38,13 @@ const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
       value,
       fadeIn: isFadeIn = true,
       fadeOut: isFadeOut,
+      fadeInOnMount = true,
       ...rest
     },
     ref
   ) => {
     const { current: fadeAnim } = React.useRef(value || new Animated.Value(0));
+    const [isMounted, setIsMounted] = React.useState(false);
 
     const { fadeInTiming, fadeOutTiming } = React.useMemo(() => {
       const timingOptions = {
@@ -80,43 +84,30 @@ const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
 
     useSetRef(ref, { fadeIn, fadeOut });
 
-    React.useEffect(function handleOnMount() {
-      const timing = fadeIn();
+    React.useEffect(
+      function handleFade() {
+        const shouldFadeIn = (fadeInOnMount && !isMounted) || isFadeIn;
 
-      return () => {
-        timing.stop();
-      };
-    }, []);
-
-    useOnValueChange(isFadeIn, () => {
-      if (isFadeIn) {
-        const timing = fadeIn();
+        const timing = shouldFadeIn ? fadeIn() : fadeOut();
 
         return () => {
           timing.stop();
         };
-      }
-    });
-
-    useOnValueChange(isFadeOut, () => {
-      if (isFadeOut) {
-        const timing = fadeOut();
-
-        return () => {
-          timing.stop();
-        };
-      }
-    });
+      },
+      [isFadeIn, fadeInOnMount, isMounted]
+    );
 
     return (
-      <FadeInContainer
-        style={{
-          opacity: fadeAnim,
-        }}
-        {...rest}
-      >
-        {children}
-      </FadeInContainer>
+      <Util.Mount onMount={() => setIsMounted(true)}>
+        <FadeInContainer
+          style={{
+            opacity: fadeAnim,
+          }}
+          {...rest}
+        >
+          {children}
+        </FadeInContainer>
+      </Util.Mount>
     );
   }
 );

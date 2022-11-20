@@ -2,30 +2,33 @@ import * as React from "react";
 import {
   Text,
   Pressable,
-  RichTextEditor,
   utcStringToDate,
   Layout,
   Button,
   Space,
   Surface,
   theme,
-  bordered,
   rounded,
   spacing,
   Bordered,
   Rounded,
+  UpdateOne,
+  log,
   Effect,
 } from "@jnesbella/body-builder";
 import styled from "styled-components/native";
 
 import { Note } from "../../types";
+import { useUpdateNote } from "../../hooks";
 
-import NoteActions, { NoteActionsProps } from "./NoteActions";
-
+import NoteActions from "./NoteActions";
 import NoteLayout from "./NoteLayout";
-import NoteEditor from "./NoteEditor";
+import NoteEditor, { NoteEditorElement, NoteEditorProps } from "./NoteEditor";
+import { isEqual, pick } from "lodash";
 
-const NoteActionsWrapper = styled(Surface)<Bordered & Rounded>`
+const NoteActionsWrapper = styled(Surface).attrs({
+  // background: theme.colors.transparent,
+})<Bordered & Rounded>`
   ${rounded({ roundness: theme.spacing * 2 })};
   ${spacing({ spacingSize: 0.5 })};
 `;
@@ -35,17 +38,86 @@ export interface NoteComponentProps {
 }
 
 function NoteComponent({ note }: NoteComponentProps) {
+  log("---");
+  log({ note });
+
   const [isEditing, setIsEditing] = React.useState(false);
 
-  const onEditStart = () => setIsEditing(true);
+  const startEditing = () => setIsEditing(true);
 
-  const onEditEnd = () => setIsEditing(false);
+  const endEditing = () => setIsEditing(false);
 
   const createdAt: Date = utcStringToDate(note.createdAt);
 
   const formattedCreatedAt = `${createdAt.getHours()}:${String(
     createdAt.getMinutes()
   ).padStart(2, "0")}`;
+
+  const { update } = useUpdateNote({
+    onSuccess: endEditing,
+  });
+
+  const { id: noteId } = note;
+
+  const noteEditorRef = React.useRef<NoteEditorElement>(null);
+
+  const isSameContent = (content: NoteEditorProps["value"]) => {
+    const same = isEqual(content, note.content);
+    log({ content, noteContent: note.content });
+    return same;
+    // return isEqual(content, note.content);
+  };
+
+  const isSameTags = (tagIds: Note["tagIds"] = []) => {
+    const { tagIds: noteTagIds = [] } = note;
+
+    return (
+      tagIds.length === noteTagIds.length &&
+      tagIds.every((tagId) => noteTagIds.includes(tagId))
+    );
+  };
+
+  const isSameByKey = {
+    content: isSameContent,
+    tagIds: isSameTags,
+  };
+
+  const updateableKeys: (keyof Note)[] = Object.keys(isSameByKey);
+
+  const hasChanges = (palyoad: Partial<Note>) => {
+    return updateableKeys.some((key) => {
+      const isSame = isSameByKey[key];
+
+      return !isSame(palyoad[key]);
+    });
+  };
+
+  const updateNote = (payload: Partial<Note> = {}) => {
+    const updates = pick(payload, updateableKeys);
+
+    if (hasChanges(updates)) {
+      console.log("update", updates);
+
+      update({
+        ...updates,
+        id: noteId,
+      });
+    } else {
+      endEditing();
+    }
+  };
+
+  const handleChange = (nextContent: Note["content"]) => {
+    if (!isEditing) {
+      // this gets triggered when:
+      // - a task is completed/uncompleted
+      // - switching from editing to not editing
+
+      updateNote({
+        content: nextContent,
+      });
+    }
+  };
 
   return (
     <Pressable fullWidth>
@@ -55,30 +127,48 @@ function NoteComponent({ note }: NoteComponentProps) {
           isEditing={isEditing}
           note={note}
           title={<Text.Caption>{formattedCreatedAt}</Text.Caption>}
-          // actions={<NoteActions note={note} onPressEdit={onEditStart} />}
+          // actions={<NoteActions note={note} onPressEdit={startEditing} />}
           // tags={<NoteTags note={note} />}
           content={
             <NoteEditor
+              ref={noteEditorRef}
               note={note}
               disabled={!isEditing}
+              onChange={handleChange}
               toolbarEnd={
-                // <Effect.FadeIn
-                //   fadeIn={pressableProps.hovered}
-                //   fadeOut={!pressableProps.hovered}
-                // >
-                <Layout.Row>
-                  <Layout.Box greedy />
+                <Effect.FadeIn
+                  fadeIn={!isEditing}
+                  fadeOut={isEditing}
+                  duration={0}
+                >
+                  <Layout.Row>
+                    <Layout.Box greedy />
 
-                  <NoteActionsWrapper>
-                    <NoteActions note={note} onPressEdit={onEditStart} />
-                  </NoteActionsWrapper>
-                </Layout.Row>
-                // </Effect.FadeIn>
+                    <NoteActionsWrapper>
+                      <NoteActions
+                        note={note}
+                        onPressEdit={startEditing}
+                        hovered={pressableProps.hovered}
+                      />
+                    </NoteActionsWrapper>
+                  </Layout.Row>
+                </Effect.FadeIn>
               }
               footerEnd={
-                isEditing && (
+                <Effect.FadeIn
+                  fadeIn={isEditing}
+                  fadeOut={!isEditing}
+                  duration={0}
+                >
                   <Layout.Row>
-                    <Button title="Cancel" onPress={onEditEnd} size="small" />
+                    <Button
+                      title="Cancel"
+                      onPress={() => {
+                        noteEditorRef.current?.setValue(note.content);
+                        endEditing();
+                      }}
+                      size="small"
+                    />
 
                     <Space />
 
@@ -87,9 +177,12 @@ function NoteComponent({ note }: NoteComponentProps) {
                       size="small"
                       color="primary"
                       mode="contained"
+                      onPress={() =>
+                        updateNote(noteEditorRef.current?.getValue())
+                      }
                     />
                   </Layout.Row>
-                )
+                </Effect.FadeIn>
               }
             />
           }

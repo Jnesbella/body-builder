@@ -3,12 +3,11 @@ import { TextInput as DefaultTextInput } from "react-native";
 import styled, { css } from "styled-components/native";
 
 import Pressable, {
-  PressableProviderElement,
+  PressableElement,
   PressableProps,
 } from "../../experimental/Pressable";
 import { theme } from "../../styles";
 
-import { bordered, Bordered } from "../bordered";
 import { PressableState } from "../componentsTypes";
 import Layout from "../Layout";
 import {
@@ -23,6 +22,8 @@ import {
   spacing,
   Rounded,
   Background,
+  Bordered,
+  bordered,
 } from "../styled-components";
 import { text, DefaultTextProps } from "../Text";
 
@@ -83,7 +84,7 @@ const InputPressable = styled(Pressable)`
 `;
 
 export interface InputOutlineProps
-  extends PressableProviderElement,
+  extends PressableElement,
     SpacingProps,
     Background,
     Rounded,
@@ -150,7 +151,7 @@ function TextInput({
       onPress={onPress}
       fullWidth={fullWidth}
     >
-      {(pressableProps: PressableProviderElement) => (
+      {(pressableProps: PressableElement) => (
         <InputOutline
           {...pressableProps}
           greedy={greedy}

@@ -262,7 +262,7 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
           })
         : children;
 
-    log({ isVisible, left, top, contentElement });
+    // log({ isVisible, left, top, contentElement });
 
     return (
       <React.Fragment>

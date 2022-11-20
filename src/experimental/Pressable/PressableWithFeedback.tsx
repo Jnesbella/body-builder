@@ -1,29 +1,16 @@
 import * as React from "react";
 
-import { PressableElement } from "./pressable-types";
-import { renderPressableChildren } from "./pressable-utils";
-import Pressable, { PressableProps } from "./Pressable2";
+import Pressable, { PressableProps } from "./Pressable";
 
-import WithoutFeedback from "./WithoutFeedback";
+import OutlineFeedback from "./OutlineFeedback";
 
-export interface PressableWithFeedbackProps extends PressableProps {
-  renderFeedback?: (props: PressableElement) => JSX.Element;
-}
+export interface PressableWithFeedbackProps extends PressableProps {}
 
 function PressableWithFeedback({
-  renderFeedback: Feedback = WithoutFeedback,
-  children,
+  renderAdapter: Adapter = OutlineFeedback,
   ...rest
 }: PressableWithFeedbackProps) {
-  return (
-    <Pressable {...rest}>
-      {(pressableElement) => (
-        <Feedback {...pressableElement}>
-          {renderPressableChildren(pressableElement, children)}
-        </Feedback>
-      )}
-    </Pressable>
-  );
+  return <Pressable {...rest} />;
 }
 
 export default PressableWithFeedback;

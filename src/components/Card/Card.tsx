@@ -1,8 +1,7 @@
 import * as React from "react";
 import styled from "styled-components/native";
 
-import { bordered, Bordered } from "../bordered";
-import { rounded, Rounded } from "../styled-components";
+import { rounded, Rounded, Bordered, bordered } from "../styled-components";
 import Surface, { SurfaceProps } from "../Surface";
 
 import CardHeader from "./CardHeader";

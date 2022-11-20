@@ -1,14 +1,7 @@
 import * as React from "react";
 import isHotkey from "is-hotkey";
+import { Editable, Slate, ReactEditor, DefaultPlaceholder } from "slate-react";
 import {
-  Editable,
-  withReact,
-  Slate,
-  ReactEditor,
-  DefaultPlaceholder,
-} from "slate-react";
-import {
-  createEditor,
   Descendant,
   Node,
   Path,
@@ -16,9 +9,8 @@ import {
   Transforms,
   Editor as DefaultEditor,
 } from "slate";
-import { withHistory } from "slate-history";
 import styled from "styled-components/native";
-import { debounce, isNumber, pick } from "lodash";
+import { debounce, isNumber } from "lodash";
 
 import { theme } from "../../styles";
 import { InputOutline } from "../../components/TextInput";
@@ -26,7 +18,6 @@ import Pressable from "../Pressable";
 import { ListItemElement } from "../../slateTypings";
 import { useSetRef } from "../../hooks";
 
-import { withPlugins } from "./slatePlugins";
 import { deserializeHTML } from "./slatePlugins/slateHTML";
 import SlateElement from "./SlateElement";
 import SlateLeaf from "./SlateLeaf";
@@ -66,6 +57,7 @@ export interface SlateEditorElement {
   blur: () => void;
   editor?: DefaultEditor;
   clear: () => void;
+  setValue: (nextValue: Descendant[]) => void;
 }
 
 const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
@@ -118,6 +110,13 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       });
     }, [editor]);
 
+    const setValue = React.useCallback(
+      (nextValue: Descendant[]) => {
+        editor.children = nextValue;
+      },
+      [editor]
+    );
+
     const element = React.useMemo<SlateEditorElement>(
       () => ({
         name,
@@ -125,29 +124,30 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
         blur,
         editor,
         clear,
+        setValue,
       }),
-      [focus, blur, editor, name, clear]
+      [focus, blur, editor, name, clear, setValue]
     );
 
-    const onBlurCache = React.useRef(onBlurProp);
+    // const onBlurCache = React.useRef(onBlurProp);
 
-    React.useEffect(function handleCacheBlurHandler() {
-      onBlurCache.current = onBlurProp;
-    });
+    // React.useEffect(function handleCacheBlurHandler() {
+    //   onBlurCache.current = onBlurProp;
+    // });
 
-    const onBlur = React.useMemo(
-      () =>
-        debounce(() => {
-          onBlurCache.current?.();
-          Transforms.deselect(editor);
-        }, 250),
-      [editor]
-    );
+    // const onBlur = React.useMemo(
+    //   () =>
+    //     debounce(() => {
+    //       onBlurCache.current?.();
+    //       Transforms.deselect(editor);
+    //     }, 250),
+    //   [editor]
+    // );
 
-    const onFocus = () => {
-      onBlur.cancel();
-      onFocusProp?.();
-    };
+    // const onFocus = () => {
+    //   // onBlur.cancel();
+    //   onFocusProp?.();
+    // };
 
     useSetRef(ref, element);
 
@@ -391,7 +391,12 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
       <Slate editor={editor} value={value} onChange={onChange}>
         {above}
 
-        <InputPressable focusable={false} focusOn="none">
+        <InputPressable
+          focusable={false}
+          focusOn="none"
+          onFocus={onFocusProp}
+          onBlur={onBlurProp}
+        >
           {(pressableProps) => (
             <InputOutline
               {...pressableProps}
@@ -422,15 +427,15 @@ const SlateEditor = React.forwardRef<SlateEditorElement, SlateEditorProps>(
                 }}
                 spellCheck
                 onKeyDown={handleKeyDown}
-                onDOMBeforeInput={(event) => {
+                onDOMBeforeInput={(_event) => {
                   onDOMBeforeInput(event as DragEvent & InputEvent);
                 }}
                 onFocus={() => {
-                  onFocus?.();
+                  // onFocus?.();
                   pressableProps.focus();
                 }}
                 onBlur={() => {
-                  onBlur?.();
+                  // onBlur?.();
                   pressableProps.blur();
                 }}
                 style={{

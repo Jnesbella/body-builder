@@ -5,8 +5,11 @@ export { default } from "./Pressable";
 // export { default as WithoutFeedback } from "./WithoutFeedback";
 
 export * from "./Pressable";
-export * from "./PressableProvider";
+// export * from "./PressableProvider";
 export * from "./FocusProvider";
+export * from "./pressable-types";
+export * from "./PressableActions";
+export * from "./PressableState";
 // export * from "./OutlineFeedback";
 // export * from "./HighlightFeedback";
 // export * from "./WithoutFeedback";

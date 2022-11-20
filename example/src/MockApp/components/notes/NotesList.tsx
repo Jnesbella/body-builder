@@ -8,8 +8,9 @@ import {
   useSetRef,
   Text,
   Divider,
+  ScrollView,
 } from "@jnesbella/body-builder";
-import { ScrollView } from "react-native";
+// import { ScrollView } from "react-native";
 
 import { useListNotes, useListPinnedNotes } from "../../hooks";
 import { Note } from "../../types";

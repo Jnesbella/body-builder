@@ -4,6 +4,8 @@ import {
   useCreate,
   useQueryUtils,
   useUpdate,
+  OnMutationSuccess,
+  UpdateOne,
 } from "@jnesbella/body-builder";
 import { AppActionsContext, AppStateContext } from "../common/contexts";
 
@@ -77,13 +79,19 @@ export function useCreateNote({
   return createNote;
 }
 
-export function useUpdateNote() {
+export function useUpdateNote({
+  onSuccess,
+}: {
+  onSuccess?: OnMutationSuccess<Note, unknown, UpdateOne<Note>>;
+} = {}) {
   const { updateListQueryDataToSetItem } = useQueryUtils();
 
   const updateNote = useUpdate<Note>({
     service: notesService,
-    onSuccess: (nextNote) => {
+    onSuccess: (nextNote, variables, context) => {
       updateListQueryDataToSetItem(notesService.getQueryKey(), nextNote);
+
+      onSuccess?.(nextNote, variables, context);
     },
   });
 

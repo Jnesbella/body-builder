@@ -46,6 +46,5 @@ export * from "./ScrollView";
 export * from "./TextInput";
 export * from "./Util";
 export * from "./Measure";
-export * from "./bordered";
 export * from "./Effect";
 export * from "./Modal";

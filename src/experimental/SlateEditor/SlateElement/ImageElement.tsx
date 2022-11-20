@@ -10,6 +10,7 @@ import { ImageElement } from "../../../slateTypings";
 import Pressable, { PressableActions, PressableState } from "../../Pressable";
 
 import { SlateElementProps } from "./slateElementTypes";
+import VoidElement from "./VoidElement";
 
 export const Image = styled.img<{ width: number }>`
   max-width: 100%;
@@ -37,7 +38,7 @@ const ImageElement = React.forwardRef<any, ImageElementProps>(
 
     return (
       <span {...attributes} ref={ref}>
-        <div contentEditable={false} style={{ display: "inline-block" }}>
+        <VoidElement style={{ display: "inline-block" }}>
           <Pressable
             isFocused={isSelected || false}
             // focusOn="none"
@@ -51,7 +52,8 @@ const ImageElement = React.forwardRef<any, ImageElementProps>(
               </InputOutline>
             )}
           </Pressable>
-        </div>
+        </VoidElement>
+
         {children}
       </span>
     );

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { LayoutChangeEvent, StyleProp, View } from "react-native";
+import { LayoutChangeEvent } from "react-native";
 import styled from "styled-components/native";
 
 import Pressable, {
@@ -9,17 +9,12 @@ import Pressable, {
 import {
   theme,
   ColorProp,
-  darkenColor,
-  appendLightTransparency,
   isColorTransparent,
-  appendDarkTransparency,
   getContrastColor,
   isColorWhite,
   appendTransparency,
 } from "../styles";
 import { SizeProp } from "../types";
-import { log } from "../utils";
-import { Bordered } from "./bordered";
 
 import { PressableState } from "./componentsTypes";
 import { LayoutBoxProps } from "./Layout";
@@ -40,12 +35,12 @@ import {
   Full,
   greedy,
   Rounded,
-  Flexible,
+  Bordered,
 } from "./styled-components";
 import Text from "./Text";
 
 const ButtonContainer = styled.View<
-  Omit<LayoutBoxProps, "size"> & Rounded & Bordered & Background
+  Omit<LayoutBoxProps, "size"> & Rounded & Background & Bordered
 >`
   ${background};
   ${color};

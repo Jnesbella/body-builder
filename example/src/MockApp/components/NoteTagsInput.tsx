@@ -13,6 +13,7 @@ import {
   Space,
   Surface,
   rounded,
+  Effect,
 } from "@jnesbella/body-builder";
 import * as Icons from "react-bootstrap-icons";
 import { useCreateTag, useListTags } from "../hooks";
@@ -139,21 +140,31 @@ function NoteTagsInput({
 
   return (
     <Layout.Row alignItems="center">
-      <Tooltip content={tooltipMenu} placement="top" topOffset={-theme.spacing}>
-        {(tooltipProps) => (
-          <IconButton
-            selected={tooltipProps.focused}
-            icon={Icons.Hash}
-            onPress={tooltipProps.toggleVisibility}
-            focusable={false}
-            focusOn="none"
-            size="small"
-            disabled={isDisabled}
-            // onHoverOut={tooltipProps.onHoverOut}
-            // onHoverOver={tooltipProps.onHoverOver}
-          />
-        )}
-      </Tooltip>
+      <Effect.FadeIn
+        fadeIn={!isDisabled}
+        fadeOut={isDisabled}
+        duration={isDisabled ? 0 : 200}
+      >
+        <Tooltip
+          content={tooltipMenu}
+          placement="top"
+          topOffset={-theme.spacing}
+        >
+          {(tooltipProps) => (
+            <IconButton
+              selected={tooltipProps.focused}
+              icon={Icons.Hash}
+              onPress={tooltipProps.toggleVisibility}
+              focusable={false}
+              focusOn="none"
+              size="small"
+              disabled={isDisabled}
+              // onHoverOut={tooltipProps.onHoverOut}
+              // onHoverOver={tooltipProps.onHoverOver}
+            />
+          )}
+        </Tooltip>
+      </Effect.FadeIn>
 
       {compact([item1, item2]).map((tag) => (
         <React.Fragment key={tag.id}>

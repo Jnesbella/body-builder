@@ -1,174 +1,218 @@
 import * as React from "react";
-import styled from "styled-components";
+import { debounce, DebouncedFunc, pick } from "lodash";
 
-import { log, setRef } from "../../utils";
-import { useId, useOnValueChange } from "../../hooks";
+import { useId, useOnValueChange, useSetRef } from "../../hooks";
+import { Full, Greedy } from "../../components";
 
-import PressableProvider, {
-  PressableProviderProps,
-  PressableProviderElement,
-} from "./PressableProvider";
-import FocusProvider from "./FocusProvider";
-import { full, Full, greedy, Greedy } from "../../components";
+import FocusProvider, { useFocusActions } from "./FocusProvider";
+import { PressableState } from "./PressableState";
+import { PressableActions } from "./PressableActions";
+import { PressableElement, RenderPressableChildren } from "./pressable-types";
+import PressableWithFeedback from "./PressableWithFeedback";
+import { renderPressableChildren } from "./pressable-utils";
+import WithoutFeedback from "./WithoutFeedback";
 
-export interface WithoutFeedbackProps extends Full, Greedy {}
+export type BlurHandler = DebouncedFunc<() => void>;
 
-const WithoutFeedback = styled.div<WithoutFeedbackProps>`
-  ${greedy};
-  ${full};
+const DEFAULT_STATE: PressableState = {
+  pressed: false,
+};
 
-  user-select: none;
-  display: inline-flex;
-`;
-
-export type PressableElement = HTMLDivElement;
-
-export interface PressableProps
-  extends Omit<PressableProviderProps, "id">,
-    WithoutFeedbackProps {
+export interface PressableProps extends Greedy, Full {
+  children?: React.ReactNode | RenderPressableChildren;
+  id?: string;
+  defaultState?: Partial<PressableState>;
   disabled?: boolean;
   focusOn?: "press" | "none";
   focusable?: boolean;
   focusOnPress?: boolean;
-  id?: PressableProviderProps["id"];
+
+  // focused
+  isFocused?: boolean;
+  onBlur?: () => void;
+  onFocus?: () => void;
+  blurDebounceWait?: number;
+
+  // pressed
+  isPressed?: boolean;
+  onPress?: () => void | boolean;
+  onPressCapture?: () => void;
+  onLongPress?: () => void;
+
+  // hovered
+  isHovered?: boolean;
+  onHoverOver?: () => void;
+  onHoverOut?: () => void;
+
+  renderAdapter?: (props: PressableElement) => JSX.Element;
 }
 
 const Pressable = React.forwardRef<PressableElement, PressableProps>(
   (
     {
       children,
-
-      disabled,
+      id: idProp,
+      defaultState = DEFAULT_STATE,
+      disabled: isDisabled,
       focusOnPress = true,
       focusOn = focusOnPress ? "press" : "none",
-      focusable: isFocusable = true,
+      focusable: isFocusable,
 
-      isFocused,
-      isHovered,
-      isPressed,
-
-      id: idProp,
-
-      onPress,
       onBlur,
       onFocus,
-      onHoverOut,
+      blurDebounceWait = 0,
+
+      onPress,
+      // onPressCapture,
+      // onLongPress,
+
       onHoverOver,
-      onLongPress,
-      onPressCapture,
+      onHoverOut,
 
-      fullHeight,
-      fullWidth,
-      greedy,
+      isFocused: isFocusedProp,
+      isPressed: isPressedProp,
+      isHovered: isHoveredProp,
 
-      // ...rest
+      renderAdapter: Adapter = WithoutFeedback,
+
+      ...rest
     },
     ref
   ) => {
-    const pressableProviderRef = React.useRef<PressableProviderElement>(null);
-
     const id = useId(idProp);
 
-    const state = {
-      hovered: isHovered,
-      focused: isFocused,
-      pressed: isPressed,
-    };
+    const doBlur = useFocusActions((actions) => actions.blur);
+
+    const doFocus = useFocusActions((actions) => actions.focus);
+
+    const doIsFocused = useFocusActions((actions) => actions.isFocused);
+
+    const isFocused = doIsFocused(id);
+    const focused = isFocused || isFocusedProp || false;
 
     const isFocusOnPress = focusOn === "press";
 
-    useOnValueChange(disabled, () => {
-      if (disabled) {
-        pressableProviderRef.current?.blur();
-        pressableProviderRef.current?.hoverOut();
-        pressableProviderRef.current?.pressOut();
+    useOnValueChange(focused, () => {
+      if (focused) {
+        onFocus?.();
+      } else {
+        onBlur?.();
       }
     });
 
-    const tryAction = (key: keyof PressableProviderElement) => {
-      return () => {
-        const action = pressableProviderRef.current?.[key];
+    const blur = React.useMemo<BlurHandler>(() => {
+      return debounce(() => {
+        doBlur(id);
+      }, blurDebounceWait);
+    }, [blurDebounceWait, doBlur, id]);
 
-        if (!disabled && action && typeof action === "function") {
-          action();
+    const focus = React.useCallback(() => {
+      blur.cancel();
+      doFocus(id);
+    }, [doFocus, id, blur]);
+
+    // pressed
+    const [isPressed, setIsPressed] = React.useState(
+      defaultState.pressed || false
+    );
+    const pressed = isPressed || isPressedProp || false;
+
+    useOnValueChange(pressed, () => {
+      if (!pressed) {
+        onPress?.();
+
+        if (isFocusOnPress) {
+          focus();
+        }
+      }
+    });
+
+    const pressIn = React.useCallback(() => {
+      setIsPressed(true);
+    }, []);
+
+    const pressOut = React.useCallback(() => {
+      setIsPressed(false);
+    }, []);
+
+    // hovered
+    const [isHovered, setIsHovered] = React.useState(
+      defaultState.hovered || false
+    );
+    const hovered = isHovered || isHoveredProp || false;
+
+    useOnValueChange(hovered, () => {
+      if (hovered) {
+        onHoverOver?.();
+      } else {
+        setIsPressed(false);
+        onHoverOut?.();
+      }
+    });
+
+    const hoverOver = React.useCallback(() => {
+      setIsHovered(true);
+    }, []);
+
+    const hoverOut = React.useCallback(() => {
+      setIsHovered(false);
+    }, []);
+
+    const state: PressableState = {
+      focused,
+      pressed,
+      hovered,
+    };
+
+    const whenEnabled = (fn: () => void) => {
+      return () => {
+        if (!isDisabled) {
+          fn();
         }
       };
     };
 
-    const innerRef = React.useRef<PressableElement>(null);
+    const actions: PressableActions = {
+      // focused
+      focus: whenEnabled(focus),
+      blur: whenEnabled(blur),
 
-    const handleRef = (node: HTMLDivElement | null) => {
-      const element = (node || {}) as PressableElement;
+      // pressed
+      pressIn: whenEnabled(pressIn),
+      pressOut: whenEnabled(pressOut),
 
-      const { focus: focusElement, blur: blurElement } = element || {};
-
-      element.blur = () => {
-        pressableProviderRef.current?.blur();
-        blurElement?.();
-      };
-
-      element.focus = (_options?: FocusOptions) => {
-        pressableProviderRef.current?.focus();
-        focusElement?.();
-      };
-
-      setRef(innerRef, element);
-      setRef(ref, element);
+      // hovered
+      hoverOver: whenEnabled(hoverOver),
+      hoverOut: whenEnabled(hoverOut),
     };
 
-    const handlePress = () => {
-      const result = onPress?.();
-      const preventFocus = result === false;
+    const element: PressableElement = { ...actions, ...state };
 
-      if (isFocusOnPress && !preventFocus) {
-        pressableProviderRef.current?.focus();
-      }
-    };
+    useSetRef(ref, element);
 
     return (
-      <WithoutFeedback
-        // {...rest}
-        ref={handleRef}
-        tabIndex={!disabled && isFocusable ? 0 : undefined}
-        // focused
-        onFocus={tryAction("focus")}
-        onBlur={tryAction("blur")}
-        // hovered
-        onPointerOver={tryAction("hoverOver")}
-        onPointerOut={tryAction("hoverOut")}
-        // pressed
-        onPointerDown={tryAction("pressIn")}
-        onPointerUp={tryAction("pressOut")}
-        fullHeight={fullHeight}
-        fullWidth={fullWidth}
-        greedy={greedy}
-      >
-        <PressableProvider
-          id={id}
-          ref={pressableProviderRef}
-          defaultState={state}
-          isFocused={state.focused}
-          isHovered={state.hovered}
-          isPressed={state.pressed}
-          onPress={handlePress}
-          onBlur={onBlur}
-          onFocus={onFocus}
-          onHoverOut={onHoverOut}
-          onHoverOver={onHoverOver}
-          onLongPress={onLongPress}
-          onPressCapture={onPressCapture}
-        >
-          {children}
-        </PressableProvider>
-      </WithoutFeedback>
+      <PressableState.Provider value={state}>
+        <PressableActions.Provider value={actions}>
+          <Adapter
+            {...pick(rest, "fullWidth", "fullHeight", "greedy")}
+            {...element}
+            focusable={isFocusable}
+            disabled={isDisabled}
+          >
+            {renderPressableChildren(element, children)}
+          </Adapter>
+        </PressableActions.Provider>
+      </PressableState.Provider>
     );
   }
 );
 
 type Pressable = typeof Pressable & {
   Provider: typeof FocusProvider;
+  WithFeedback: typeof PressableWithFeedback;
 };
 
 (Pressable as Pressable).Provider = FocusProvider;
+(Pressable as Pressable).WithFeedback = PressableWithFeedback;
 
 export default Pressable as Pressable;

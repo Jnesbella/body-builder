@@ -3,7 +3,7 @@ import {
   Layout,
   Surface,
   theme,
-  PressableProviderElement,
+  PressableElement,
   background,
   bordered,
   rounded,
@@ -28,7 +28,7 @@ const NoteActionsWrapper = styled(Surface)<Bordered & Rounded>`
 
 const NoteLayoutContainer = styled(Surface).attrs({
   fullWidth: true,
-})<Partial<PressableProviderElement & { note: Note }>>`
+})<Partial<PressableElement & { note: Note }>>`
   position: relative;
 
   ${(props) =>
@@ -41,7 +41,7 @@ const NoteLayoutContainer = styled(Surface).attrs({
     })};
 `;
 
-export interface NoteLayoutProps extends Partial<PressableProviderElement> {
+export interface NoteLayoutProps extends Partial<PressableElement> {
   title?: React.ReactNode;
   content?: React.ReactNode;
   actions?: React.ReactNode;

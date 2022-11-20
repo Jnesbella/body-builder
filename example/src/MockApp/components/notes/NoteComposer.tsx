@@ -61,7 +61,7 @@ function NoteComposer() {
           disabled={isCreating}
           onFocus={() => setElevation(1)}
           onBlur={() => setElevation(0)}
-          end={
+          footerEnd={
             <IconButton
               icon={Icons.Send}
               onPress={doCreate}

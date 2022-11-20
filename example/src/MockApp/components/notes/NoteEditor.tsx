@@ -13,6 +13,7 @@ import {
   RichTextEditorProps,
   useSetRef,
   theme,
+  Effect,
 } from "@jnesbella/body-builder";
 import styled from "styled-components/native";
 
@@ -26,7 +27,7 @@ const NoteEditorContainer = styled(Surface)<Bordered & Rounded>`
   ${bordered};
 `;
 
-export interface NoteEditorElement {
+export interface NoteEditorElement extends RichTextEditorElement {
   reset: () => void;
   getValue: () => Partial<Note>;
 }
@@ -67,10 +68,11 @@ const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
       tagIds,
     });
 
-    const element: NoteEditorElement = {
+    const element = {
       reset,
       getValue,
-    };
+      ...editorRef.current,
+    } as NoteEditorElement;
 
     useSetRef(ref, element);
 
@@ -89,7 +91,28 @@ const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
           ref={editorRef}
           value={note?.content}
           placeholder="Jot something down"
-          above={(!isDisabled && <RichTextEditor.Toolbar />) || toolbarEnd}
+          above={
+            <Surface
+              background={
+                isDisabled
+                  ? theme.colors.transparent
+                  : theme.colors.backgroundInfo
+              }
+              fullWidth
+            >
+              <Layout.Row alignItems="center" justifyContent="space-between">
+                <Effect.FadeIn
+                  fadeIn={!isDisabled}
+                  fadeOut={isDisabled}
+                  duration={0}
+                >
+                  <RichTextEditor.Toolbar />
+                </Effect.FadeIn>
+
+                {toolbarEnd}
+              </Layout.Row>
+            </Surface>
+          }
           disabled={isDisabled}
         />
 

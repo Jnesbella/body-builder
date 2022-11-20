@@ -1,15 +1,15 @@
 import * as React from "react";
-import styled from "styled-components/native";
+import styled from "styled-components";
 
 import { background, Background, rounded, Rounded } from "../../components";
 import { theme } from "../../styles";
+import { PressableElement } from "./pressable-types";
 
-import { PressableProviderElement } from "./PressableProvider";
 import WithoutFeedback, { WithoutFeedbackProps } from "./WithoutFeedback";
 
 export interface PressableWithFeedbackProps
   extends WithoutFeedbackProps,
-    PressableProviderElement,
+    PressableElement,
     Background,
     Rounded {
   disabled?: boolean;

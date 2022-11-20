@@ -6,9 +6,12 @@ import { isNumber, last } from "lodash";
 import { Transforms } from "slate";
 
 import {
+  background,
+  bordered,
   Icon,
   IconButton,
   Layout,
+  rounded,
   spacing,
   SpacingProps,
 } from "../../../components";
@@ -27,6 +30,16 @@ const ListContainer = styled.div.attrs({ spacingSize: [0, 0.5] })<SpacingProps>`
 type ListElementProps = SlateElementProps["attributes"] & {
   children: SlateElementProps["children"];
 };
+
+const TaskIconWrapper = styled.div`
+  align-items: center;
+  justify-content: center;
+  display: inline-flex;
+  box-sizing: border-box;
+  ${rounded({ roundness: theme.spacing * 2 })};
+  ${spacing({ spacingSize: 0.25 })};
+  ${background({ background: theme.colors.background })};
+`;
 
 export const ListElement = React.forwardRef<any, ListElementProps>(
   ({ children, ...rest }, ref) => {
@@ -83,13 +96,15 @@ export const ListItem = React.forwardRef<any, ListItemProps>(
         <ListItemIconWrapper spacingSize={[1, 0]}>
           <FormatElementText type={formatType} contentEditable={false}>
             {element.listType === "task-list" && (
-              <IconButton
-                size="small"
-                icon={element.checked ? Icons.CheckCircle : Icons.Circle}
-                onPress={toggleChecked}
-                focusOn="none"
-                focusable={false}
-              />
+              <TaskIconWrapper>
+                <IconButton
+                  size="small"
+                  icon={element.checked ? Icons.CheckCircle : Icons.Circle}
+                  onPress={toggleChecked}
+                  focusOn="none"
+                  focusable={false}
+                />
+              </TaskIconWrapper>
             )}
 
             {element.listType === "bulleted-list" && <Icon icon={Icons.Dot} />}

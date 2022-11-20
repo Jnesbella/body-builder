@@ -8,13 +8,15 @@ import { RenderPressableChildren } from "./pressable-types";
 import { renderPressableChildren } from "./pressable-utils";
 import { usePressableElement } from "./pressable-hooks";
 
+type HTMLDivProps = React.DetailedHTMLProps<
+  React.HTMLAttributes<HTMLDivElement>,
+  HTMLDivElement
+>;
+
 export interface PressableWebAdapterContainerProps
   extends Full,
     Greedy,
-    React.DetailedHTMLProps<
-      React.HTMLAttributes<HTMLDivElement>,
-      HTMLDivElement
-    > {}
+    HTMLDivProps {}
 
 const PressableWebAdapterContainer = styled.div<PressableWebAdapterContainerProps>`
   ${greedy};
@@ -44,13 +46,13 @@ const PressableWebAdapter = React.forwardRef<
       fullWidth,
       children,
 
+      focusable: isFocusable = true,
+
       ...rest
     },
     ref
   ) => {
     const pressableElement = usePressableElement();
-
-    const isFocusable = false;
 
     const handleRef = (node: HTMLDivElement | null) => {
       if (node) {

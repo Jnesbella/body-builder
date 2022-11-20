@@ -1,5 +1,5 @@
 import * as React from "react";
-import styled from "styled-components/native";
+import styled from "styled-components";
 
 import {
   background,
@@ -11,12 +11,13 @@ import {
 } from "../../components";
 import { theme } from "../../styles";
 
-import { PressableProviderElement } from "./PressableProvider";
+import { PressableElement } from "./pressable-types";
+
 import WithoutFeedback, { WithoutFeedbackProps } from "./WithoutFeedback";
 
 export interface OutlineFeedbackProps
   extends WithoutFeedbackProps,
-    PressableProviderElement,
+    PressableElement,
     Background,
     Rounded,
     Bordered {
