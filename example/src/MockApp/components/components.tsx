@@ -87,16 +87,16 @@ export function ChannelName() {
       <Surface>
         <Surface background={theme.colors.accent}>
           <Layout.Row alignItems="center" spacingSize={1}>
-            <Icon icon={Icons.Hash} />
+            {/* <Icon icon={Icons.Hash} />
 
-            <Space />
+            <Space /> */}
 
             <Text.SubHeader>{get(search, "name", "all")}</Text.SubHeader>
           </Layout.Row>
         </Surface>
       </Surface>
 
-      <Divider />
+      {/* <Divider /> */}
     </Layout.Column>
   );
 }

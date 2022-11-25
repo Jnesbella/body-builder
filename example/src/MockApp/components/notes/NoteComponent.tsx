@@ -1,6 +1,5 @@
 import * as React from "react";
 import {
-  Text,
   Pressable,
   utcStringToDate,
   Layout,
@@ -12,7 +11,6 @@ import {
   spacing,
   Bordered,
   Rounded,
-  UpdateOne,
   log,
   Effect,
 } from "@jnesbella/body-builder";
@@ -25,6 +23,7 @@ import NoteActions from "./NoteActions";
 import NoteLayout from "./NoteLayout";
 import NoteEditor, { NoteEditorElement, NoteEditorProps } from "./NoteEditor";
 import { isEqual, pick } from "lodash";
+import NoteCreatedAt from "./NoteCreatedAt";
 
 const NoteActionsWrapper = styled(Surface).attrs({
   // background: theme.colors.transparent,
@@ -38,20 +37,11 @@ export interface NoteComponentProps {
 }
 
 function NoteComponent({ note }: NoteComponentProps) {
-  log("---");
-  log({ note });
-
   const [isEditing, setIsEditing] = React.useState(false);
 
   const startEditing = () => setIsEditing(true);
 
   const endEditing = () => setIsEditing(false);
-
-  const createdAt: Date = utcStringToDate(note.createdAt);
-
-  const formattedCreatedAt = `${createdAt.getHours()}:${String(
-    createdAt.getMinutes()
-  ).padStart(2, "0")}`;
 
   const { update } = useUpdateNote({
     onSuccess: endEditing,
@@ -62,10 +52,10 @@ function NoteComponent({ note }: NoteComponentProps) {
   const noteEditorRef = React.useRef<NoteEditorElement>(null);
 
   const isSameContent = (content: NoteEditorProps["value"]) => {
-    const same = isEqual(content, note.content);
-    log({ content, noteContent: note.content });
-    return same;
-    // return isEqual(content, note.content);
+    // const same = isEqual(content, note.content);
+    // log({ content, noteContent: note.content });
+    // return same;
+    return isEqual(content, note.content);
   };
 
   const isSameTags = (tagIds: Note["tagIds"] = []) => {
@@ -126,7 +116,7 @@ function NoteComponent({ note }: NoteComponentProps) {
           {...pressableProps}
           isEditing={isEditing}
           note={note}
-          title={<Text.Caption>{formattedCreatedAt}</Text.Caption>}
+          title={<NoteCreatedAt note={note} />}
           // actions={<NoteActions note={note} onPressEdit={startEditing} />}
           // tags={<NoteTags note={note} />}
           content={

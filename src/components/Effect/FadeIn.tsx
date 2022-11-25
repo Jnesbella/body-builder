@@ -2,12 +2,18 @@ import * as React from "react";
 import { Animated, Easing } from "react-native";
 import styled from "styled-components/native";
 
-import { useOnValueChange, useSetRef } from "../../hooks";
+import {
+  useOnValueChange,
+  useSetRef,
+  useWatchAnimatedValue,
+} from "../../hooks";
 import { Greedy, greedy } from "../styled-components";
 import Util from "../Util";
 
-const FadeInContainer = styled(Animated.View)`
+const FadeInContainer = styled(Animated.View)<{ visible?: boolean } & Greedy>`
   ${greedy};
+
+  pointer-events: ${(props) => (props.visible ? "auto" : "none")};
 `;
 
 export interface FadeInElement {
@@ -97,12 +103,16 @@ const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
       [isFadeIn, fadeInOnMount, isMounted]
     );
 
+    const opacityValue = useWatchAnimatedValue(fadeAnim) || 0;
+    const isVisible = opacityValue > 0;
+
     return (
       <Util.Mount onMount={() => setIsMounted(true)}>
         <FadeInContainer
           style={{
             opacity: fadeAnim,
           }}
+          visible={isVisible}
           {...rest}
         >
           {children}

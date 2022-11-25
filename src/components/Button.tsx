@@ -59,9 +59,7 @@ const ButtonContainer = styled.View<
   cursor: pointer;
 `;
 
-const ButtonText = styled(Text.Label).attrs({
-  fontSize: FontSize.Normal,
-})<Background | Color>`
+const ButtonText = styled(Text.Label)<Background | Color>`
   text-align: center;
 `;
 
@@ -234,6 +232,7 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
       const buttonProps = {
         ...rest,
         ...pressableState,
+        size,
         greedy,
         fullWidth,
         spacingSize,
@@ -259,6 +258,8 @@ const Button = React.forwardRef<ButtonElement, ButtonProps>(
             <ButtonText
               color={textColor}
               background={isContained && buttonProps.background}
+              size={size}
+              fontSize={size === "small" ? FontSize.Small : FontSize.Normal}
             >
               {title}
             </ButtonText>

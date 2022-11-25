@@ -17,6 +17,7 @@ import { Note } from "../../types";
 import NoteDivider from "./NoteDivider";
 import NoteComponent from "./NoteComponent";
 import PinnedNotes from "./PinnedNotes";
+import NoteFilters from "./NoteFilters";
 
 export interface NotesListElement {
   scrollToNote: (note: Note) => void;
@@ -76,17 +77,20 @@ export const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
 
     const { data: pinnedNotes } = useListPinnedNotes();
 
-    const hasPinnedNotes = pinnedNotes.length > 0;
+    // const hasPinnedNotes = pinnedNotes.length > 0;
 
     return (
       <Surface greedy>
         <ScrollView
           ref={scrollRef}
-          stickyHeaderIndices={hasPinnedNotes ? [0] : undefined}
+          stickyHeaderIndices={[0]}
+          // stickyHeaderIndices={hasPinnedNotes ? [0] : undefined}
         >
           {/* {hasPinnedNotes && (
             <PinnedNotes onPressNote={(note) => element.scrollToNote(note)} />
           )} */}
+
+          <NoteFilters />
 
           <Layout.Column>
             {notes?.map((note, index) => (

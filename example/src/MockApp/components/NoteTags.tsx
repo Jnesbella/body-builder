@@ -1,10 +1,10 @@
 import * as React from "react";
 import { Space, Layout } from "@jnesbella/body-builder";
 
-import { Note } from "../../types";
-import { useAppActions, useListChannels, useListTags } from "../../hooks";
+import { Note } from "../types";
+import { useAppActions, useListChannels, useListTags } from "../hooks";
 
-import { Chip } from "../common";
+import { Chip } from "./common";
 
 export interface NoteTagsProps {
   note: Note;

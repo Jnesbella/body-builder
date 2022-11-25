@@ -96,9 +96,9 @@ function NavigationMenu({
               </Menu.Item>
             ))}
 
-            <Layout.Box greedy={isPinnedOpen} />
+            {/* <Layout.Box greedy={isPinnedOpen} /> */}
 
-            <Layout.Box spacingSize={[0, 1]}>
+            {/* <Layout.Box spacingSize={[0, 1]}>
               <Divider />
             </Layout.Box>
 
@@ -110,7 +110,7 @@ function NavigationMenu({
 
                 <Menu.Text>New channel</Menu.Text>
               </Layout.Row>
-            </Menu.Item>
+            </Menu.Item> */}
           </Menu>
         </NavMenuWrapper>
       </Effect.FadeIn>

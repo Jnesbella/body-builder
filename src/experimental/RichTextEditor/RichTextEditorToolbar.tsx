@@ -43,45 +43,43 @@ function RichTextEditorToolbar({ end }: RichTextEditorToolbarProps) {
   );
 
   return (
-    <Surface background={theme.colors.backgroundInfo} fullWidth>
-      <Layout.Row spacingSize={1} alignItems="center">
-        <ToolbarActionsWrapper>
-          {(["bold", "italic", "strikethrough"] as MarkType[]).map(
-            (mark, i) => (
-              <React.Fragment key={mark}>
-                {i > 0 && space}
+    // <Surface background={theme.colors.backgroundInfo} fullWidth>
+    <Layout.Row alignItems="center">
+      <ToolbarActionsWrapper>
+        {(["bold", "italic", "strikethrough"] as MarkType[]).map((mark, i) => (
+          <React.Fragment key={mark}>
+            {i > 0 && space}
 
-                <SlateEditor.MarkButton mark={mark} />
-              </React.Fragment>
-            )
-          )}
-        </ToolbarActionsWrapper>
+            <SlateEditor.MarkButton mark={mark} />
+          </React.Fragment>
+        ))}
+      </ToolbarActionsWrapper>
 
-        {divider}
+      {divider}
 
-        <ToolbarActionsWrapper>
-          {(["task-list"] as Element["type"][])
-            // ["numbered-list", "bulleted-list", "task-list"] as Element["type"][]
-            .map((block, i) => (
-              <React.Fragment key={block}>
-                {i > 0 && space}
+      <ToolbarActionsWrapper>
+        {(["task-list"] as Element["type"][])
+          // ["numbered-list", "bulleted-list", "task-list"] as Element["type"][]
+          .map((block, i) => (
+            <React.Fragment key={block}>
+              {i > 0 && space}
 
-                <SlateEditor.BlockButton block={block} />
-              </React.Fragment>
-            ))}
-        </ToolbarActionsWrapper>
+              <SlateEditor.BlockButton block={block} />
+            </React.Fragment>
+          ))}
+      </ToolbarActionsWrapper>
 
-        {/* {divider} */}
+      {/* {divider} */}
 
-        {/* <SlateEditor.MarkButton mark="code" />
+      {/* <SlateEditor.MarkButton mark="code" />
 
           <Space spacingSize={0.5} />
 
           <SlateEditor.BlockButton block="code" /> */}
 
-        {end}
-      </Layout.Row>
-    </Surface>
+      {end}
+    </Layout.Row>
+    // </Surface>
   );
 }
 

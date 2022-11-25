@@ -38,8 +38,11 @@ export function useListNotes() {
 
     return filters.some((filter) => {
       switch (filter.filterBy) {
-        case "tags":
+        case "tag":
           return note.tagIds?.includes(filter.tagId);
+
+        case "pinned":
+          return note.pinned;
 
         default:
           return false;
@@ -108,14 +111,14 @@ export function useListTags() {
 
 export function useCreateTag({
   onSuccess,
-}: { onSuccess: (tag: Tag) => void } = {}) {
+}: { onSuccess?: (tag: Tag) => void } = {}) {
   const { updateListQueryDataToAppendItem } = useQueryUtils();
 
   const createTag = useCreate({
     service: tagsService,
     onSuccess: (tag) => {
       updateListQueryDataToAppendItem(tagsService.getQueryKey(), tag);
-      onSuccess(tag);
+      onSuccess?.(tag);
     },
   });
 
@@ -155,17 +158,17 @@ export function useListChannels() {
 
   const _channels = React.useMemo(() => {
     const tagToTagFilter = (tag: Tag): TagFilter => ({
-      filterBy: "tags",
+      filterBy: "tag",
       tagId: tag.id,
     });
 
-    const tagToChannel = (tag: Tag): Channel => ({
+    const _tagToChannel = (tag: Tag): Channel => ({
       id: tag.id,
       name: tag.label,
       filters: [tagToTagFilter(tag)],
     });
 
-    let channels = tags.map(tagToChannel);
+    let channels: Channel[] = []; // tags.map(tagToChannel);
 
     const allFilter = {
       id: "all",
@@ -197,7 +200,7 @@ export function useTagIdsFromSearch() {
   const _tagIds = React.useMemo(() => {
     const { filters = [] } = channel || {};
 
-    const isTagFilter = (filter: Filter) => filter.filterBy === "tags";
+    const isTagFilter = (filter: Filter) => filter.filterBy === "tag";
 
     const toTagId = (filter: TagFilter) => filter.tagId;
 

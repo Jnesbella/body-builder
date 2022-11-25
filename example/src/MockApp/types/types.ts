@@ -20,7 +20,7 @@ interface BaseFilter {
 }
 
 export interface TagFilter extends BaseFilter {
-  filterBy: "tags";
+  filterBy: "tag";
   tagId: ResourceDocumentId;
 }
 
@@ -29,7 +29,11 @@ export interface ElementFilter extends BaseFilter {
   elementType: string;
 }
 
-export type Filter = TagFilter | ElementFilter;
+export interface PinnedFilter extends BaseFilter {
+  filterBy: "pinned";
+}
+
+export type Filter = TagFilter | ElementFilter | PinnedFilter;
 
 export interface Search {
   filters: Filter[];

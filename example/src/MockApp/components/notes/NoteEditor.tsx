@@ -20,7 +20,8 @@ import styled from "styled-components/native";
 import { useSelectedChannelId, useTagIdsFromSearch } from "../../hooks";
 import { Note, Tag } from "../../types";
 
-import NoteTagsInput from "../NoteTagsInput";
+import NoteTagsInput from "../NoteTagsInput/NoteTagsInput";
+import NoteCreatedAt from "./NoteCreatedAt";
 
 const NoteEditorContainer = styled(Surface)<Bordered & Rounded>`
   ${rounded};
@@ -100,7 +101,11 @@ const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
               }
               fullWidth
             >
-              <Layout.Row alignItems="center" justifyContent="space-between">
+              <Layout.Row
+                alignItems="center"
+                justifyContent="space-between"
+                spacingSize={[1, 0.5]}
+              >
                 <Effect.FadeIn
                   fadeIn={!isDisabled}
                   fadeOut={isDisabled}
@@ -116,7 +121,11 @@ const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
           disabled={isDisabled}
         />
 
-        <Layout.Row justifyContent="space-between" fullWidth spacingSize={1}>
+        <Layout.Row
+          justifyContent="space-between"
+          fullWidth
+          spacingSize={[1, 0.5]}
+        >
           <NoteTagsInput
             value={tagIds}
             onChange={setTagIds}

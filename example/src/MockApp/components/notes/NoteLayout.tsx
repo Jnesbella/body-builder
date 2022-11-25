@@ -64,9 +64,11 @@ function NoteLayout({
   return (
     <NoteLayoutContainer {...pressableProps} note={note}>
       <Layout.Column spacingSize={[3, 1]}>
-        <Layout.Row spacingSize={[1, 0]} alignItems="baseline">
-          {title}
-        </Layout.Row>
+        {title && (
+          <Layout.Row spacingSize={[1, 0]} alignItems="baseline">
+            {title}
+          </Layout.Row>
+        )}
 
         {content}
 
