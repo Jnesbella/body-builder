@@ -1,12 +1,11 @@
 import * as React from "react";
 import styled from "styled-components/native";
 
-import { getContrastColor, theme } from "../styles";
+import { theme } from "../styles";
 
 import Icon, { IconProps } from "./Icon";
 import Button, { ButtonElement, ButtonProps } from "./Button";
 import { SizeProp } from "../types";
-import { log } from "../utils";
 import { getColor } from "./styled-components";
 
 export const ICON_BUTTON_SIZE = theme.spacing * 4.5;

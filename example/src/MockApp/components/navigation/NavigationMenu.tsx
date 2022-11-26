@@ -6,17 +6,17 @@ import {
   Effect,
   FadeInElement,
   theme,
-  Divider,
   Menu,
   Icon,
 } from "@jnesbella/body-builder";
 import { get } from "lodash";
 import { Animated } from "react-native";
 import styled from "styled-components/native";
-import * as Icons from "react-bootstrap-icons";
 
 import { useAppActions, useAppState, useListChannels } from "../../hooks";
 import { Channel } from "../../types";
+
+import Channels from "../channels";
 
 const NavMenuWrapper = styled(Animated.View)<{
   isVisible?: boolean;
@@ -87,11 +87,13 @@ function NavigationMenu({
                 onPress={() => setSearch(channel)}
               >
                 <Layout.Row alignItems="center">
-                  <Icon icon={Icons.Hash} />
+                  <Channels.Emblem channel={channel} size={Icon.size.small} />
 
                   <Space spacingSize={0.5} />
 
-                  <Menu.Text>{channel.name}</Menu.Text>
+                  <Menu.Text>
+                    <Channels.Name channel={channel} />
+                  </Menu.Text>
                 </Layout.Row>
               </Menu.Item>
             ))}

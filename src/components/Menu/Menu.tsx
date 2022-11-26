@@ -1,16 +1,14 @@
 import * as React from "react";
 import styled from "styled-components/native";
-import { theme } from "../../styles";
-import Button, { ButtonProps } from "../Button";
 
-import Layout from "../Layout";
+import { theme } from "../../styles";
+
+import Button, { ButtonProps } from "../Button";
 import {
   ElevationProps,
   FontWeight,
   fontWeight,
-  full,
   rounded,
-  zIndex,
   Rounded,
 } from "../styled-components";
 import Surface from "../Surface";

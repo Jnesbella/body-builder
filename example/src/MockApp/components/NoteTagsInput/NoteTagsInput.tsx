@@ -11,7 +11,12 @@ import {
 import * as Icons from "react-bootstrap-icons";
 import { compact } from "lodash";
 
-import { useCreateTag, useListTags } from "../../hooks";
+import {
+  useCreateTag,
+  useListTags,
+  useSearchTags,
+  useSortedTags,
+} from "../../hooks";
 import { Tag } from "../../types";
 
 import { Chip } from "../common";

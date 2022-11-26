@@ -7,19 +7,22 @@ import {
   OnMutationSuccess,
   UpdateOne,
 } from "@jnesbella/body-builder";
-import { AppActionsContext, AppStateContext } from "../common/contexts";
+import { flow, get } from "lodash";
+import { useQuery } from "react-query";
 
+import { AppActionsContext, AppStateContext } from "../common/contexts";
 import { notesService, channelsService, tagsService } from "../constants";
 import {
   AppActions,
   AppState,
   Channel,
   Filter,
+  IconEmblem,
   Note,
   Tag,
   TagFilter,
 } from "../types";
-import { get } from "lodash";
+import { isTagSelected, searchTags, sortTagsByLabel } from "../components/tags";
 
 export function useListNotes() {
   const notesList = useList<Note>({
@@ -102,11 +105,56 @@ export function useUpdateNote({
 }
 
 export function useListTags() {
-  const tagsList = useList({
+  const listTags = useList({
     service: tagsService,
   });
 
-  return tagsList;
+  return listTags;
+}
+
+export interface UseSortTags {
+  selectedTagIds?: Tag["id"][];
+}
+
+export function useSortedTags({ selectedTagIds = [] }: UseSortTags = {}) {
+  const { data: allTags, ...rest } = useListTags();
+
+  const selectedTags = allTags.filter((tag) =>
+    isTagSelected(tag, selectedTagIds)
+  );
+
+  const unselectedTags = allTags.filter(
+    (tag) => !isTagSelected(tag, selectedTagIds)
+  );
+
+  const sortedTags = [
+    ...sortTagsByLabel(selectedTags),
+    ...sortTagsByLabel(unselectedTags),
+  ];
+
+  return {
+    ...rest,
+    data: sortedTags,
+  };
+}
+
+export interface UseSearchTags {
+  search?: string;
+}
+
+export function useSearchTags({ search = "" }: UseSearchTags = {}) {
+  const { data: allTags, ...rest } = useListTags();
+
+  // const searchedTags = sortTagsByLabel(
+  //   allTags.filter((tag) => startsWith(tag.label, search))
+  // );
+
+  const searchedTags = flow(searchTags, sortTagsByLabel)(allTags, search);
+
+  return {
+    ...rest,
+    data: searchedTags,
+  };
 }
 
 export function useCreateTag({
@@ -154,33 +202,36 @@ export function useListChannels() {
   //   service: channelsService,
   // });
 
-  const { data: tags, ...rest } = useListTags();
+  // const { data: tags, ...rest } = useListTags();
 
-  const _channels = React.useMemo(() => {
-    const tagToTagFilter = (tag: Tag): TagFilter => ({
-      filterBy: "tag",
-      tagId: tag.id,
-    });
+  // const tagToTagFilter = (tag: Tag): TagFilter => ({
+  //   filterBy: "tag",
+  //   tagId: tag.id,
+  // });
 
-    const _tagToChannel = (tag: Tag): Channel => ({
-      id: tag.id,
-      name: tag.label,
-      filters: [tagToTagFilter(tag)],
-    });
+  // const _tagToChannel = (tag: Tag): Channel => ({
+  //   id: tag.id,
+  //   name: tag.label,
+  //   filters: [tagToTagFilter(tag)],
+  // });
 
-    let channels: Channel[] = []; // tags.map(tagToChannel);
+  return useQuery(channelsService.getQueryKey(), () => {
+    let channels: Channel[] = [];
 
-    const allFilter = {
+    const allEmblem: IconEmblem = {
+      type: "icon",
+      icon: "house",
+    };
+
+    const allFilter: Channel = {
       id: "all",
       name: "all",
       filters: [],
+      emblem: allEmblem,
     };
-    channels = [allFilter, ...channels];
 
-    return channels;
-  }, [tags]);
-
-  return { ...rest, data: _channels };
+    return [allFilter, ...channels];
+  });
 }
 
 export const useSelectedChannelId = () => {
@@ -195,7 +246,7 @@ export function useTagIdsFromSearch() {
 
   const channelId = useSelectedChannelId();
 
-  const channel = channels.find((channel) => channel.id === channelId);
+  const channel = channels?.find((channel) => channel.id === channelId);
 
   const _tagIds = React.useMemo(() => {
     const { filters = [] } = channel || {};

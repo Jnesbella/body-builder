@@ -1,18 +1,13 @@
 import * as React from "react";
-import { log, Text, Element, TextProps } from "@jnesbella/body-builder";
+import { Element } from "@jnesbella/body-builder";
 
 import { Note } from "../../types";
 
-export interface NoteTitleProps extends TextProps {
+export interface NoteTitleProps {
   note: Note;
-  renderText?: (props: TextProps) => JSX.Element;
 }
 
-function NoteTitle({
-  note,
-  renderText: RenderText = Text,
-  ...rest
-}: NoteTitleProps) {
+function NoteTitle({ note }: NoteTitleProps) {
   const { content } = note;
 
   const titleElement = content?.find(
@@ -21,9 +16,7 @@ function NoteTitle({
 
   const title = titleElement ? Element.getText(titleElement) : "untitled";
 
-  log({ title, titleElement });
-
-  return <RenderText {...rest}>{title}</RenderText>;
+  return <React.Fragment>{title}</React.Fragment>;
 }
 
 export default NoteTitle;

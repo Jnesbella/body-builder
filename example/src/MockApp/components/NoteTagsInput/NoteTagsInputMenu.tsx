@@ -11,8 +11,11 @@ import {
   Space,
 } from "@jnesbella/body-builder";
 import * as Icons from "react-bootstrap-icons";
+
 import { Tag } from "../../types";
-import { sortBy, startsWith } from "lodash";
+import { useSearchTags, useSortedTags } from "../../hooks";
+
+import { isTagSelected } from "../tags";
 
 export interface NoteTagsInputMenuProps {
   tags?: Tag[];
@@ -25,7 +28,7 @@ export interface NoteTagsInputMenuProps {
 }
 
 function NoteTagsInputMenu({
-  tags = [],
+  // tags = [],
   selectedTags = [],
   onPressTag,
   onCreateTag,
@@ -36,36 +39,31 @@ function NoteTagsInputMenu({
   const selectedTagIds =
     selectedTagIdsProp || selectedTags.map((tag) => tag.id);
 
+  const { data: initialSortedTags } = useSortedTags({ selectedTagIds });
+
+  const [defaultSortedTags] = React.useState<Tag[]>(initialSortedTags);
+
   const [search, setSearch] = React.useState("");
 
   const isSearchEnabled = search.length >= minSearchLength;
+
   const isCreateEnabled = isSearchEnabled;
 
-  const unselectedTags = tags.filter((tag) => !selectedTagIds.includes(tag.id));
-
-  const isTagSelected = (tag: Tag) =>
-    selectedTagIds.some((tagId) => tagId === tag.id);
+  const { data: searchedTags } = useSearchTags({ search });
 
   const handlePressCreate = () => onCreateTag?.(search);
 
-  const sortTagsByLabel = (tagsToSort: Tag[]) =>
-    sortBy(tagsToSort, (tag) => tag.label);
+  const sortedTags = isSearchEnabled ? searchedTags : defaultSortedTags;
 
-  const [defaultSortedTags, setDefaultSortedTags] = React.useState<Tag[]>([]);
+  const tags = sortedTags.slice(0, numTagsVisible);
 
-  React.useEffect(() => {
-    setDefaultSortedTags([
-      ...sortTagsByLabel(selectedTags),
-      ...sortTagsByLabel(unselectedTags),
-    ]);
-  }, []);
+  const isEmpty = tags.length === 0;
 
-  const sortTagsBySearch = () =>
-    sortTagsByLabel(tags.filter((tag) => startsWith(tag.label, search)));
-
-  const sortedTags = isSearchEnabled ? sortTagsBySearch() : defaultSortedTags;
-
-  const displayTags = sortedTags.slice(0, numTagsVisible);
+  const emptyMessage = (
+    <Layout.Box spacingSize={[1, 0.5]}>
+      <Text.Caption>No tags found</Text.Caption>
+    </Layout.Box>
+  );
 
   return (
     <Menu elevation={1}>
@@ -83,8 +81,10 @@ function NoteTagsInputMenu({
           />
         </Layout.Box>
 
-        {displayTags?.map((tag) => {
-          const isSelected = isTagSelected(tag);
+        {isEmpty && emptyMessage}
+
+        {tags?.map((tag) => {
+          const isSelected = isTagSelected(tag, selectedTagIds);
 
           return (
             <Menu.Item

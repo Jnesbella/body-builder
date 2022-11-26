@@ -6,17 +6,16 @@ import {
   utcStringToDate,
   MeasureElement,
   useSetRef,
-  Text,
-  Divider,
   ScrollView,
+  ScrollViewElement,
+  Text,
 } from "@jnesbella/body-builder";
-// import { ScrollView } from "react-native";
 
-import { useListNotes, useListPinnedNotes } from "../../hooks";
+import { useListNotes } from "../../hooks";
 import { Note } from "../../types";
+
 import NoteDivider from "./NoteDivider";
 import NoteComponent from "./NoteComponent";
-import PinnedNotes from "./PinnedNotes";
 import NoteFilters from "./NoteFilters";
 
 export interface NotesListElement {
@@ -25,11 +24,11 @@ export interface NotesListElement {
 
 export interface NotesListProps {}
 
-export const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
+const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
   (_props, ref) => {
     const { data: notes } = useListNotes();
 
-    const scrollRef = React.useRef<ScrollView>(null);
+    const scrollRef = React.useRef<ScrollViewElement>(null);
 
     const measureRefs: Record<
       Note["id"],
@@ -75,9 +74,19 @@ export const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
 
     useSetRef(ref, element);
 
-    const { data: pinnedNotes } = useListPinnedNotes();
+    // const { data: pinnedNotes } = useListPinnedNotes();
 
     // const hasPinnedNotes = pinnedNotes.length > 0;
+
+    const isEmpty = numNotes === 0;
+
+    const emptyNotesMessage = (
+      <Layout.Column spacingSize={[3, 1]} greedy>
+        <Layout.Box greedy />
+
+        <Text.Caption>No notes found</Text.Caption>
+      </Layout.Column>
+    );
 
     return (
       <Surface greedy>
@@ -106,7 +115,11 @@ export const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
             ))}
           </Layout.Column>
         </ScrollView>
+
+        {isEmpty && emptyNotesMessage}
       </Surface>
     );
   }
 );
+
+export default NotesList;

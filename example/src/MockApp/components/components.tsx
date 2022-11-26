@@ -7,13 +7,15 @@ import {
   Measure,
   theme,
   LayoutBoxProps,
-  Divider,
   Icon,
   TextInput,
 } from "@jnesbella/body-builder";
-import { get } from "lodash";
 import * as Icons from "react-bootstrap-icons";
+
 import { useAppState } from "../hooks";
+import { Channel } from "../types";
+
+import Channels from "./channels";
 
 export interface BoxWithPaddingProps {
   maxWidth?: number;
@@ -82,6 +84,8 @@ export function SearchBar() {
 export function ChannelName() {
   const search = useAppState((state) => state.search);
 
+  const channel = search as Channel;
+
   return (
     <Layout.Column>
       <Surface>
@@ -91,7 +95,13 @@ export function ChannelName() {
 
             <Space /> */}
 
-            <Text.SubHeader>{get(search, "name", "all")}</Text.SubHeader>
+            <Channels.Emblem channel={channel} />
+
+            <Space />
+
+            <Text.SubHeader>
+              <Channels.Name channel={channel} />
+            </Text.SubHeader>
           </Layout.Row>
         </Surface>
       </Surface>

@@ -5,6 +5,8 @@ import {
   RichTextEditorProps,
 } from "@jnesbella/body-builder";
 
+import * as Icons from "react-bootstrap-icons";
+
 export interface Note extends ResourceDocument {
   content?: RichTextEditorProps["value"];
   createdAt: string;
@@ -39,8 +41,25 @@ export interface Search {
   filters: Filter[];
 }
 
+export interface BaseEmblem {
+  type: string;
+}
+
+export interface IconEmblem extends BaseEmblem {
+  type: "icon";
+  icon: string;
+}
+
+export interface EmojiEmblem extends BaseEmblem {
+  type: "emoji";
+  emoji: string;
+}
+
+export type Emblem = IconEmblem | EmojiEmblem;
+
 export interface Channel extends ResourceDocument, Search {
   name: string;
+  emblem?: Emblem;
 }
 
 export interface Tag extends ResourceDocument {

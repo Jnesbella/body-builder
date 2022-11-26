@@ -4,7 +4,7 @@ import { Layout, Info, Divider } from "@jnesbella/body-builder";
 import { useListPinnedNotes } from "../hooks";
 
 import PinnedNotes from "./notes/PinnedNotes";
-import { NotesList, NotesListElement } from "./notes/NotesList";
+import NotesList, { NotesListElement } from "./notes/NotesList";
 import NoteEditor from "./notes/NoteEditor";
 import Navigation from "./navigation/Navigation";
 import { ChannelName, LabledBox, SearchBar } from "./components";
@@ -13,7 +13,7 @@ import NoteComposer from "./notes/NoteComposer";
 function AppLayout() {
   const notesListRef = React.useRef<NotesListElement>(null);
 
-  const { data: pinnedNotes } = useListPinnedNotes();
+  // const { data: pinnedNotes } = useListPinnedNotes();
 
   return (
     <React.Fragment>
