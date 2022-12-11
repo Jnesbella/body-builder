@@ -23,6 +23,7 @@ export interface ChipProps extends Background {
   label?: string;
   children?: React.ReactNode;
   onPress?: () => void;
+  fullWidth?: boolean;
 }
 
 export function Chip({
@@ -31,6 +32,7 @@ export function Chip({
   children,
   background = theme.colors.accent,
   onPress,
+  fullWidth,
 }: ChipProps) {
   const size = (() => {
     if (sizeProp === "small") {
@@ -43,11 +45,12 @@ export function Chip({
   const height = theme.spacing * size;
 
   return (
-    <Pressable onPress={onPress}>
+    <Pressable onPress={onPress} fullWidth={fullWidth}>
       <ChipContainer
         background={background}
         spacingSize={[size / 2, 0]}
         height={height}
+        fullWidth={fullWidth}
       >
         {children || <Text.Label background={background}>{label}</Text.Label>}
       </ChipContainer>

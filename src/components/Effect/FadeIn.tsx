@@ -25,7 +25,9 @@ export interface FadeInProps extends Greedy {
   children?: React.ReactNode;
   duration?: number;
   delay?: number;
+  onFadeInStart?: () => void;
   onFadeInComplete?: (options: { finished: boolean }) => void;
+  onFadeOutStart?: () => void;
   onFadeOutComplete?: (options: { finished: boolean }) => void;
   value?: Animated.Value;
   fadeIn?: boolean;
@@ -37,9 +39,11 @@ const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
   (
     {
       children,
-      duration = 600,
+      duration = 200,
       delay = 0,
+      onFadeInStart,
       onFadeInComplete,
+      onFadeOutStart,
       onFadeOutComplete,
       value,
       fadeIn: isFadeIn = true,
@@ -76,6 +80,7 @@ const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
       Animated.sequence([Animated.delay(delay), fadeInTiming]).start(
         onFadeInComplete
       );
+      onFadeInStart?.();
 
       return fadeInTiming;
     };
@@ -84,6 +89,7 @@ const FadeIn = React.forwardRef<FadeInElement, FadeInProps>(
       Animated.sequence([Animated.delay(delay), fadeOutTiming]).start(
         onFadeOutComplete
       );
+      onFadeOutStart?.();
 
       return fadeOutTiming;
     };

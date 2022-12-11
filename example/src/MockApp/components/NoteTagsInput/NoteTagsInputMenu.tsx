@@ -13,51 +13,35 @@ import {
 import * as Icons from "react-bootstrap-icons";
 
 import { Tag } from "../../types";
-import { useSearchTags, useSortedTags } from "../../hooks";
 
 import { isTagSelected } from "../tags";
 
 export interface NoteTagsInputMenuProps {
   tags?: Tag[];
-  selectedTags?: Tag[];
   onPressTag?: (tag: Tag) => void;
   onCreateTag?: (label: string) => void;
   selectedTagIds?: Tag["id"][];
   numTagsVisible?: number;
-  minSearchLength?: number;
+  onSearchChange?: (search: string) => void;
+  search?: string;
+  createTagEnabled?: boolean;
 }
 
 function NoteTagsInputMenu({
-  // tags = [],
-  selectedTags = [],
+  tags: allTags = [],
   onPressTag,
   onCreateTag,
-  selectedTagIds: selectedTagIdsProp,
+  selectedTagIds = [],
   numTagsVisible = 5,
-  minSearchLength = 2,
+  search = "",
+  onSearchChange,
+  createTagEnabled: isCreateEnabled,
 }: NoteTagsInputMenuProps) {
-  const selectedTagIds =
-    selectedTagIdsProp || selectedTags.map((tag) => tag.id);
-
-  const { data: initialSortedTags } = useSortedTags({ selectedTagIds });
-
-  const [defaultSortedTags] = React.useState<Tag[]>(initialSortedTags);
-
-  const [search, setSearch] = React.useState("");
-
-  const isSearchEnabled = search.length >= minSearchLength;
-
-  const isCreateEnabled = isSearchEnabled;
-
-  const { data: searchedTags } = useSearchTags({ search });
-
-  const handlePressCreate = () => onCreateTag?.(search);
-
-  const sortedTags = isSearchEnabled ? searchedTags : defaultSortedTags;
-
-  const tags = sortedTags.slice(0, numTagsVisible);
+  const tags = allTags.slice(0, numTagsVisible);
 
   const isEmpty = tags.length === 0;
+
+  const handlePressCreate = () => onCreateTag?.(search);
 
   const emptyMessage = (
     <Layout.Box spacingSize={[1, 0.5]}>
@@ -75,7 +59,7 @@ function NoteTagsInputMenu({
         <Layout.Box spacingSize={[0, 1]}>
           <TextInput
             value={search}
-            onChangeText={setSearch}
+            onChangeText={onSearchChange}
             placeholder="Filter tags"
             autoFocus
           />

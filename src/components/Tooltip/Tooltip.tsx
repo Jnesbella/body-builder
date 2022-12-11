@@ -1,6 +1,6 @@
 import * as React from "react";
 import styled from "styled-components";
-import { useId, useSetRef } from "../../hooks";
+import { useId, useOnValueChange, useSetRef } from "../../hooks";
 import { log } from "../../utils";
 import Layout from "../Layout";
 import Measure, { MeasureElement, MeasureProps } from "../Measure";
@@ -16,26 +16,32 @@ import TooltipProvider, {
 
 interface TooltipState {
   focused: boolean;
+  visible: boolean;
 }
 
 const TooltipChildren = styled.div``;
 
-const TooltipChildrenFullWidth = styled.div.attrs({ fullWidth: true })`
+const TooltipChildrenFullWidth = styled(TooltipChildren).attrs({
+  fullWidth: true,
+})`
   ${full};
 `;
 
-const TooltipChildrenGreedy = styled.div.attrs({ greedy: true })`
+const TooltipChildrenGreedy = styled(TooltipChildren).attrs({ greedy: true })`
   ${greedy};
   display: flex;
 `;
 
-const TooltipContent = styled.div``;
+// const TooltipContent = styled.div``;
+const TooltipContent = styled(Measure)``;
 
-const TooltipContentFullWidth = styled.div.attrs({ fullWidth: true })`
+const TooltipContentFullWidth = styled(TooltipContent).attrs({
+  fullWidth: true,
+})`
   ${full};
 `;
 
-const TooltipContentGreedy = styled.div.attrs({ greedy: true })`
+const TooltipContentGreedy = styled(TooltipContent).attrs({ greedy: true })`
   ${greedy};
   display: flex;
 `;
@@ -92,7 +98,7 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       topOffset = 0,
       leftOffset = 0,
       renderChildren: Children = TooltipChildren,
-      renderContent: Content = Measure,
+      renderContent: Content = TooltipContent,
       onShow,
       onHide,
       visiblity = "visible",
@@ -101,6 +107,10 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
     ref
   ) => {
     const id = useId(idProp);
+
+    // React.useEffect(() => {
+    //   log("Tooltip - render", { id });
+    // });
 
     const [layoutElement, setLayoutElement] =
       React.useState<HTMLDivElement | null>(null);
@@ -122,35 +132,45 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       (actions) => actions.isTooltipFocused
     );
 
-    const focusedTooltipId = useTooltipState((state) => state.focusedTooltipId);
-
     const isFocused = id ? isTooltipFocused(id) : false;
 
-    const isVisible = (isVisibleProp || isFocused) && visiblity === "visible";
+    const isContentFunction = typeof content === "function";
 
-    const isVisibleCache = React.useRef(isVisible);
+    const isVisibleVisiblity = visiblity === "visible";
 
-    const isVisibleChanged = isVisible !== isVisibleCache.current;
+    const isVisible = (isVisibleProp || isFocused) && isVisibleVisiblity;
 
-    React.useEffect(
-      function cacheIsVisible() {
-        isVisibleCache.current = isVisible;
-      },
-      [isVisible]
-    );
+    // const isVisibleCache = React.useRef(isVisible);
 
-    React.useEffect(
-      function handleChangeVisibility() {
-        if (isVisibleChanged) {
-          if (isVisible) {
-            onShow?.();
-          } else {
-            onHide?.();
-          }
-        }
-      },
-      [isVisible, isVisibleChanged, onHide, onShow]
-    );
+    // const isVisibleChanged = isVisible !== isVisibleCache.current;
+
+    // React.useEffect(
+    //   function cacheIsVisible() {
+    //     isVisibleCache.current = isVisible;
+    //   },
+    //   [isVisible]
+    // );
+
+    // React.useEffect(
+    //   function handleChangeVisibility() {
+    //     if (isVisibleChanged) {
+    //       if (isVisible) {
+    //         onShow?.();
+    //       } else {
+    //         onHide?.();
+    //       }
+    //     }
+    //   },
+    //   [isVisible, isVisibleChanged, onHide, onShow]
+    // );
+
+    useOnValueChange(isVisible, () => {
+      if (isVisible) {
+        onShow?.();
+      } else {
+        onHide?.();
+      }
+    });
 
     const toggleVisibility = React.useCallback(
       () => toggleTooltip(id),
@@ -195,9 +215,12 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       }
     };
 
+    // log(layoutElement);
+
     const getVerticalOffset = () => {
       if (layoutElement) {
         let top = 0; // layoutElement.offsetTop;
+        // top += layoutElement.offsetTop;
         top += topOffset;
         top += getTopOffset(layoutElement);
 
@@ -221,8 +244,8 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
       }
     };
 
-    const top = getVerticalOffset();
-    const left = getHorizontalOffset();
+    const top = isVisible ? getVerticalOffset() : undefined;
+    const left = isVisible ? getHorizontalOffset() : undefined;
 
     React.useEffect(function calculateTooltipPosition() {
       positionCache.current = {
@@ -233,6 +256,7 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
 
     const element: TooltipElement = {
       focused: isFocused,
+      visible: isVisible,
       toggleVisibility,
       show,
       hide,
@@ -262,24 +286,23 @@ const Tooltip = React.forwardRef<TooltipElement, TooltipProps>(
           })
         : children;
 
-    // log({ isVisible, left, top, contentElement });
-
     return (
       <React.Fragment>
         <Children ref={setLayoutElement}>
           {renderTooltipCallback(children)}
         </Children>
 
-        <Portal
-          left={left || positionCache.current?.left}
-          top={top || positionCache.current?.top}
-        >
-          {isVisible && (
+        {(isVisible || isContentFunction) && (
+          <Portal
+            left={left || positionCache.current?.left}
+            top={top || positionCache.current?.top}
+            visible={isVisible}
+          >
             <Content ref={setContentElement}>
               {renderTooltipCallback(content)}
             </Content>
-          )}
-        </Portal>
+          </Portal>
+        )}
       </React.Fragment>
     );
   }
@@ -304,7 +327,7 @@ type Tooltip = typeof Tooltip & {
   Children: typeof TooltipChildren;
   ChildrenFullWidth: typeof TooltipChildrenFullWidth;
   Content: typeof TooltipContent;
-  ContentFullWidth: typeof TooltipContent;
+  ContentFullWidth: typeof TooltipContentFullWidth;
   Text: typeof TooltipText;
   ChildrenGreedy: typeof TooltipChildrenGreedy;
   ContentGreedy: typeof TooltipContentGreedy;
@@ -317,6 +340,6 @@ type Tooltip = typeof Tooltip & {
 (Tooltip as Tooltip).ContentFullWidth = TooltipContentFullWidth;
 (Tooltip as Tooltip).Text = TooltipText;
 (Tooltip as Tooltip).ChildrenGreedy = TooltipChildrenGreedy;
-(Tooltip as Tooltip).ContentGreedy = TooltipChildrenGreedy;
+(Tooltip as Tooltip).ContentGreedy = TooltipContentGreedy;
 
 export default Tooltip as Tooltip;

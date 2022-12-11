@@ -19,9 +19,7 @@ const Measure = React.forwardRef<MeasureElement, MeasureProps>(
   ({ children, ...rest }, ref) => {
     const [rect, setRect] = React.useState<LayoutRectangle>();
 
-    const element: MeasureElement = {
-      rect,
-    };
+    const element = React.useMemo<MeasureElement>(() => ({ rect }), [rect]);
 
     useSetRef(ref, element);
 

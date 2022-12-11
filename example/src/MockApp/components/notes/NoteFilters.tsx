@@ -129,7 +129,10 @@ function NoteFilters() {
             <NoteTagsInput
               onChange={setTagIds}
               value={tagIds}
-              tooltipProps={{ placement: "bottom" }}
+              tooltipProps={{
+                placement: "bottom",
+                topOffset: theme.spacing,
+              }}
             />
           </FilterWrapper>
         </Layout.Row>

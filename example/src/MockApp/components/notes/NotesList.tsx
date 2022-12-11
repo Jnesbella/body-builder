@@ -9,6 +9,7 @@ import {
   ScrollView,
   ScrollViewElement,
   Text,
+  useScrollViewState,
 } from "@jnesbella/body-builder";
 
 import { useListNotes } from "../../hooks";
@@ -17,6 +18,16 @@ import { Note } from "../../types";
 import NoteDivider from "./NoteDivider";
 import NoteComponent from "./NoteComponent";
 import NoteFilters from "./NoteFilters";
+
+interface ScrollViewUtilProps {
+  children: (topOffset: number) => React.ReactNode;
+}
+
+function ScrollViewUtil({ children }: ScrollViewUtilProps) {
+  const topOffset = useScrollViewState((state) => state.contentOffset?.y || 0);
+
+  return <React.Fragment>{children(topOffset)}</React.Fragment>;
+}
 
 export interface NotesListElement {
   scrollToNote: (note: Note) => void;
@@ -81,8 +92,13 @@ const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
     const isEmpty = numNotes === 0;
 
     const emptyNotesMessage = (
-      <Layout.Column spacingSize={[3, 1]} greedy>
-        <Layout.Box greedy />
+      <Layout.Column
+        spacingSize={[3, 1]}
+        greedy
+        alignItems="center"
+        justifyContent="center"
+      >
+        {/* <Layout.Box greedy /> */}
 
         <Text.Caption>No notes found</Text.Caption>
       </Layout.Column>
@@ -93,30 +109,35 @@ const NotesList = React.forwardRef<NotesListElement, NotesListProps>(
         <ScrollView
           ref={scrollRef}
           stickyHeaderIndices={[0]}
+          contentContainerStyle={isEmpty && { flex: 1 }}
           // stickyHeaderIndices={hasPinnedNotes ? [0] : undefined}
         >
           {/* {hasPinnedNotes && (
-            <PinnedNotes onPressNote={(note) => element.scrollToNote(note)} />
-          )} */}
+      <PinnedNotes onPressNote={(note) => element.scrollToNote(note)} />
+    )} */}
 
           <NoteFilters />
 
-          <Layout.Column>
-            {notes?.map((note, index) => (
-              <React.Fragment key={note.id}>
-                {(index === 0 || !isSameDay(note, notes[index - 1])) && (
-                  <NoteDivider note={note} />
-                )}
+          {/* <Layout.Column greedy={isEmpty}> */}
+          {isEmpty && emptyNotesMessage}
 
-                <Measure ref={measureRefs[note.id]}>
-                  <NoteComponent note={note} />
-                </Measure>
-              </React.Fragment>
-            ))}
-          </Layout.Column>
+          {notes?.map((note, index) => (
+            <React.Fragment key={note.id}>
+              {(index === 0 || !isSameDay(note, notes[index - 1])) && (
+                <NoteDivider note={note} />
+              )}
+
+              <Measure ref={measureRefs[note.id]}>
+                <ScrollViewUtil>
+                  {(topOffset) => (
+                    <NoteComponent note={note} topOffset={-topOffset} />
+                  )}
+                </ScrollViewUtil>
+              </Measure>
+            </React.Fragment>
+          ))}
+          {/* </Layout.Column> */}
         </ScrollView>
-
-        {isEmpty && emptyNotesMessage}
       </Surface>
     );
   }

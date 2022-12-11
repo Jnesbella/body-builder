@@ -38,11 +38,20 @@ export interface NoteEditorProps extends Omit<RichTextEditorProps, "below"> {
   footerEnd?: React.ReactNode;
   note?: Note;
   toolbarEnd?: React.ReactNode;
+  topOffset?: number;
 }
 
 const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
   (
-    { elevation, toolbarEnd, footerEnd, note, disabled: isDisabled, ...props },
+    {
+      elevation,
+      toolbarEnd,
+      footerEnd,
+      note,
+      disabled: isDisabled,
+      topOffset: topOffsetProp = 0,
+      ...props
+    },
     ref
   ) => {
     const defaultTagIds = useTagIdsFromSearch();
@@ -130,6 +139,9 @@ const NoteEditor = React.forwardRef<NoteEditorElement, NoteEditorProps>(
             value={tagIds}
             onChange={setTagIds}
             disabled={isDisabled}
+            tooltipProps={{
+              topOffset: -theme.spacing / 2 + topOffsetProp,
+            }}
           />
 
           {footerEnd}

@@ -34,9 +34,10 @@ const NoteActionsWrapper = styled(Surface).attrs({
 
 export interface NoteComponentProps {
   note: Note;
+  topOffset?: number;
 }
 
-function NoteComponent({ note }: NoteComponentProps) {
+function NoteComponent({ note, topOffset: topOffsetProp }: NoteComponentProps) {
   const [isEditing, setIsEditing] = React.useState(false);
 
   const startEditing = () => setIsEditing(true);
@@ -119,12 +120,14 @@ function NoteComponent({ note }: NoteComponentProps) {
           title={<NoteCreatedAt note={note} />}
           // actions={<NoteActions note={note} onPressEdit={startEditing} />}
           // tags={<NoteTags note={note} />}
+
           content={
             <NoteEditor
               ref={noteEditorRef}
               note={note}
               disabled={!isEditing}
               onChange={handleChange}
+              topOffset={topOffsetProp}
               toolbarEnd={
                 <Effect.FadeIn
                   fadeIn={!isEditing}

@@ -174,7 +174,16 @@ const getOffsetParent = (element: Element) =>
 const getOffsetValue = (element: Element, attr: "offsetLeft" | "offsetTop") =>
   getElementAttr(element, attr) as number | null;
 
+const getPosition = (element: Element) =>
+  window.getComputedStyle(element).getPropertyValue("position");
+
+const isOffsetApplicable = (element: Element) =>
+  !["sticky"].includes(getPosition(element));
+// !["sticky", "absolute", "fixed"].includes(getPosition(element));
+
 const getOffsetBetweenNodes = (n: Element, p: Element) => {
+  // log("getOffsetBetweenNodes - ", { n, p });
+
   let node: Element | null = n;
   let parent = getOffsetParent(node);
 
@@ -189,8 +198,14 @@ const getOffsetBetweenNodes = (n: Element, p: Element) => {
   let top = 0;
 
   do {
-    left += getOffsetValue(node, "offsetLeft") || 0;
-    top += getOffsetValue(node, "offsetTop") || 0;
+    if (isOffsetApplicable(node)) {
+      left += getOffsetValue(node, "offsetLeft") || 0;
+      top += getOffsetValue(node, "offsetTop") || 0;
+    }
+
+    // const position = getPosition(node);
+    // log({ position, node, parent, left, top });
+    // debugger;
 
     if (isParentFound()) {
       break;
